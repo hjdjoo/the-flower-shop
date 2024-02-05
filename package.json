@@ -8,7 +8,7 @@
     "test": "jest",
     "dev": "next dev",
     "build": "next build",
-    "start": "node --watch server/index.js && next start",
+    "start": "next build && next start",
     "lint": "next lint"
   },
   "dependencies": {
