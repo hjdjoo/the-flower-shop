@@ -6,19 +6,20 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "next dev",
+    "dev": "NODE_ENV=development && tsx watch server.ts",
     "build": "next build",
-    "start": "next build && next start",
+    "start": "NODE_ENV=production && next build && node server.ts",
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.4",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "next": "14.0.4",
+    "next": "^14.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.0.1",
