@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Home from "./home/page"
+import Navbar from "@/components/Navbar";
 
 
-export default function main() {
+export default function Main() {
 
   return (
-    <main className="main">
+    <>
       <Home></Home>
-    </main>
+    </>
   )
 }
