@@ -1,8 +1,15 @@
-import Image from 'next/image'
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import Home from "./home/page"
+import Navbar from "@/components/Navbar";
+
+
+export default function Main() {
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-    </main>
+    <>
+      <Home></Home>
+    </>
   )
 }
