@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Badge from '@mui/material/Badge';
 import MenuIcon from '@mui/icons-material/Menu';
+import Image from "next/image";
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -19,9 +20,9 @@ export default function Navbar() {
 
   return (
     <>
-      <AppBar>
+      <AppBar className="nav-bar">
         <Toolbar>
-          <IconButton>
+          <IconButton >
             <MenuIcon />
           </IconButton>
         </Toolbar>
