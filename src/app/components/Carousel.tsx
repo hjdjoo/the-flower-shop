@@ -1,51 +1,51 @@
-"use client"
-
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { styled } from "@mui/material/styles";
+import { StyledImageList, StyledListItem } from './styledComponents';
 import Box from "@mui/material/Box";
-import ImageList from "@mui/material/ImageList"
-import ImageListItem from "@mui/material/ImageListItem"
-import ImageListItemBar from "@mui/material/ImageListItemBar"
+import Image, { ImageProps } from 'next/image';
 
 
-export default function Carousel() {
+type CarouselProps = {
+  imageUrls: string[] | undefined
+}
 
-  const StyledImageList = styled("ul")({
-    height: "250px",
-    border: "1px solid black",
-    listStyle: "none",
-    overflowX: "scroll",
-    whiteSpace: "nowrap",
-    alignContent: "center",
-    padding: "15px"
-  })
 
-  const StyledListItem = styled("li")({
-    height: "220px",
-    width: "170px",
-    margin: "10px",
-    display: "inline-block",
-    border: "1px dotted black"
-  })
+export async function Carousel(props: CarouselProps) {
 
-  const blankArr = Array(10).fill('');
+  const { imageUrls } = props
 
-  const blankImgs = blankArr.map((_, i) => {
-    return (
-      <StyledListItem
-        key={`blankImg-${i}`}
-      >
-        {/* <img></img> */}
-      </StyledListItem>
-    )
-  })
+  // Promise.resolve(imageUrls)
+
+  // console.log('Carousel/imagePromises: ', imagePromises)
+
+  // const imageUrls = Promise.all(imagePromises);
+
+  // console.log('Carousel/imageUrls: ', imageUrls)
+
+
+
+  // const StyledListItemBar = styled("div")({
+  //   width: 
+
+  // })
+
+  // const blankArr = Array(10).fill('');
+
+  // const blankImgs = imageUrls.map((url: string, i: number) => {
+  //   return (
+  //     <StyledListItem
+  //       key={`blankImg-${i}`}
+  //     >
+  //       {/* <Image src={url}></Image> */}
+  //     </StyledListItem>
+  //   )
+  // })
 
   return (
 
     <StyledImageList>
-      {blankImgs}
+      {/* {blankImgs} */}
     </StyledImageList >
 
   )
