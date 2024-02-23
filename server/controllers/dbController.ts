@@ -1,8 +1,11 @@
-import { Carousel } from "@/app/components/Carousel";
-import { Suspense } from "react";
+import { RequestHandler, Request, Response, NextFunction } from 'express';
+import { ServerError } from '../types/server-types'
+
 import { createClient } from '@supabase/supabase-js'
 
-const getImageUrls = async () => {
+// const getImages = () => { }
+
+const getHomepageImageUrls: RequestHandler = async (_, res: Response, next: NextFunction) => {
 
   console.log('getting Image URLs...')
 
@@ -32,39 +35,24 @@ const getImageUrls = async () => {
       // return img.name
     })
     console.log('getImages/urls: ', urls)
-    return urls;
 
+    res.locals.homepageImageUrls = urls;
+
+    return next();
   }
   catch (err) {
     console.error(err);
-
+    const error: ServerError = {
+      log: 'Error occurred in makeQuery middleware function',
+      status: 500,
+      message: {
+        err: `${err}`
+      }
+    }
+    return next(error);
   }
 }
 
-
-export default async function Home() {
-
-  // console.log('process.env.URL: ', process.env.URL)
-  console.log('(home)/page: sending fetch request to API')
-
-  // const res = await fetch(`${process.env.URL}/api/homepageImageUrls`, {
-  //   cache: "no-store",
-  //   headers: {
-  //     "Method": "GET"
-  //   }
-  // })
-
-  const imageUrls = await getImageUrls();
-
-  console.log('page/(home)/imageUrls: ', imageUrls)
-
-  return (
-    <div>
-      <h1>Home</h1>
-      <Suspense fallback={<p>Loading Images...</p>}>
-        <Carousel imageUrls={imageUrls}></Carousel>
-      </Suspense>
-    </div>
-  )
+export {
+  getHomepageImageUrls
 }
-

@@ -10,42 +10,30 @@ type CarouselProps = {
   imageUrls: string[] | undefined
 }
 
-
-export async function Carousel(props: CarouselProps) {
+export function Carousel(props: CarouselProps) {
 
   const { imageUrls } = props
 
-  // Promise.resolve(imageUrls)
-
-  // console.log('Carousel/imagePromises: ', imagePromises)
-
-  // const imageUrls = Promise.all(imagePromises);
-
-  // console.log('Carousel/imageUrls: ', imageUrls)
+  console.log('Carousel/imageUrls: ', imageUrls)
 
 
+  const testImages = imageUrls?.map((url: string, i: number) => {
 
-  // const StyledListItemBar = styled("div")({
-  //   width: 
+    console.log('imageUrls.map/url: ', url)
 
-  // })
-
-  // const blankArr = Array(10).fill('');
-
-  // const blankImgs = imageUrls.map((url: string, i: number) => {
-  //   return (
-  //     <StyledListItem
-  //       key={`blankImg-${i}`}
-  //     >
-  //       {/* <Image src={url}></Image> */}
-  //     </StyledListItem>
-  //   )
-  // })
+    return (
+      <StyledListItem
+        key={`blankImg-${i}`}
+      >
+        <Image src={url} alt={`test image ${i}`} width={150} height={150}></Image>
+      </StyledListItem>
+    )
+  })
 
   return (
 
     <StyledImageList>
-      {/* {blankImgs} */}
+      {testImages}
     </StyledImageList >
 
   )
