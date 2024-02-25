@@ -1,62 +1,25 @@
 import { Carousel } from "@/app/components/Carousel";
 import { Suspense } from "react";
-import { createClient } from '@supabase/supabase-js'
 
-const getImageUrls = async () => {
 
-  console.log('getting Image URLs...')
+// const getImageUrls = async () => {
 
-  // const cookieStore = cookies();
-  const { SUPABASE_URL, SUPABASE_KEY } =
-    process.env;
 
-  const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!, {
-  })
-
-  try {
-    // get images from supabase;
-    const { data, error } = await supabase
-      .storage
-      .from('products')
-      .list('arrangements', {
-        limit: 3,
-        offset: 1
-      })
-
-    const urls: string[] | undefined = data?.map((img) => {
-      const url = supabase.storage
-        .from('products/arrangements')
-        .getPublicUrl(img.name);
-      // console.log('serverActions/getImages/urls/map/url: ', url)
-      return url.data.publicUrl;
-      // return img.name
-    })
-    console.log('getImages/urls: ', urls)
-    return urls;
-
-  }
-  catch (err) {
-    console.error(err);
-
-  }
-}
-
+// }
 
 export default async function Home() {
 
   // console.log('process.env.URL: ', process.env.URL)
   console.log('(home)/page: sending fetch request to API')
 
-  // const res = await fetch(`${process.env.URL}/api/homepageImageUrls`, {
-  //   cache: "no-store",
-  //   headers: {
-  //     "Method": "GET"
-  //   }
-  // })
+  const data = await fetch(`${process.env.URL}/api/image-urls`, {
+    method: "GET",
+    cache: 'no-cache'
+  });
 
-  const imageUrls = await getImageUrls();
+  const imageUrls = await data.json();
 
-  console.log('page/(home)/imageUrls: ', imageUrls)
+  // console.log('page/(home)/imageUrls: ', imageUrls)
 
   return (
     <div>
