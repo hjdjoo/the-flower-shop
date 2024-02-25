@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       .storage
       .from('products')
       .list('arrangements', {
-        limit: 3,
+        limit: 10,
         offset: 1
       })
 

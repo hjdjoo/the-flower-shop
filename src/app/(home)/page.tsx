@@ -1,4 +1,4 @@
-import { Carousel } from "@/app/components/Carousel";
+import { Carousel } from "@/app/_components/Carousel";
 import { Suspense } from "react";
 
 
