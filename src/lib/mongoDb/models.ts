@@ -1,15 +1,17 @@
 import mongoose from 'mongoose';
 
-export const adminSchema = new mongoose.Schema({
-  driver: mongoose.Schema.ObjectId,
+const { Schema } = mongoose;
+
+const adminSchema = new Schema({
+  _id: mongoose.Schema.ObjectId,
   firstName: String,
   lastName: String,
   email: String,
   password: String,
 })
 
-export const userSchema = new mongoose.Schema({
-  driver: mongoose.Schema.ObjectId,
+const userSchema = new Schema({
+  _id: mongoose.Schema.ObjectId,
   firstName: String,
   lastName: String,
   email: String,
@@ -39,3 +41,6 @@ export const userSchema = new mongoose.Schema({
     }
   }],
 })
+
+export const Admin = mongoose.model('Admin', adminSchema);
+export const User = mongoose.model('User', userSchema);
