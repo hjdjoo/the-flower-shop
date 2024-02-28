@@ -30,6 +30,7 @@ const sacramento = Sacramento({
 export function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <>
@@ -56,6 +57,7 @@ export function Navbar() {
             variant="h4"
             component="div"
             sx={{
+              marginTop: "5px",
               paddingLeft: "16px",
               justifySelf: "center",
               flexGrow: 1,
@@ -66,13 +68,16 @@ export function Navbar() {
             The Flower Shop
           </Typography>
           <IconButton>
-            <PersonIcon
-              sx={{
-                color: "white"
-              }}
-            // onClick={ }
-            >
-            </PersonIcon>
+            <Link href={isLoggedIn ? '/account' : '/login'}>
+              <PersonIcon
+                sx={{
+                  marginTop: "5px",
+                  color: "white"
+                }}
+              // onClick={ }
+              >
+              </PersonIcon>
+            </Link>
           </IconButton>
           <IconButton>
             <ShoppingCartIcon

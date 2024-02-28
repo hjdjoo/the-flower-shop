@@ -27,7 +27,6 @@ const theme: Theme = createTheme({
       'Urbanist'
     ].join(',')
   }
-
 })
 
 export default theme;

@@ -5,9 +5,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import theme from '@/styles/theme'
 import { Navbar } from '@/app/_components/Navbar'
 
-
-
-
 // const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
