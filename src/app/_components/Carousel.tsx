@@ -19,14 +19,11 @@ type CarouselProps = {
 //   return src;
 // }
 
-
 export function Carousel(props: CarouselProps) {
 
   const { imageUrls } = props
   console.log('Carousel.tsx - imageUrls: ', imageUrls);
-
   // console.log('Carousel/imageUrls: ', imageUrls)
-
 
   const testImages = imageUrls?.map((url: string, i: number) => {
 
