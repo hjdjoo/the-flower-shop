@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import '@/styles/global.css'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
 import { ThemeProvider } from '@mui/material/styles'
-import theme from '@/styles/theme'
-import { Navbar } from '@/app/_components/Navbar'
+import theme from '../styles/theme'
+import { Navbar } from './_components/Navbar'
 
 // const inter = Inter({ subsets: ['latin'] })
 

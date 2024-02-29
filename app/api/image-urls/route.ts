@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from "next/server";
-import { getImageUrls } from '@/lib/supabaseDb/supabase';
+import { getImageUrls } from '../../../lib/supabaseDb/supabase';
 
 console.log('Entering api/image-urls/route.ts')
 
