@@ -34,7 +34,6 @@ export function Navbar() {
 
   return (
     <>
-
       <AppBar className="navbar">
         <Toolbar
           className="toolbar"

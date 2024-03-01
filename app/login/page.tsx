@@ -7,20 +7,19 @@ import TextField from "@mui/material/TextField"
 import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
 import { useEffect, useState } from "react"
-// import { useTheme } from "@mui/material"
+import { useTheme } from "@mui/material"
 import GoogleIcon from '@mui/icons-material/Google';
 
 
 export default function Login() {
 
-  // const theme = useTheme();
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   })
   const [formIsReady, setFormIsReady] = useState(false)
 
-  // console.log(theme);
   return (
 
     <Container
@@ -28,12 +27,13 @@ export default function Login() {
         marginTop: "100px",
         border: "1px solid black",
         height: "500px",
-        width: "70%",
+        width: "80%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center"
       }}>
       <Typography
+        fontFamily={theme.typography.fontFamily}
         sx={{
           padding: "15px",
           margin: "25px 0px 15px",

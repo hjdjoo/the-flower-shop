@@ -11,6 +11,12 @@ import { createTheme } from "@mui/material/styles";
 import { Theme } from "@emotion/react";
 import { Sacramento, Urbanist } from "next/font/google"
 
+export const urbanist = Urbanist({
+  weight: ["100", "200", "300", "400"],
+  style: ["normal", "italic"],
+  subsets: ["latin"]
+})
+
 
 const theme: Theme = createTheme({
   palette: {
@@ -22,10 +28,7 @@ const theme: Theme = createTheme({
     },
   },
   typography: {
-    fontFamily: [
-      'Sacramento',
-      'Urbanist'
-    ].join(',')
+    fontFamily: urbanist.style.fontFamily
   }
 })
 
