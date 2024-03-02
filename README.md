@@ -1,2 +1,2 @@
-# the-flower-shop
-The Flower Shop
+# your-flower-shop
+Your Flower Shop
