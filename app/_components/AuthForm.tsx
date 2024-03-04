@@ -8,18 +8,35 @@ import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
 import { useEffect, useState } from "react"
 import { useTheme } from "@mui/material"
+import Link from "next/link"
 
 import GoogleButton from "@/app/_components/GoogleButton"
 
-export default function AuthForm() {
+interface AuthFormProps {
+  isSignUp?: boolean
+}
+
+export default function AuthForm({ isSignUp }: AuthFormProps) {
+
+  useEffect(() => {
+    renderGoogleButton();
+  }, [isSignUp])
 
   const theme = useTheme();
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   })
+  const [passwordIsValid, setPasswordIsValid] = useState(false);
   const [formIsReady, setFormIsReady] = useState(false)
 
+  const renderGoogleButton = () => {
+    return (
+      <GoogleButton></GoogleButton>
+    )
+  }
+
+  const SignInGoogle = renderGoogleButton();
   // const handleSubmit = async () => {
   //   await fetch('/api/')
 
@@ -30,7 +47,7 @@ export default function AuthForm() {
       sx={{
         marginTop: "100px",
         border: "1px solid black",
-        height: "500px",
+        height: "600px",
         width: "80%",
         display: "flex",
         flexDirection: "column",
@@ -40,11 +57,11 @@ export default function AuthForm() {
         fontFamily={theme.typography.fontFamily}
         sx={{
           padding: "15px",
-          margin: "25px 0px 15px",
+          margin: "25px 0px 5px",
           fontSize: "20px",
         }}
       >
-        Login
+        {isSignUp ? "Sign Up" : "Log In"}
       </Typography>
       <Stack
         component="form"
@@ -66,6 +83,19 @@ export default function AuthForm() {
           }}>
         </TextField>
         <TextField
+          id="password-input"
+          label="Password"
+          hidden={!isSignUp}
+          onChange={(event) => {
+            setFormData({ ...formData, password: event.target.value });
+          }}
+          sx={{
+            margin: "15px 0px 15px",
+            width: "100%",
+          }}>
+        </TextField>
+        <TextField
+          id="password-confirm"
           label="Password"
           onChange={(event) => {
             setFormData({ ...formData, password: event.target.value });
@@ -80,20 +110,43 @@ export default function AuthForm() {
           variant="contained"
           color="secondary"
           disabled={!formIsReady}
+          hidden={isSignUp}
+          sx={{ marginBottom: "10px" }}
         >
           Log In
         </Button>
         <Typography
+        >
+          No account yet?
+        </Typography>
+      </Stack>
+      <Stack
+        sx={{
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          id="sign-up-button"
+          variant="contained"
+          color="secondary"
           sx={{
-            margin: "25px 0px 25px"
+            marginTop: "10px"
+          }}
+        >
+          <Link href="/account/signup">
+            Sign Up
+          </Link>
+        </Button>
+        <Typography
+          sx={{
+            margin: "10px 0px 10px"
           }}>
           Or
         </Typography>
+        {SignInGoogle}
       </Stack>
-      <GoogleButton>
-      </GoogleButton>
     </Container >
-
   )
 
 }
