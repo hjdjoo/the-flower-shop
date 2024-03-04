@@ -19,6 +19,8 @@ type CarouselProps = {
 //   return src;
 // }
 
+// There is an unexpected behavior in the browser when a user is using a mac device and has configured to swipe between pages with 2 fingers. Because this is also the default "scroll" behavior, it will swipe to the previous page. Wondering if this is a big enough issue for users browsing on personal laptops to be of concern. Will come back to this to test.
+
 export function Carousel(props: CarouselProps) {
 
   const { imageUrls } = props
@@ -27,13 +29,11 @@ export function Carousel(props: CarouselProps) {
 
   const testImages = imageUrls?.map((url: string, i: number) => {
 
-    // console.log('imageUrls.map/url: ', url)
-
     return (
       <StyledListItem
         key={`blankImg-${i}`}
       >
-        <Image loader={(): string => url} src={url} alt={`test image ${i}`} width={150} height={150}></Image>
+        <Image loader={({ src, width, quality }: ImageLoaderProps): string => `${src}?w=${width}`} src={url} alt={`test image ${i}`} width={150} height={150}></Image>
       </StyledListItem>
     )
   })

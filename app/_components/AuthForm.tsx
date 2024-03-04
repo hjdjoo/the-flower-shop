@@ -8,10 +8,10 @@ import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
 import { useEffect, useState } from "react"
 import { useTheme } from "@mui/material"
-import GoogleIcon from '@mui/icons-material/Google';
 
+import GoogleButton from "@/app/_components/GoogleButton"
 
-export default function Login() {
+export default function AuthForm() {
 
   const theme = useTheme();
   const [formData, setFormData] = useState({
@@ -20,8 +20,12 @@ export default function Login() {
   })
   const [formIsReady, setFormIsReady] = useState(false)
 
-  return (
+  // const handleSubmit = async () => {
+  //   await fetch('/api/')
 
+  // }
+
+  return (
     <Container
       sx={{
         marginTop: "100px",
@@ -85,19 +89,11 @@ export default function Login() {
           }}>
           Or
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-        >
-          <GoogleIcon
-            sx={{
-              paddingRight: "10px"
-            }}
-          />
-          Sign in with Google
-        </Button>
       </Stack>
+      <GoogleButton>
+      </GoogleButton>
     </Container >
 
   )
+
 }

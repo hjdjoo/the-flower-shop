@@ -4,6 +4,11 @@
 
 export default function Admin() {
 
+  // authorization should be done with a call to the database to check credentials.
+  // server component makes sense.
+
+
+
 
   return (
     <div>
