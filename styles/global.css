@@ -13,3 +13,7 @@ button>a {
   color: #FFF;
   text-decoration: none;
 }
+
+.g_id_signin {
+  transform: scale(1.05)
+}

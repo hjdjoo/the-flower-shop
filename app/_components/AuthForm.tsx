@@ -12,42 +12,41 @@ import Link from "next/link"
 
 import GoogleButton from "@/app/_components/GoogleButton"
 
-interface AuthFormProps {
-  isSignUp?: boolean
-}
+// interface AuthFormProps {
+//   isSignUp: boolean,
+//   setIsSignUp: Function
+// }
 
-export default function AuthForm({ isSignUp }: AuthFormProps) {
-
-  useEffect(() => {
-    renderGoogleButton();
-  }, [isSignUp])
+export default function AuthForm() {
 
   const theme = useTheme();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   })
+
   const [passwordIsValid, setPasswordIsValid] = useState(false);
   const [formIsReady, setFormIsReady] = useState(false)
 
-  const renderGoogleButton = () => {
-    return (
-      <GoogleButton></GoogleButton>
-    )
+  const toggleSignUp = () => {
+    setIsSignUp(true);
   }
 
-  const SignInGoogle = renderGoogleButton();
-  // const handleSubmit = async () => {
-  //   await fetch('/api/')
+  const handleSignUp = () => {
+    // send fetch call to /auth to securely store user information.
+  }
 
-  // }
+
+  console.log(isSignUp);
 
   return (
     <Container
       sx={{
         marginTop: "100px",
-        border: "1px solid black",
-        height: "600px",
+        border: "1px solid darkgrey",
+        borderBottom: "none",
+        // height: "520px",
         width: "80%",
         display: "flex",
         flexDirection: "column",
@@ -85,7 +84,6 @@ export default function AuthForm({ isSignUp }: AuthFormProps) {
         <TextField
           id="password-input"
           label="Password"
-          hidden={!isSignUp}
           onChange={(event) => {
             setFormData({ ...formData, password: event.target.value });
           }}
@@ -94,9 +92,10 @@ export default function AuthForm({ isSignUp }: AuthFormProps) {
             width: "100%",
           }}>
         </TextField>
-        <TextField
+        {isSignUp && <TextField
           id="password-confirm"
           label="Password"
+          hidden={!isSignUp}
           onChange={(event) => {
             setFormData({ ...formData, password: event.target.value });
             setFormIsReady(formData.email && formData.password ? true : false);
@@ -105,20 +104,22 @@ export default function AuthForm({ isSignUp }: AuthFormProps) {
             margin: "15px 0px 35px",
             width: "100%",
           }}>
-        </TextField>
-        <Button
-          variant="contained"
-          color="secondary"
-          disabled={!formIsReady}
-          hidden={isSignUp}
-          sx={{ marginBottom: "10px" }}
-        >
-          Log In
-        </Button>
-        <Typography
-        >
-          No account yet?
-        </Typography>
+        </TextField>}
+        {!isSignUp &&
+          <>
+            <Button
+              variant="contained"
+              color="secondary"
+              disabled={!formIsReady}
+              sx={{ marginBottom: "10px" }}
+            >
+              Log In
+            </Button>
+            <Typography
+            >
+              No account yet?
+            </Typography>
+          </>}
       </Stack>
       <Stack
         sx={{
@@ -130,13 +131,12 @@ export default function AuthForm({ isSignUp }: AuthFormProps) {
           id="sign-up-button"
           variant="contained"
           color="secondary"
+          onClick={isSignUp ? handleSignUp : toggleSignUp}
           sx={{
             marginTop: "10px"
           }}
         >
-          <Link href="/account/signup">
-            Sign Up
-          </Link>
+          Sign Up
         </Button>
         <Typography
           sx={{
@@ -144,7 +144,6 @@ export default function AuthForm({ isSignUp }: AuthFormProps) {
           }}>
           Or
         </Typography>
-        {SignInGoogle}
       </Stack>
     </Container >
   )

@@ -67,7 +67,7 @@ export function Navbar() {
             The Flower Shop
           </Typography>
           <IconButton>
-            <Link href={isLoggedIn ? '/account' : '/account/login'}>
+            <Link href={isLoggedIn ? '/account' : '/account/signin'}>
               <PersonIcon
                 sx={{
                   marginTop: "5px",
