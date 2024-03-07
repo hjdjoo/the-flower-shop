@@ -23,7 +23,7 @@ export default function GoogleButton() {
   return (
     <>
       <div id="g_id_onload"
-        data-client_id={`${process.env.GOOGLE_CLIENT_ID}`}
+        data-client_id={`${process.env.AUTH_GOOGLE_CLIENT_ID}`}
         data-context="signin"
         data-ux_mode="popup"
         data-login_uri="http://localhost:3000/"

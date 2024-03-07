@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import type { ChangeEvent, MouseEvent } from "react"
 
 //MUI Imports:
 import { useTheme } from "@mui/material"
@@ -14,12 +15,13 @@ import InputAdornment from "@mui/material/InputAdornment"
 import IconButton from "@mui/material/IconButton"
 import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
+
 //Other Components
 import Link from "next/link"
 import GoogleButton from "@/app/_components/GoogleButton"
 
-import type { ChangeEvent, MouseEventHandler } from "react"
 import validator from "validator"
+import { signIn } from "next-auth/react"
 
 // Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
 export default function AuthForm() {
@@ -68,7 +70,7 @@ export default function AuthForm() {
     else return "Passwords do not match!"
   };
 
-  const handleClickShowPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClickShowPassword = (event: MouseEvent<HTMLButtonElement>) => {
     console.log(event.currentTarget);
     if (event.currentTarget.id === "show-password") {
       setShowPassword((show) => !show)
@@ -78,14 +80,29 @@ export default function AuthForm() {
     }
   }
 
+  const handleFormData = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    setFormData({ ...formData, [name]: value })
+
+  }
+
   // handle submission logic:
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     switch (isSignUp) {
       case false:
-      // if it's not a signup form, then send a fetch request to /auth/ and check for the user/password match in the database.
+        // if it's not a signup form, then send a fetch request to /auth/ and check for the user/password match in the database.
+        const result = await signIn("credentials", formData);
+
+
+
+
+      // if there is a match, then we set the userID and role in cookies and redirect back to home.
 
       case true:
       // and if it is a signup form, then send a fetch request to /auth/ and create a new user in the database with email and password.
+
+      // Upon a successful addition to DB, the user is logged in, userID and role are set in cookies, and redirected back home.
 
     };
   };
@@ -128,9 +145,8 @@ export default function AuthForm() {
         <TextField
           id="email-input"
           label="Email"
-          onChange={(event) => {
-            setFormData({ ...formData, email: event.target.value });
-          }}
+          name="email"
+          onChange={handleFormData}
           error={!formData.email ? false : !validator.isEmail(formData.email)}
           helperText={emailHelperText()}
           sx={{
@@ -140,13 +156,12 @@ export default function AuthForm() {
         <TextField
           id="password-input"
           label="Password"
+          name="password"
           type={showPassword ? "text" : "password"}
           // error will not trigger on Login page.
           error={!isSignUp ? false : (!formData.password ? false : !checkPassword())}
           helperText={passwordHelperText()}
-          onChange={(event) => {
-            setFormData({ ...formData, password: event.target.value });
-          }}
+          onChange={handleFormData}
           InputProps={{
             endAdornment:
               <InputAdornment position="end">
