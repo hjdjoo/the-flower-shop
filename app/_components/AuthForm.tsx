@@ -111,6 +111,7 @@ export default function AuthForm() {
         border: "1px solid darkgrey", marginTop: "100px", paddingBottom: "35px", width: "80%", display: "flex", flexDirection: "column", alignItems: "center"
       }}>
       <Typography
+        id="form-title"
         fontFamily={theme.typography.fontFamily}
         sx={{
           padding: "15px", margin: "25px 0px 5px", fontSize: "20px",
