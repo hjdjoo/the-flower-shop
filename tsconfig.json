@@ -31,6 +31,7 @@
   "include": [
     "index.d.ts",
     "next-env.d.ts",
+    "authVariables.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"

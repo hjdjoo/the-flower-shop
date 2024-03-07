@@ -1,14 +1,9 @@
-"use client";
-
-import { useState, useContext, createContext } from 'react';
 import AuthForm from '@/app/_components/AuthForm';
 
 // OAuth has been configured but no particular functionality is associated with a user account.
 // Admin functionality is being prioritized; this should allow admin access through OAuth credentials.
-// const AuthPageContext = createContext(false);
 
 export default function SignIn() {
-  // const [isSignUp, setIsSignUp] = useState(false)
   // upon logging in, check if user exists in database.
   // if user exists in database, redirect to homepage.
   // if user is admin, redirect to admin dashboard.
@@ -16,9 +11,8 @@ export default function SignIn() {
 
   return (
     <>
-      {/* <AuthPageContext.Provider value={isSignUp}> */}
       <AuthForm />
-      {/* </AuthPageContext.Provider> */}
     </>
+
   )
 }

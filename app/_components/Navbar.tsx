@@ -34,7 +34,7 @@ export function Navbar() {
 
   return (
     <>
-      <AppBar className="navbar">
+      <AppBar id="navbar">
         <Toolbar
           className="toolbar"
           sx={{
@@ -64,8 +64,11 @@ export function Navbar() {
               textAlign: "center"
             }}
           >
-            The Flower Shop
+            <Link id="nav-to-home" href="/">
+              The Flower Shop
+            </Link>
           </Typography>
+
           <IconButton>
             <Link href={isLoggedIn ? '/account' : '/account/signin'}>
               <PersonIcon
