@@ -1,9 +1,12 @@
+"use server"
+
 import bcrypt from "bcrypt"
-const saltRounds = 10;
+// import dotenv
+const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
 
-export async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string | undefined): Promise<string> {
 
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const hashedPassword = await bcrypt.hash(password!, saltRounds);
 
   return hashedPassword;
 

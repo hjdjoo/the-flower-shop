@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 export default async function Home() {
 
-  const data = await fetch(`${process.env.URL}/api/image-urls`, {
+  const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/image-urls`, {
     method: "GET"
   });
 

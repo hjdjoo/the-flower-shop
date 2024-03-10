@@ -1,7 +1,7 @@
 export function getGoogleVariables(): { clientId: string, clientSecret: string } {
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_SECRET;
+  const clientId = process.env.AUTH_GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.AUTH_GOOGLE_SECRET;
 
   if (!clientId || !clientId.length) {
     throw new Error("No Client ID");
