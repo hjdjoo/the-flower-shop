@@ -12,7 +12,13 @@ export async function createUser(data: Credentials) {
   try {
     const { email, password } = data;
     // find user. if user exists, throw error with message "User already exists". Otherwise, insert new user.
-    const userExists = await User.findOne({ "email": email }, "id");
+
+    console.log(User)
+
+
+    const userExists = await User.findOne({ "email": email }, "id, email, password");
+
+    console.log('mongo.ts/createUser/userExists: ', userExists)
 
     if (userExists) {
       console.log('email already in use')

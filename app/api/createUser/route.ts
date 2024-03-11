@@ -9,11 +9,16 @@ export async function POST(req: NextRequest) {
 
     const { credentials } = await req.json();
 
-    const userId = await createUser(credentials);
+    const userInfo = await createUser(credentials);
 
-    console.log('api/createUser/POST/userId: ', userId);
+    console.log('api/createUser/POST/userId: ', userInfo);
 
-    return NextResponse.json({ userId: userId }, { status: 201 })
+    const res = new NextResponse();
+
+    res.cookies.set('userId', userInfo?.userId);
+    res.cookies.set('isAdmin', userInfo?.isAdmin);
+
+    return res;
 
   }
   catch (err) {

@@ -32,6 +32,7 @@ const handler = NextAuth({
           const user = await verifyCredentials({ email, password })
           console.log('[nextauth]/route/NextAuth.authorise: ', user)
 
+          console.log('[nextauth]/authorize/user: ', user)
           if (!user) throw new Error("Invalid credentials.")
 
           return user;
