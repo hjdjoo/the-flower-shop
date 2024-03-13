@@ -20,36 +20,36 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       authorize: async (credentials): Promise<any> => {
-        try {
 
-          if (!credentials?.email || !credentials?.password) {
-            return null;
-          }
-
-          const email = credentials.email
-          const password = await hashPassword(credentials.password);
-
-          const user = await verifyCredentials({ email, password })
-          console.log('[nextauth]/route/NextAuth.authorise: ', user)
-
-          console.log('[nextauth]/authorize/user: ', user)
-          if (!user) throw new Error("Invalid credentials.")
-
-          return user;
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
-        catch (err) {
-          console.error('[...nextauth]/err: ', err);
 
-          NextResponse.redirect(`${process.env.NEXTAUTH_URL}/account/signin`)
+        const email = credentials.email
+        const password = credentials.password
 
-        }
+        const user = await verifyCredentials({ email, password })
+        console.log('[nextauth]/route/NextAuth.authorise: ', user)
+
+        console.log('[nextauth]/authorize/user: ', user)
+        if (!user) return false;
+
+        const { userId, isAdmin } = user
+
+        return true;
+
       }
     }),
     Google({
       clientId: getGoogleVariables().clientId,
       clientSecret: getGoogleVariables().clientSecret
     })
-  ]
+  ],
+  pages: {
+    signIn: '/',
+    signOut: '/',
+    error: '/account/signin'
+  },
 })
 
 export { handler as GET, handler as POST }

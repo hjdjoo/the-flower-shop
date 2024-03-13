@@ -5,8 +5,11 @@ import { NextRequest } from "next/server";
 
 console.log('Entering middleware.ts')
 
+const protectedRoutes = ["/checkout", "/account", "/admin/*"]
+
 export const middleware = async (req: NextRequest, res: NextResponse) => {
   // return new NextResponse;
+  // check 
 
 
 }

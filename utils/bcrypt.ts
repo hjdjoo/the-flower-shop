@@ -14,6 +14,8 @@ export async function hashPassword(password: string | undefined): Promise<string
 
 export async function checkPasswords(password: string, hash: string): Promise<Boolean> {
 
+  console.error("utils/bcrypt/checkPasswords: ", "password: ", password, "hash: ", hash)
+
   const isMatch = bcrypt.compare(password, hash);
 
   return isMatch;

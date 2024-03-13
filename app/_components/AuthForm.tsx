@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+import Link from "next/link";
 
-//MUI Imports:
 import { useTheme } from "@mui/material";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
@@ -14,14 +14,11 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
-import { hashPassword } from "@/utils/bcrypt";
 
-
-//Other Components
-import Link from "next/link";
-import GoogleButton from "@/app/_components/GoogleButton";
-
+//Other imports
 import validator from "validator";
+import GoogleButton from "@/app/_components/GoogleButton";
+import { hashPassword } from "@/utils/bcrypt";
 import { signIn } from "next-auth/react";
 
 // Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
@@ -37,14 +34,15 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(true)
+  const [loginSuccess, setLoginSuccess] = useState(true);
 
   useEffect(() => {
     setFormSubmitted(false);
   }, [])
 
-  // utility functions
-  const toggleSignUp = () => {
+  /****** AuthForm specific utility functions  *****/
+
+  const toggleSignUp = (): void => {
     setFormSubmitted(false);
     setIsSignUp(true);
   };
@@ -72,7 +70,7 @@ export default function AuthForm() {
     if (checkMatch()) return null;
     else return "Passwords do not match!"
   };
-  const handleClickShowPassword = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleClickShowPassword = (event: MouseEvent<HTMLButtonElement>): void => {
     console.log(event.currentTarget);
     if (event.currentTarget.id === "show-password") {
       setShowPassword((show) => !show)
@@ -93,14 +91,14 @@ export default function AuthForm() {
         else return false;
     };
   };
-  const handleFormData = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFormData = (event: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = event.target;
 
     setFormData({ ...formData, [name]: value })
 
   }
 
-  // handle submission logic:
+  /********* form logic ********/
   const handleSubmit = async (e: FormEvent<HTMLElement>) => {
 
     e.preventDefault();
@@ -114,9 +112,8 @@ export default function AuthForm() {
     switch (isSignUp) {
       case false:
         // if it's not a signup form, then send a fetch request to /auth/ and check for the user/password match in the database.
-        const signInRes = await signIn("credentials", { ...credentials, redirect: false })
+        const signInRes = await signIn("credentials", { ...credentials, callbackUrl: '/', redirect: false })
 
-        console.log('Authform/handleSubmit/login/credentials: ', credentials)
         console.log('Authform/handleSubmit/login/signInRes: ', signInRes);
 
         setFormSubmitted(true);
@@ -128,9 +125,9 @@ export default function AuthForm() {
         else {
           setLoginSuccess(true);
         }
+        // if there is a match, then we set the userID and role in cookies and redirect back to home.
         setFormData({ email: "", password: "" })
         break;
-      // if there is a match, then we set the userID and role in cookies and redirect back to home.
 
 
       case true:
@@ -143,6 +140,14 @@ export default function AuthForm() {
           },
           body: JSON.stringify({ credentials })
         })
+
+        console.log('AuthForm/handleSubmit/signUpRes: ', signUpRes)
+
+        if (!signUpRes.ok) {
+          setLoginSuccess(false);
+        }
+
+        else setLoginSuccess(true);
 
         setFormData({ email: "", password: "" })
         setPasswordConfirm("");
@@ -299,7 +304,7 @@ export default function AuthForm() {
           </>}
       </form>
       {formSubmitted && <Alert
-        variant="outlined"
+        variant="filled"
         severity={loginSuccess ? "success" : "error"}
         sx={{
           marginTop: "15px"
