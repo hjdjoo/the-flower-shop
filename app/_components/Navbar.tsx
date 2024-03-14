@@ -21,6 +21,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 
+import { signIn } from "next-auth/react";
+
 
 const sacramento = Sacramento({
   weight: ['400'],

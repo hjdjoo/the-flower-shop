@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
-import '@/styles/global.css'
+
+
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
 import { ThemeProvider } from '@mui/material/styles'
+
+import '@/styles/global.css'
 import theme from '../styles/theme'
 import { Navbar } from './_components/Navbar'
+import { SessionWrapper } from './_components/SessionWrapper'
 
 // const inter = Inter({ subsets: ['latin'] })
 
@@ -23,16 +27,18 @@ export default async function RootLayout(
 ) {
   return (
     <html lang="en">
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <Navbar />
-            <main>
-              {children}
-            </main>
-          </ThemeProvider>
-        </AppRouterCacheProvider>
-      </body>
+      <AppRouterCacheProvider>
+        <ThemeProvider theme={theme}>
+          <SessionWrapper>
+            <body>
+              <Navbar />
+              <main>
+                {children}
+              </main>
+            </body>
+          </SessionWrapper>
+        </ThemeProvider>
+      </AppRouterCacheProvider>
     </html>
   )
 };

@@ -1,15 +1,17 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { Redirect } from "next";
-
+import Auth0Provider from "next-auth/providers/auth0"
 import Credentials from "next-auth/providers/credentials";
+
 import { redirect } from "next/dist/server/api-utils";
+import { Redirect } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
-import { getGoogleVariables } from "@/utils/getAuthVariables";
+import { getAuth0Variables, getGoogleVariables } from "@/utils/getAuthVariables";
 import { verifyCredentials } from "@/lib/mongoDb/mongo";
 import { hashPassword } from "@/utils/bcrypt";
+import { get } from "http";
 
 const handler = NextAuth({
   providers: [
@@ -43,6 +45,11 @@ const handler = NextAuth({
     Google({
       clientId: getGoogleVariables().clientId,
       clientSecret: getGoogleVariables().clientSecret
+    }),
+    Auth0Provider({
+      clientId: getAuth0Variables().clientId,
+      clientSecret: getAuth0Variables().clientSecret,
+      issuer: getAuth0Variables().issuer
     })
   ],
   pages: {
