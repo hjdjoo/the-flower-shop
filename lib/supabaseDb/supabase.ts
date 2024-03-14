@@ -1,10 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
-const { SUPABASE_URL, SUPABASE_KEY } =
+const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY } =
   process.env;
 
-const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!, {
-})
+const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL!, NEXT_PUBLIC_SUPABASE_KEY!);
+
+console.log('about to enter getImageUrls...')
 
 export async function getImageUrls() {
   try {
@@ -17,7 +18,7 @@ export async function getImageUrls() {
         offset: 1
       })
 
-    // console.log('api/image-urls/route.ts/GET/data: ', data)
+    console.log('api/image-urls/route.ts/GET/data: ', data)
 
     const urls: string[] | undefined = data?.map((img) => {
       const url = supabase.storage

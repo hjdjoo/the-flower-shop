@@ -1,4 +1,4 @@
-import SignIn from "./signin/page";
+import SignIn from "../../signin/page";
 import AuthForm from "@/app/_components/AuthForm";
 
 

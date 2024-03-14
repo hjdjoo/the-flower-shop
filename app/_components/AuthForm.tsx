@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent, MouseEvent } from "react";
-import Link from "next/link";
+
 
 import { useTheme } from "@mui/material";
 import Container from "@mui/material/Container";
@@ -18,8 +18,8 @@ import Alert from "@mui/material/Alert";
 //Other imports
 import validator from "validator";
 import GoogleButton from "@/app/_components/GoogleButton";
-import { hashPassword } from "@/utils/bcrypt";
-import { signIn } from "next-auth/react";
+import { login, signup } from "../signin/actions";
+import { sign } from "crypto";
 
 // Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
 export default function AuthForm() {
@@ -99,65 +99,46 @@ export default function AuthForm() {
   }
 
   /********* form logic ********/
+  // Need to adjust logic here to adapt for supabase authentication!
   const handleSubmit = async (e: FormEvent<HTMLElement>) => {
 
     e.preventDefault();
-
+    console.log('AuthForm: formData: ', formData)
     const { email, password } = formData
-    const credentials = {
-      email: email,
-      password: password
-    }
+
+    const credentials = new FormData();
+    credentials.set('email', email)
+    credentials.set('password', password)
 
     switch (isSignUp) {
       case false:
-        // if it's not a signup form, then send a fetch request to /auth/ and check for the user/password match in the database.
-        const signInRes = await signIn("credentials", { ...credentials, callbackUrl: '/', redirect: false })
-
-        console.log('Authform/handleSubmit/login/signInRes: ', signInRes);
-
-        setFormSubmitted(true);
-        console.log('form Submitted? ', formSubmitted)
-
-        if (!signInRes?.ok) {
+        // if it's not a signup form, then use login handler from supabase.
+        try {
+          setFormSubmitted(true);
+          await login(credentials);
+        }
+        catch (err) {
           setLoginSuccess(false);
         }
-        else {
-          setLoginSuccess(true);
+        finally {
+          setFormData({ email: "", password: "" })
+          break;
         }
-        // if there is a match, then we set the userID and role in cookies and redirect back to home.
-        setFormData({ email: "", password: "" })
-        break;
-
 
       case true:
-        // and if it is a signup form, then send a fetch request to /auth/ and create a new user in the database with email and password.
-
-        const signUpRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/createUser`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ credentials })
-        })
-
-        console.log('AuthForm/handleSubmit/signUpRes: ', signUpRes)
-
-        if (!signUpRes.ok) {
+        // and if it is a signup form, then use signup handler from supabase.
+        try {
+          setFormSubmitted(true);
+          await signup(credentials);
+        }
+        catch (err) {
           setLoginSuccess(false);
         }
-
-        else setLoginSuccess(true);
-
-        setFormData({ email: "", password: "" })
-        setPasswordConfirm("");
-        console.log('AuthForm/handleSubmit/signUpRes.status: ', signUpRes.status)
-
-      // Upon a successful addition to DB, the user is logged in, userID and role are set in cookies, and redirected back home.
-
-
+        finally {
+          setFormData({ email: "", password: "" })
+          setPasswordConfirm("");
+        }
     };
-
   };
 
   return (
@@ -175,7 +156,7 @@ export default function AuthForm() {
       >
         {isSignUp ? "Sign Up" : "Log In"}
       </Typography>
-      <form id="auth-form" onSubmit={(e) => { handleSubmit(e) }}
+      <form id="auth-form"
         style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "85%" }}>
         <TextField
           id="email-input"
@@ -258,6 +239,7 @@ export default function AuthForm() {
               variant="contained"
               color="secondary"
               disabled={!formReady()}
+              onClick={(e) => { handleSubmit(e) }}
               type="submit"
               sx={{ marginBottom: "10px" }}
             >
@@ -274,7 +256,7 @@ export default function AuthForm() {
           variant="contained"
           color="secondary"
           disabled={!isSignUp ? false : !formReady()}
-          onClick={() => { if (!isSignUp) toggleSignUp() }}
+          onClick={(e) => { !isSignUp ? toggleSignUp() : handleSubmit(e) }}
           type="submit"
           sx={{
             marginTop: "10px"

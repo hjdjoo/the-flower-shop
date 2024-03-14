@@ -9,9 +9,8 @@ export default async function Home() {
     method: "GET"
   });
 
+  console.log('(home)/Home/fetch/data: ', data)
   const imageUrls = await data.json();
-
-
 
 
   return (

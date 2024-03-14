@@ -21,8 +21,6 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 
-import { signIn } from "next-auth/react";
-
 
 const sacramento = Sacramento({
   weight: ['400'],
@@ -72,7 +70,7 @@ export function Navbar() {
           </Typography>
 
           <IconButton>
-            <Link href={isLoggedIn ? '/account' : '/account/signin'}>
+            <Link href={isLoggedIn ? '/account' : '/signin'}>
               <PersonIcon
                 sx={{
                   marginTop: "5px",

@@ -7,7 +7,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import '@/styles/global.css'
 import theme from '../styles/theme'
 import { Navbar } from './_components/Navbar'
-import { SessionWrapper } from './_components/SessionWrapper'
 
 // const inter = Inter({ subsets: ['latin'] })
 
@@ -29,14 +28,12 @@ export default async function RootLayout(
     <html lang="en">
       <AppRouterCacheProvider>
         <ThemeProvider theme={theme}>
-          <SessionWrapper>
-            <body>
-              <Navbar />
-              <main>
-                {children}
-              </main>
-            </body>
-          </SessionWrapper>
+          <body>
+            <Navbar />
+            <main>
+              {children}
+            </main>
+          </body>
         </ThemeProvider>
       </AppRouterCacheProvider>
     </html>
