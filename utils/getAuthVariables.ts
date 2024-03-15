@@ -9,7 +9,22 @@ export function getGoogleVariables(): { clientId: string, clientSecret: string }
   if (!clientSecret || !clientSecret.length) {
     throw new Error("No Client Secret")
   }
-  return { clientId, clientSecret }
+  return { clientId, clientSecret };
+
+}
+
+export function getSupabaseVariables(): { supabaseUrl: string, supabaseKey: string } {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseUrl.length) {
+    throw new Error("No Client ID");
+  }
+  if (!supabaseKey || !supabaseKey.length) {
+    throw new Error("No Client Secret")
+  }
+  return { supabaseUrl, supabaseKey };
 
 }
 

@@ -5,19 +5,20 @@ import { updateSession } from "@/utils/supabase/middleware"
 
 console.log('Entering middleware.ts')
 
-const protectedRoutes = ["/account", "/admin/*"]
-
 export const middleware = async (request: NextRequest) => {
 
-  console.log('middleware/request: ', request)
+  console.log('middleware/request? ', !!request)
 
   await updateSession(request);
+
+  return NextResponse.next();
 
 }
 
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico)/*)"
+    "/account/(.*)",
+    "/admin/(.*)"
   ]
 }

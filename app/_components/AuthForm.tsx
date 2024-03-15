@@ -19,7 +19,6 @@ import Alert from "@mui/material/Alert";
 import validator from "validator";
 import GoogleButton from "@/app/_components/GoogleButton";
 import { login, signup } from "../signin/actions";
-import { sign } from "crypto";
 
 // Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
 export default function AuthForm() {
@@ -34,7 +33,7 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   useEffect(() => {
     setFormSubmitted(false);
@@ -114,10 +113,10 @@ export default function AuthForm() {
       case false:
         // if it's not a signup form, then use login handler from supabase.
         try {
-          setFormSubmitted(true);
           await login(credentials);
         }
         catch (err) {
+          setFormSubmitted(true);
           setLoginSuccess(false);
         }
         finally {
@@ -128,10 +127,10 @@ export default function AuthForm() {
       case true:
         // and if it is a signup form, then use signup handler from supabase.
         try {
-          setFormSubmitted(true);
           await signup(credentials);
         }
         catch (err) {
+          setFormSubmitted(true);
           setLoginSuccess(false);
         }
         finally {
@@ -296,5 +295,4 @@ export default function AuthForm() {
       </Alert>}
     </Container >
   )
-
 }

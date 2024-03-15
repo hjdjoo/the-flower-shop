@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getImageUrls } from '../../../lib/supabaseDb/supabase';
+// import { getImageUrls } from '../../../lib/supabaseDb/supabase';
+import { getImageUrls } from "@/utils/supabase/getImageUrls";
 
 console.log('Entering api/image-urls/route.ts')
 // type Data = string[] | undefined

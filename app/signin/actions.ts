@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function login(formData: FormData) {
 
   const supabase = createClient();
-
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -18,7 +18,7 @@ export async function login(formData: FormData) {
 
   if (error) {
     throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/login/err: ${error}` : "Invalid credentials")
-  }
+  };
 
   revalidatePath("/", "layout");
   redirect("/");
@@ -28,13 +28,12 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
 
   const supabase = createClient();
-
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   }
 
-  console.log(data)
+  // console.log(data)
 
   const { error } = await supabase.auth.signUp(data);
 
@@ -45,4 +44,4 @@ export async function signup(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/");
 
-}
+};
