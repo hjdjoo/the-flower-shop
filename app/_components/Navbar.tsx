@@ -20,12 +20,15 @@ import Avatar from '@mui/material/Avatar'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+import MainIcon from "./Icon";
 
 
-const sacramento = Sacramento({
-  weight: ['400'],
-  subsets: ['latin'],
-})
+// const sacramento = Sacramento({
+//   weight: ['400'],
+//   subsets: ['latin'],
+// })
 
 export function Navbar() {
 
@@ -37,56 +40,70 @@ export function Navbar() {
       <AppBar id="navbar">
         <Toolbar
           className="toolbar"
-          sx={{
-            display: "flex"
-          }}
+          sx={{ display: "flex" }}
         >
-          <IconButton
-            size="large"
-            edge="start"
-            aria-label="menu"
-          >
-            <MenuIcon
-              sx={{
-                color: "white"
-              }}
-            />
-          </IconButton>
-          <Typography
-            variant="h4"
-            component="div"
+          <Box
             sx={{
-              marginTop: "5px",
-              paddingLeft: "16px",
-              justifySelf: "center",
-              flexGrow: 1,
-              fontFamily: sacramento.style.fontFamily,
-              textAlign: "center"
-            }}
-          >
-            <Link id="nav-to-home" href="/">
-              The Flower Shop
-            </Link>
-          </Typography>
-
-          <IconButton>
-            <Link href={isLoggedIn ? '/account' : '/signin'}>
-              <PersonIcon
+              flexGrow: "2"
+            }}>
+            <IconButton
+              size="large"
+              edge="start"
+              aria-label="menu"
+            >
+              <MenuIcon
+                sx={{ color: "white" }}
+              />
+            </IconButton>
+            <IconButton>
+              <MainIcon />
+              <Typography
+                variant="h4"
+                component="div"
                 sx={{
-                  marginTop: "5px",
+                  marginTop: "2px",
+                  paddingLeft: "12px",
+                  fontSize: "1rem",
+                  flexGrow: 1,
+                  textAlign: "left",
                   color: "white"
                 }}
-              // onClick={ }
               >
-              </PersonIcon>
-            </Link>
-          </IconButton>
-          <IconButton>
-            <ShoppingCartIcon
-              sx={{
-                color: "white"
-              }} />
-          </IconButton>
+                t h e / f l o w e r / s h o p
+              </Typography>
+            </IconButton>
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              textAlign: "right"
+            }}>
+            <IconButton>
+              <Link href={isLoggedIn ? '/account' : '/signin'}>
+                <PersonIcon
+                  sx={{
+                    marginTop: "5px",
+                    color: "white",
+                  }}
+                // onClick={ }
+                >
+                </PersonIcon>
+              </Link>
+            </IconButton>
+            <IconButton>
+              <ShoppingCartIcon
+                sx={{
+                  color: "white"
+                }} />
+            </IconButton>
+            <IconButton>
+              <LogoutIcon
+                sx={{
+                  color: "white"
+                }}>
+              </LogoutIcon>
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar >
       <Toolbar
@@ -94,7 +111,6 @@ export function Navbar() {
           minHeight: "48px"
         }}
       />
-
     </>
   );
 }

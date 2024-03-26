@@ -1,5 +1,5 @@
 import SignIn from "../../signin/page";
-import AuthForm from "@/app/_components/AuthForm";
+import AuthForm from "@/app/_components/_AuthForm";
 
 
 export default function Account() {

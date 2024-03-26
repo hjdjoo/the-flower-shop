@@ -1,3 +1,10 @@
+/**********
+ * 
+ * This was a custom auth form that was being designed before the decision was made to switch to a third party auth provider to switch dev focus to more immediate value-add features.
+ * 
+ */
+
+
 "use client"
 
 import React, { useEffect, useState } from "react";

@@ -1,7 +1,7 @@
 import Container from "@mui/material/Container"
 import { useEffect, useState } from "react"
 import Script from "next/script"
-import { generateNonce } from "@/utils/generateNonce";
+import { generateNonce } from "@/utils/actions/generateNonce";
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/client";
 
@@ -26,13 +26,15 @@ export default function GoogleButton() {
   }, []);
 
   async function handleSignInWithGoogle(response: any) {
-    console.log(response);
+    console.log('GoogleButton/response: ', response);
 
     const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
     })
+
+    console.log('GoogleButton/data: ', data)
 
   }
 
