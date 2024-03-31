@@ -17,7 +17,7 @@ export function createClient() {
             cookieStore.set({ name, value, ...options })
           }
           catch (err) {
-            console.error(process.env.NODE_ENV === "development" ? `utils/supabase/client/createClient/set/err: ${err}` : "Something went wrong")
+            console.error(process.env.NODE_ENV === "development" ? `utils/supabase/server/createClient/set/err: ${err}` : "Something went wrong")
           }
         },
         remove(name: string, options: CookieOptions) {
@@ -25,7 +25,7 @@ export function createClient() {
             cookieStore.set({ name, value: '', ...options })
           }
           catch (err) {
-            console.error(process.env.NODE_ENV === "development" ? `utils/supabase/client/createClient/remove/err: ${err}` : "Something went wrong")
+            console.error(process.env.NODE_ENV === "development" ? `utils/supabase/server/createClient/remove/err: ${err}` : "Something went wrong")
           }
         },
       },

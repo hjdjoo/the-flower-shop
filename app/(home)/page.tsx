@@ -1,22 +1,24 @@
 import { Carousel } from "../_components/Carousel";
 import { Suspense } from "react";
 
+import formJson from "@/utils/actions/parseCookie";
+
+
+import { cookies } from "next/headers";
+
 
 import { getImageUrls } from "@/utils/supabase/getImageUrls";
-import { createClient } from "@/utils/supabase/client";
-// import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
-
-  // console.log(`${process.env.NEXT_PUBLIC_URL}/api/image-urls`)
 
   const imageUrls = await getImageUrls();
 
   const supabase = createClient();
 
-  const { data, error } = await supabase.auth.getSession();
-
-  console.log('Home/page/supabase.auth.getUser/data: ', data)
+  const { data } = await supabase.auth.getSession();
+  // console.log('Home/page/supabase.auth.getSession/data: ', data.session?.user.app_metadata)
+  // console.log('Home/page/supabase.auth.getSession/error: ', error)
 
   // console.log('(home)/Home/fetch/data: ', imageUrls);
   // const imageUrls = await data.json();

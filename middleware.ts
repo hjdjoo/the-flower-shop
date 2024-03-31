@@ -13,9 +13,16 @@ export const middleware = async (request: NextRequest) => {
     request.cookies.delete("next-auth.session-token")
   }
 
+  // we need to check if a user has a profile.
+  // 
+
   console.log('updating session...')
+  // Try grabbing the auth token from the cookies and passing it into getUser() -- see if that helps?
   await updateSession(request);
 
+  // if (request.nextUrl.pathname.startsWith('/admin')) {
+
+  // }
 
   console.log('returning out of middleware');
   return NextResponse.next();

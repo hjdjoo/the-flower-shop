@@ -7,6 +7,8 @@ import { Sacramento } from "next/font/google"
 import Link from "next/link"
 
 /******* Material UI imports  *********/
+import { useTheme } from "@emotion/react";
+import { styled } from "@mui/material/styles";
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import AppBar from '@mui/material/AppBar'
@@ -24,16 +26,38 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 import MainIcon from "./Icon";
 
+import { createClient } from "@/utils/supabase/client";
 
-// const sacramento = Sacramento({
-//   weight: ['400'],
-//   subsets: ['latin'],
-// })
+import signOut from "@/utils/supabase/signOut";
+import checkAdmin from "@/utils/supabase/checkAdmin";
+
+interface NavbarProps {
+  isAdmin: boolean
+}
 
 export function Navbar() {
 
+  const TitleText = styled(Typography)(({ theme }) => ({
+    [theme.breakpoints.between('xs', 'sm')]: {
+      fontSize: "0.8rem"
+    },
+    [theme.breakpoints.between('sm', 'md')]: {
+      fontSize: "1.0rem"
+    },
+    [theme.breakpoints.between('md', 'lg')]: {
+      fontSize: "1.4rem"
+    },
+    [theme.breakpoints.up('lg')]: {
+      fontSize: "1.4rem"
+    }
+  }))
+
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+
 
   return (
     <>
@@ -56,21 +80,25 @@ export function Navbar() {
               />
             </IconButton>
             <IconButton>
-              <MainIcon />
-              <Typography
-                variant="h4"
-                component="div"
+              <Link href="/">
+                <MainIcon />
+              </Link>
+            </IconButton>
+            <IconButton>
+              <TitleText
+                // variant="h4"
+                // component="div"
                 sx={{
                   marginTop: "2px",
                   paddingLeft: "12px",
-                  fontSize: "1rem",
+                  // fontSize: "1rem",
                   flexGrow: 1,
                   textAlign: "left",
                   color: "white"
                 }}
               >
                 t h e / f l o w e r / s h o p
-              </Typography>
+              </TitleText>
             </IconButton>
           </Box>
           <Box
@@ -96,7 +124,9 @@ export function Navbar() {
                   color: "white"
                 }} />
             </IconButton>
-            <IconButton>
+            <IconButton
+              onClick={() => signOut()}
+            >
               <LogoutIcon
                 sx={{
                   color: "white"

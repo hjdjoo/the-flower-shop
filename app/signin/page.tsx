@@ -1,7 +1,9 @@
 "use client"
 
-import Head from 'next/head';
-import AuthForm from '@/app/_components/_AuthForm';
+import { useEffect } from 'react';
+
+// import Head from 'next/head';
+import { useRouter } from 'next/navigation';
 
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
@@ -9,7 +11,13 @@ import Stack from '@mui/material/Stack';
 
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { createClient } from '@supabase/supabase-js';
+
+import Button from '@mui/material/Button';
+
+import AuthForm from '@/app/_components/_AuthFormSimple';
+
+import { createClient } from '@/utils/supabase/client';
+// import { createClient } from '@supabase/supabase-js';
 import theme from '@/styles/theme';
 
 
@@ -17,21 +25,34 @@ import theme from '@/styles/theme';
 // Admin functionality is being prioritized; this should allow admin access through OAuth credentials.
 
 export default function SignIn() {
-  // upon logging in, check if user exists in database.
+  const supabase = createClient();
+  const router = useRouter();
 
-  // if user exists in database, redirect to homepage.
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        console.log(session);
+        router.push('/')
+      }
+    })
 
-  // if user is admin, redirect to admin dashboard.
+    return () => {
+      authListener.subscription.unsubscribe();
+    }
 
-  // otherwise, redirect to signup page. 
-
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  }, [router, supabase.auth])
 
   return (
     <Container
-      sx={{ marginTop: "200px" }}
+      sx={{
+        marginTop: "200px",
+      }}
     >
-      <Auth
+      <AuthForm>
+
+      </AuthForm>
+
+      {/* <Auth
         supabaseClient={supabase}
         providers={["google"]}
         appearance={{
@@ -44,20 +65,35 @@ export default function SignIn() {
             }
           }
         }}
-      />
+      /> */}
+      <Button
+        sx={{
+          border: "1px solid black",
+          height: "20px"
+        }}
+        onClick={() => supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`
+          }
+        })}>
+        Sign in with Google
+      </Button>
+
+
       <Stack
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}>
-        <Typography
+        {/* <Typography
           sx={{
             justifySelf: "center",
             fontSize: "0.85rem"
           }}>
           Sign In Provided by Supabase
-        </Typography>
+        </Typography> */}
       </Stack>
     </Container>
   )

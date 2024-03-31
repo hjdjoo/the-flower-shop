@@ -34,7 +34,8 @@
     "authVariables.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "utils/supabase/actions"
   ],
   "exclude": [
     "node_modules"
