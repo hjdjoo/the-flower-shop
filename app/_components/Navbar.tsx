@@ -19,17 +19,20 @@ import Badge from '@mui/material/Badge'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 import Avatar from '@mui/material/Avatar'
+/******* Icons ******/
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 
 import MainIcon from "./Icon";
 
-import { createClient } from "@/utils/supabase/client";
+import { useUser } from "@/lib/contexts/UserContext";
 
+import { createClient } from "@/utils/supabase/client";
 import signOut from "@/utils/supabase/signOut";
-import checkAdmin from "@/utils/supabase/checkAdmin";
+
 
 interface NavbarProps {
   isAdmin: boolean
@@ -52,12 +55,9 @@ export function Navbar() {
     }
   }))
 
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-
-
+  const { user } = useUser();
 
   return (
     <>
@@ -79,11 +79,11 @@ export function Navbar() {
                 sx={{ color: "white" }}
               />
             </IconButton>
-            <IconButton>
+            {/* <IconButton>
               <Link href="/">
                 <MainIcon />
               </Link>
-            </IconButton>
+            </IconButton> */}
             <IconButton>
               <TitleText
                 // variant="h4"
@@ -106,6 +106,21 @@ export function Navbar() {
               flexGrow: 1,
               textAlign: "right"
             }}>
+            {user?.role === "admin" &&
+              <IconButton>
+
+                <Link href={"/admin"}>
+                  <SettingsApplicationsIcon
+                    sx={{
+                      marginTop: "5px",
+                      color: "white",
+                    }}
+                  // onClick={ }
+                  >
+                  </SettingsApplicationsIcon>
+                </Link>
+              </IconButton>
+            }
             <IconButton>
               <Link href={isLoggedIn ? '/account' : '/signin'}>
                 <PersonIcon
@@ -113,7 +128,6 @@ export function Navbar() {
                     marginTop: "5px",
                     color: "white",
                   }}
-                // onClick={ }
                 >
                 </PersonIcon>
               </Link>

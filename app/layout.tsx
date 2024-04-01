@@ -10,9 +10,6 @@ import { Navbar } from './_components/Navbar';
 
 import { UserProvider } from '@/lib/contexts/UserContext';
 
-import { createClient } from '@/utils/supabase/server';
-import checkAdmin from '@/utils/supabase/checkAdmin';
-
 // const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -29,25 +26,26 @@ export default async function RootLayout(
       children: React.ReactNode
     }
 ) {
-  // console.log('Navbar/isAdmin: ', isAdmin);
-  const user = {
-    role: "guest"
-  }
+
+  const cookieStore = cookies();
+
+  const userRole = cookieStore.get("userRole")?.value;
+  const user = { role: userRole ? userRole : "guest" }
 
   return (
     <html lang="en">
-      <AppRouterCacheProvider>
-        <ThemeProvider theme={theme}>
-          <UserProvider currentUser={user}>
-            <body>
+      <body>
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <UserProvider currentUser={user}>
               <Navbar />
               <main>
                 {children}
               </main>
-            </body>
-          </UserProvider>
-        </ThemeProvider>
-      </AppRouterCacheProvider>
+            </UserProvider>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
+      </body>
     </html>
   )
 };

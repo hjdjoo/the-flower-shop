@@ -69,47 +69,39 @@ export async function updateSession(request: NextRequest) {
   const requestCookies = cookieStore.getAll();
   // console.log(requestCookies)
 
+  // formJson() is a utility function for combining sb-auth-token cookies into a single readble json file.
   const jwtJson = formJson(requestCookies);
-  // console.log(jwtJson);
 
   if (jwtJson.length) {
-    const authJwt = JSON.parse(jwtJson);
-    // console.log(authJwt);
-
+    // getUser() was not working without passing the jwt before... issue seems to have reversed while I was fixing things elsewhere.
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {
       console.log('Error while checking supabase.auth.getUser()')
       console.error(error);
     }
+    if (!data.user) {
+      console.log("No user found!")
+      response.cookies.set("userRole", "guest")
+      return response;
+    }
 
-    console.log('@/utils/supabase/middleware/updateSession/data.user?.id', data.user?.id)
+    // console.log('@/utils/supabase/middleware/updateSession/data.user?.id', data.user.id)
 
-    // await checkAdmin(data.user?.id)
+    const isAdmin = await checkAdmin(data.user.id);
+
+    if (isAdmin) {
+      console.log("setting user role...");
+      response.cookies.set("userRole", "admin")
+    }
+    else {
+      console.log("setting user role...");
+      response.cookies.set("userRole", "user")
+    }
 
   }
 
+  // console.log("@/utils/supabase/middleware.ts", response)
+
   return response;
 }
-
-// export async function checkAdmin(uuid: string | undefined) {
-
-//   if (!uuid) return;
-
-//   const supabase = createClient();
-
-//   console.log(uuid);
-
-//   const { data, error } = await supabase
-//     .from("profiles")
-//     .select("is_admin")
-//     .eq('user_id', uuid)
-//     .limit(1)
-//     .single();
-
-//   console.log('checkAdmin/data: ', data?.is_admin)
-//   console.log('checkAdmin/typeof data: ', typeof data?.is_admin)
-//   return data?.is_admin
-
-// }
-
