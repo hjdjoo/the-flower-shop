@@ -5,7 +5,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { StyledImageList, StyledListItem } from './styledComponents';
+import { StyledImageList, StyledListItem } from './styledHtml';
 import Box from "@mui/material/Box";
 import Image, { ImageProps } from 'next/image';
 import type { ImageLoader, ImageLoaderProps } from 'next/image';

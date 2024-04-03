@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { redirect } from "next/navigation";
-import { updateSession } from "@/utils/supabase/middleware"
+import { updateSession, authorizeAdmin } from "@/utils/supabase/middleware"
+import checkAdmin from "./utils/supabase/checkAdmin";
 
 console.log('Entering middleware.ts')
 
@@ -14,16 +15,25 @@ export const middleware = async (request: NextRequest) => {
   console.log('updating session...')
   const response = await updateSession(request);
 
+  // checking admin access:
+  if (request.url.startsWith("/admin")) {
+
+    console.log('checking Admin privileges...')
+
+    const authorized = await authorizeAdmin();
+    if (!authorized) return NextResponse.redirect("/")
+
+  }
+
   console.log('returning out of middleware');
   return response;
-
 }
 
 
 export const config = {
   matcher: [
     "/",
-    "/account/(.*)",
-    "/admin/(.*)"
+    "/account/:path",
+    "/admin/:path"
   ]
 }

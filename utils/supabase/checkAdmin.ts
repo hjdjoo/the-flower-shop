@@ -17,8 +17,10 @@ export default async function checkAdmin(uuid: string | undefined): Promise<bool
     .limit(1)
     .single();
 
+  if (error) return false;
+
   // console.log('checkAdmin/data: ', data?.is_admin)
   // console.log('checkAdmin/typeof data: ', typeof data?.is_admin)
-  return data?.is_admin
+  return (data?.is_admin === true)
 
 }

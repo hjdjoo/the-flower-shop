@@ -3,35 +3,34 @@
 import next from "next";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Sacramento } from "next/font/google"
 import Link from "next/link"
+import { useRouter } from "next/navigation";
 
 /******* Material UI imports  *********/
-import { useTheme } from "@emotion/react";
-import { styled } from "@mui/material/styles";
 import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
-import Button from '@mui/material/Button'
+// import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Badge from '@mui/material/Badge'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 import Avatar from '@mui/material/Avatar'
 /******* Icons ******/
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+/******** Styled Components ********/
+import { TitleText } from "@/app/_components/TitleText";
+import { NavIcons } from "./NavIcons";
 
-import MainIcon from "./Icon";
+// import MainIcon from "./Icon";
 
 import { useUser } from "@/lib/contexts/UserContext";
 
 import { createClient } from "@/utils/supabase/client";
-import signOut from "@/utils/supabase/signOut";
 
 
 interface NavbarProps {
@@ -40,24 +39,21 @@ interface NavbarProps {
 
 export function Navbar() {
 
-  const TitleText = styled(Typography)(({ theme }) => ({
-    [theme.breakpoints.between('xs', 'sm')]: {
-      fontSize: "0.8rem"
-    },
-    [theme.breakpoints.between('sm', 'md')]: {
-      fontSize: "1.0rem"
-    },
-    [theme.breakpoints.between('md', 'lg')]: {
-      fontSize: "1.4rem"
-    },
-    [theme.breakpoints.up('lg')]: {
-      fontSize: "1.4rem"
-    }
-  }))
-
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { user } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+
+    const supabase = createClient();
+    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((event, _session) => {
+      if (event === "SIGNED_OUT") {
+        router.push('/');
+      }
+    })
+
+    return () => { authListener.unsubscribe() };
+  }, [router]);
 
   return (
     <>
@@ -79,26 +75,25 @@ export function Navbar() {
                 sx={{ color: "white" }}
               />
             </IconButton>
-            {/* <IconButton>
-              <Link href="/">
-                <MainIcon />
-              </Link>
-            </IconButton> */}
             <IconButton>
-              <TitleText
-                // variant="h4"
-                // component="div"
-                sx={{
-                  marginTop: "2px",
-                  paddingLeft: "12px",
-                  // fontSize: "1rem",
-                  flexGrow: 1,
-                  textAlign: "left",
-                  color: "white"
-                }}
-              >
-                t h e / f l o w e r / s h o p
-              </TitleText>
+              <Link href={'/'}>
+                <TitleText
+                  // variant="h4"
+                  // component="div"
+                  sx={{
+                    marginTop: "2px",
+                    paddingLeft: "12px",
+                    border: "1px solid white",
+                    paddingRight: "11px",
+                    // fontSize: "1rem",
+                    flexGrow: 1,
+                    textAlign: "left",
+                    color: "white"
+                  }}
+                >
+                  theflower.design
+                </TitleText>
+              </Link>
             </IconButton>
           </Box>
           <Box
@@ -106,47 +101,7 @@ export function Navbar() {
               flexGrow: 1,
               textAlign: "right"
             }}>
-            {user?.role === "admin" &&
-              <IconButton>
-
-                <Link href={"/admin"}>
-                  <SettingsApplicationsIcon
-                    sx={{
-                      marginTop: "5px",
-                      color: "white",
-                    }}
-                  // onClick={ }
-                  >
-                  </SettingsApplicationsIcon>
-                </Link>
-              </IconButton>
-            }
-            <IconButton>
-              <Link href={isLoggedIn ? '/account' : '/signin'}>
-                <PersonIcon
-                  sx={{
-                    marginTop: "5px",
-                    color: "white",
-                  }}
-                >
-                </PersonIcon>
-              </Link>
-            </IconButton>
-            <IconButton>
-              <ShoppingCartIcon
-                sx={{
-                  color: "white"
-                }} />
-            </IconButton>
-            <IconButton
-              onClick={() => signOut()}
-            >
-              <LogoutIcon
-                sx={{
-                  color: "white"
-                }}>
-              </LogoutIcon>
-            </IconButton>
+            <NavIcons userRole={user?.role ? user.role : "guest"} />
           </Box>
         </Toolbar>
       </AppBar >
