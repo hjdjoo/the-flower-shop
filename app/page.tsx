@@ -1,6 +1,6 @@
 // "use client"
 import { useEffect, useState } from "react";
-import Home from "./(home)/page"
+import Products from "./products/page";
 import Head from "next/head";
 
 
@@ -8,7 +8,7 @@ export default function Main() {
 
   return (
     <>
-      <Home></Home>
+      <Products></Products>
     </>
   )
 }

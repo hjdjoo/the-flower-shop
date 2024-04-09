@@ -10,6 +10,8 @@ import { Navbar } from './_components/Navbar';
 
 import { UserProvider } from '@/lib/contexts/UserContext';
 
+import { createClient } from "@/utils/supabase/server";
+
 // const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -24,6 +26,7 @@ export default async function RootLayout(
     :
     {
       children: React.ReactNode
+
     }
 ) {
 
@@ -31,6 +34,10 @@ export default async function RootLayout(
 
   const userRole = cookieStore.get("userRole")?.value;
   const user = { role: userRole ? userRole : "guest" }
+  const supabase = createClient();
+
+  await supabase.auth.getSession();
+
 
   return (
     <html lang="en">

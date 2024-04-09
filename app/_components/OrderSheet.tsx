@@ -1,21 +1,60 @@
 "use client"
 
-import { styled } from "@mui/material";
+import { ChangeEvent, useState } from "react";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography"
 import Button from "@mui/material/Button"
+/***** custom components *****/
+import { InputField } from "./styled/styledComponents";
+import SenderInfo from "./SenderInfo";
+import RecipientInfo from "./RecipientInfo";
+import OrderInfo from "./OrderInfo";
+/***** types *****/
+import { OrderFormData } from "./types/OrderFormData";
 
+// leaving "cart" type as "any" while creating new order functionality is underway.
+interface OrderSheetProps {
+  senderId: string | undefined,
+  cart: any
+}
 
 export default function OrderSheet() {
 
-  // Order Sheet may take in cart information?
+  const [formData, setFormData] = useState<OrderFormData>({
 
-  const InputField = styled(TextField, {
-    name: "InputField",
-  })(() => ({
-    margin: "5px",
-  })) as typeof TextField
+    senderId: undefined,
+    senderFirst: "",
+    senderLast: "",
+    senderPhone: undefined,
+    senderEmail: "",
+    recipFirst: "",
+    recipLast: "",
+    recipStreetAddress1: "",
+    recipStreetAddress2: "",
+    recipTownCity: "",
+    recipZip: undefined,
+    recipPhone: undefined,
+    cardMessage: "",
+    products: [],
+    deliveryDate: "",
+
+  });
+
+  const handleFormData = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const { name, value } = e.currentTarget;
+
+    setFormData({
+      ...formData,
+      [name]: value
+    })
+
+  }
+
+  const handleSubmit = () => {
+    console.log(formData);
+  }
+
 
   return (
     <Box
@@ -27,92 +66,12 @@ export default function OrderSheet() {
         width: "100%"
       }}
     >
-      <Typography
-        sx={{
-          fontSize: "1.5rem"
-        }}
-      >
-        Sender Information:
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between"
-        }}>
-        <InputField
-          label="First Name"
-          sx={{
-            width: "48%"
-          }}
-        />
-        <InputField
-          label="Last Name"
-          sx={{
-            width: "48%"
-          }}
-        />
-      </Box>
-      <InputField
-        label="Phone Number"
-      />
-      <InputField
-        label="Email (optional)"
-      />
-      <Typography
-        sx={{
-          fontSize: "1.5rem"
-        }}
-      >
-        Recipient Information:
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between"
-        }}>
-        <InputField
-          label="First Name"
-          sx={{
-            width: "48%"
-          }}
-        />
-        <InputField
-          label="Last Name"
-          sx={{
-            width: "48%"
-          }}
-        />
-      </Box>
-      <InputField
-        label="Street Address Line 1"
-      />
-      <InputField
-        label="Street Address Line 2"
-      />
-      <InputField
-        label="Town/City"
-      />
-      <InputField
-        label="Zip Code"
-      />
-      <InputField
-        label="Phone Number"
-      />
-      <Typography
-        sx={{
-          fontSize: "1.5rem"
-        }}>
-        Message
-      </Typography>
-      <InputField
-        multiline={true}
-        label="Input Message"
-        sx={{
-
-        }}>
-      </InputField>
+      <SenderInfo formData={formData} handleFormData={handleFormData} />
+      <RecipientInfo formData={formData} handleFormData={handleFormData} />
+      <OrderInfo formData={formData} setFormData={setFormData} handleFormData={handleFormData} />
       <Button
         variant="contained"
+        onClick={handleSubmit}
       >
         Proceed to Billing
       </Button>

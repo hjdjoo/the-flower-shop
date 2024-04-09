@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { useRouter } from "next/navigation";
-
 import { styled } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -19,7 +18,6 @@ import WebIcon from '@mui/icons-material/Web';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 import { AdminButton } from "./styled/styledComponents";
-
 
 const DashboardRoot = styled(Container, {
   name: "Dashboard",
@@ -62,10 +60,10 @@ export default function Dashboard() {
 
   return (
     <>
-      <Container
+      <DashboardRoot
         maxWidth="md"
       >
-        <Grid
+        <DashboardNav
           container
           spacing={{
             xs: 2,
@@ -78,7 +76,7 @@ export default function Dashboard() {
           }}
         >
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/newOrder")}
             >
               <NoteAddIcon
@@ -87,10 +85,10 @@ export default function Dashboard() {
                 }}
               />
               New Order
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/orders")}
             >
               <InventoryIcon
@@ -99,10 +97,10 @@ export default function Dashboard() {
                 }}
               />
               Orders
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/customers")}
             >
               <PeopleAltIcon
@@ -111,10 +109,10 @@ export default function Dashboard() {
                 }}
               />
               Customers
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/deliveries")}
             >
               <LocalShippingIcon
@@ -123,10 +121,10 @@ export default function Dashboard() {
                 }}
               />
               Deliveries
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/website")}
             >
               <WebIcon
@@ -135,10 +133,10 @@ export default function Dashboard() {
                 }}
               />
               Website Settings
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
           <GridItem xs={6}>
-            <AdminButton
+            <DashboardButton
               onClick={() => router.push("admin/settings")}
             >
               <AdminPanelSettingsIcon
@@ -147,10 +145,10 @@ export default function Dashboard() {
                 }}
               />
               Admin Settings
-            </AdminButton>
+            </DashboardButton>
           </GridItem>
-        </Grid>
-      </Container>
+        </DashboardNav>
+      </DashboardRoot>
 
     </>
   )
