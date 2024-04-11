@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { styled } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
-import { GridItem } from "@/app/_components/styled/styledComponents";
+import { GridItem } from "@/app/_components/styled/GridItem";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 /***** Icons *****/
@@ -17,7 +17,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import WebIcon from '@mui/icons-material/Web';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
-import { AdminButton } from "./styled/styledComponents";
+import { AdminButton } from "./styled/AdminButton";
 
 const DashboardRoot = styled(Container, {
   name: "Dashboard",

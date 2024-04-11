@@ -1,4 +1,4 @@
-import { CarouselBox, CarouselItem } from './styled/styledComponents';
+import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
 import Box from "@mui/material/Box";
 import Image, { ImageProps } from 'next/image';
 import type { ImageLoader, ImageLoaderProps } from 'next/image';

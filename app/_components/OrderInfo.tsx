@@ -14,7 +14,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AddIcon from '@mui/icons-material/Add';
 
 /***** Custom Components *****/
-import { InputField } from "./styled/styledComponents";
+import { InputField } from "./styled/InputField";
 
 /***** types *****/
 import { OrderFormData } from "./types/OrderFormData";

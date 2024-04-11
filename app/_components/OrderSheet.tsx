@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography"
 import Button from "@mui/material/Button"
 /***** custom components *****/
-import { InputField } from "./styled/styledComponents";
+import { InputField } from "./styled/InputField";
 import SenderInfo from "./SenderInfo";
 import RecipientInfo from "./RecipientInfo";
 import OrderInfo from "./OrderInfo";

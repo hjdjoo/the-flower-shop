@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 /***** custom components *****/
-import { InputField } from "./styled/styledComponents";
+import { InputField } from "./styled/CarouselComponents";
 /***** types *****/
 import { OrderFormData } from "./types/OrderFormData";
 import type { ChangeEventHandler } from "react";
