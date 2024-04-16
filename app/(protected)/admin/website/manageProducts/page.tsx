@@ -1,10 +1,16 @@
+import Typography from "@mui/material/Typography"
+
 export default function ManageProductsPage() {
-
-
 
   return (
     <>
-      <h3>Manage Products:</h3>
+      <Typography
+        sx={{
+          fontSize: "1.5rem"
+        }}
+      >
+        Product Management
+      </Typography>
     </>
   )
 }

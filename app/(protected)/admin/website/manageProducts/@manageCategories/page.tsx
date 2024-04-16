@@ -1,21 +1,43 @@
+"use client"
+
+import { useState } from "react"
+
+import Typography from "@mui/material/Typography"
+import Button from "@mui/material/Button"
+import Collapse from "@mui/material/Collapse"
 import Box from "@mui/material/Box"
+
+import { StyledContainer } from "@/app/_components/styled/StyledContainer"
+import ManageCategoriesForm from "../../../_components/ManageCategoriesForm"
 
 export default function ManageCategoriesPage() {
 
+  const [showManageCategories, setShowManageCategories] = useState<boolean>(false);
+
   return (
     <>
-      <h4>
-        Manage Categories:
-      </h4>
-      <Box
-        component={"section"}
+      <Button
+        variant="outlined"
+        onClick={() => { setShowManageCategories(!showManageCategories) }}
+        fullWidth
+        size="small"
         sx={{
-          width: "100%",
-          height: "150px",
-          border: "1px solid black"
+          marginTop: "20px",
+          marginBottom: "10px"
         }}
       >
-      </Box>
+        <Typography
+          sx={{
+            marginTop: "15px",
+            marginBottom: "10px"
+          }}
+        >
+          Manage Categories
+        </Typography>
+      </Button>
+      <Collapse in={showManageCategories}>
+        <ManageCategoriesForm />
+      </Collapse>
     </>
   )
 }

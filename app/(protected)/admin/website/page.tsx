@@ -5,13 +5,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { GridItem } from "@/app/_components/styled/GridItem";
+import { StyledContainer } from "@/app/_components/styled/StyledContainer";
 
 export default function WebsiteSettingsPage() {
 
   const router = useRouter();
 
   return (
-    <>
+    <StyledContainer>
       <Grid
         container
         sx={{
@@ -29,7 +30,7 @@ export default function WebsiteSettingsPage() {
           </Button>
         </GridItem>
       </Grid>
-    </>
+    </StyledContainer>
   )
 
 }

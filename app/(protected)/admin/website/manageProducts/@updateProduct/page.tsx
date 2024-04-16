@@ -1,21 +1,50 @@
+"use client"
+
+import { useState } from "react"
+
+import Typography from "@mui/material/Typography"
+import Button from "@mui/material/Button"
+import Collapse from "@mui/material/Collapse"
 import Box from "@mui/material/Box"
+// import MainWrapper from "../../../_components/styled/MainWrapper"
+import { StyledContainer } from "@/app/_components/styled/StyledContainer"
 
 export default function UpdateProductPage() {
 
+  const [showUpdateProduct, setShowUpdateProduct] = useState<boolean>(false);
+
   return (
     <>
-      <h4>
-        Update Product:
-      </h4>
-      <Box
-        component={"section"}
+      <Button
+        variant="outlined"
+        onClick={() => { setShowUpdateProduct(!showUpdateProduct) }}
+        fullWidth
+        size="small"
         sx={{
-          width: "100%",
-          height: "150px",
-          border: "1px solid black"
+          marginTop: "20px",
+          marginBottom: "10px"
         }}
       >
-      </Box>
+        <Typography
+          sx={{
+            marginTop: "15px",
+            marginBottom: "10px"
+          }}
+        >
+          Update Product
+        </Typography>
+      </Button>
+      <Collapse in={showUpdateProduct}>
+        <Box
+          component={"section"}
+          sx={{
+            width: "100%",
+            height: "150px",
+            border: "1px solid black"
+          }}
+        >
+        </Box>
+      </Collapse>
     </>
   )
 }

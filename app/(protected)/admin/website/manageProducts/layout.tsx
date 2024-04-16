@@ -1,3 +1,6 @@
+"use client"
+
+import { StyledContainer } from "@/app/_components/styled/StyledContainer"
 
 export default function ManageProductsLayout({
   children,
@@ -13,10 +16,12 @@ export default function ManageProductsLayout({
 
   return (
     <>
-      {children}
-      {updateProduct}
-      {newProduct}
-      {manageCategories}
+      <StyledContainer>
+        {children}
+        {updateProduct}
+        {newProduct}
+        {manageCategories}
+      </StyledContainer>
     </>
   )
 }

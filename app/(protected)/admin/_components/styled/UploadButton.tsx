@@ -6,7 +6,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 
 interface UploadButtonProps extends ButtonProps {
-  handleUpload: ChangeEventHandler<HTMLInputElement>
+  handlePreview: ChangeEventHandler<HTMLInputElement>
 }
 
 const UploadButton = (props: UploadButtonProps) => {
@@ -24,7 +24,7 @@ const UploadButton = (props: UploadButtonProps) => {
         hidden
         accept="image/*"
         type="file"
-        onChange={props.handleUpload}
+        onChange={props.handlePreview}
       />
     </Button>
   )

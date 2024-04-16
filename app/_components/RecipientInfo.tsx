@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 /***** custom components *****/
-import { InputField } from "./styled/CarouselComponents";
+import { InputField } from "./styled/InputField";
 /***** types *****/
 import { OrderFormData } from "./types/OrderFormData";
 import type { ChangeEventHandler } from "react";
@@ -14,7 +14,6 @@ interface RecipientInfoProps {
 export default function RecipientInfo(props: RecipientInfoProps) {
 
   const { formData, handleFormData } = props;
-
 
   return (
     <>
