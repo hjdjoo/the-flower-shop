@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import { updateSession, authorizeAdmin } from "@/utils/supabase/middleware"
-import checkAdmin from "./utils/supabase/checkAdmin";
+import checkAdmin from "./utils/supabase/serverActions/checkAdmin";
 
 console.log('Entering middleware.ts')
 

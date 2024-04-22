@@ -9,9 +9,9 @@ declare module '@mui/material/styles' {
 
 import { createTheme } from "@mui/material/styles";
 import { Theme } from "@emotion/react";
-import { Urbanist } from "next/font/google"
+import { Poppins } from "next/font/google"
 
-export const urbanist = Urbanist({
+export const poppins = Poppins({
   weight: ["100", "200", "300", "400"],
   style: ["normal", "italic"],
   subsets: ["latin"]
@@ -28,7 +28,7 @@ const theme: Theme = createTheme({
     },
   },
   typography: {
-    fontFamily: urbanist.style.fontFamily
+    fontFamily: poppins.style.fontFamily
   },
 })
 

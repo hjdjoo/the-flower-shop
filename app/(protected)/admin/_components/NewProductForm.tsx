@@ -1,6 +1,6 @@
 "use client"
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 
 import Image from "next/image";
 
@@ -17,53 +17,76 @@ import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 import { Paper } from "@mui/material";
 
+import getCategories from "@/utils/supabase/clientActions/getCategories";
+import uploadImage from "@/utils/supabase/clientActions/uploadImage";
+import { CategoryData } from "@/app/types/db-types";
+import { FileData, ProductForm } from "@/app/types/client-types";
 
-// ah! - these should be retrieved from the database...
-// can do this in a useEffect
-const productCategories = [
-  { label: "Spring" },
-  { label: "Summer" },
-  { label: "Fall" },
-  { label: "Winter" },
-  { label: "Modern" },
-  { label: "Classic" },
-  { label: "Holiday" },
-  { label: "Get Well" },
-  { label: "Sympathy" },
-  { label: "Event" },
-  { label: "Wedding" },
-  { label: "Romantic" },
-]
 
-interface ProductForm {
-  name: string,
-  categories: string[],
-  description: string,
-  prices: number[]
-}
 
 export default function NewProduct() {
 
-  // should have selectable fields for categories (at least 1)
+  // Should be able to add new categories.
   // should have input fields for product name, description, and price
 
+  const [autocompleteCategories, setAutocompleteCategories] = useState<{ label: string }[]>([])
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
-  const [newProductForm, setNewProductForm] = useState({
-    productName: ""
+  const [fileData, setFileData] = useState<FileData | undefined>(undefined)
+  const [newProductForm, setNewProductForm] = useState<ProductForm>({
+    name: "",
+    categories: [],
+    description: "",
+    prices: [],
+    imageUrl: ""
   })
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await getCategories();
+
+        if (error || !data) {
+          throw new Error(error?.message);
+        }
+
+        const categories = data.map((el) => {
+          return { label: el.name };
+        })
+        setAutocompleteCategories(categories);
+
+      }
+      catch (error) {
+        // handle errors - update Alert component with user alert state.
+      }
+    })();
+  }, []);
 
   const handlePreview = (e: ChangeEvent<HTMLInputElement>) => {
 
     const reader = new FileReader();
     const file = e.target.files?.[0];
-    console.log("admin/components/NewProduct/handlePreview/file: ", file)
+    // console.log("admin/components/NewProduct/handlePreview/file: ", file)
 
     if (file) {
       // onloadend is triggered at the end of "readAsDataUrl";
       reader.onloadend = () => {
         const imageDataUrl = reader.result?.toString();
         console.log(reader.result);
+
+        const base64Data = imageDataUrl?.replace(/data:\S*;base64,/, "");
+
+        const fileType = imageDataUrl?.replace(/data:/, "").replace(/;base64,\S*/, "");
+
+        const ext = fileType?.slice(fileType.indexOf("/") + 1);
+
+        console.log(ext)
+
+        console.log(fileType);
+        console.log(base64Data);
+        setFileData({
+          encodedData: base64Data,
+          fileType: ext
+        });
         setPreviewUrl(imageDataUrl);
       }
       reader.readAsDataURL(file);
@@ -72,11 +95,14 @@ export default function NewProduct() {
 
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // should upload picture 
+    const { name } = newProductForm;
     //  -> adds to supabase -> returns URL for updating product page
-
+    const url = await uploadImage(name, fileData);
     // -> updates "products" table with item & url from image.
+
+
 
   }
 
@@ -124,7 +150,7 @@ export default function NewProduct() {
           }}
         />
         <Autocomplete
-          options={productCategories}
+          options={autocompleteCategories}
           renderInput={(params) => <TextField {...params}
             label={"Category"}
           />}

@@ -6,6 +6,7 @@ export default function ManageProductsPage() {
     <>
       <Typography
         sx={{
+          marginTop: "15px",
           fontSize: "1.5rem"
         }}
       >

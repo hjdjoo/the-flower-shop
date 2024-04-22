@@ -32,20 +32,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import { createClient } from "@/utils/supabase/client";
+import getCategories from "@/utils/supabase/clientActions/getCategories";
+import normalizeCasing from "@/utils/actions/normalizeCasing";
+
+import { CategoryData } from "@/app/types/db-types";
+import { PostgrestError } from "@supabase/supabase-js";
 
 // Type interfaces:
-interface CategoryData {
-  id: number,
-  name: string,
-  is_active: boolean,
-}
 
 interface CategoryForm {
   name: string,
 }
 
 interface ErrorMessage {
-  show: boolean,
+  severity: "error" | "warning" | "success" | undefined,
   message: string
 }
 
@@ -55,6 +55,7 @@ interface HeaderColumns {
   align: "left" | "center" | "right",
 }
 
+// Table Components
 const headerCols: HeaderColumns[] = [
   {
     id: "category-id",
@@ -79,40 +80,48 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+
 export default function ManageCategoriesForm() {
 
-  const [categories, setCategories] = useState<Array<CategoryData | undefined>>([]);
+  const [categories, setCategories] = useState<CategoryData[] | null>([]);
   const [addCategory, setAddCategory] = useState<boolean>(false);
-  const [categoryForm, setCategoryForm] = useState({ name: "" });
+  const [categoryForm, setCategoryForm] = useState<CategoryForm>({ name: "" });
   const [activeCategory, setActiveCategory] = useState<number | undefined>(undefined)
   const [editCategoriesForm, setEditCategoriesForm] = useState<CategoryData[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
   const [editCategories, setEditCategories] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>({
-    show: false,
+    severity: undefined,
     message: ""
   })
 
   useEffect(() => {
 
-    getCategories();
+    (async () => {
+      try {
+        const { data, error } = await getCategories();
+
+        if (error) {
+          throw new Error(error.message);
+        }
+        else {
+          setCategories(data)
+        }
+      }
+      catch (error) {
+        setErrorMessage({
+          severity: "error",
+          message: `${error}`
+        })
+      }
+
+    })()
+
 
   }, []);
 
-  /***** component functions *****/
-  async function getCategories() {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .schema("public")
-      .from("product_categories")
-      .select("id, name, is_active")
-
-    if (error) return;
-
-    setCategories([...data.slice(1)]);
-  }
-
+  /***** component utility functions *****/
   async function updateCategories() {
     const supabase = createClient();
 
@@ -143,21 +152,34 @@ export default function ManageCategoriesForm() {
     console.log(e.target.id)
   }
 
-  async function handleSubmit() {
-    const supabase = createClient();
+  async function handleAddCategory() {
+    try {
+      const supabase = createClient();
 
-    setFormSubmitting(true);
+      setFormSubmitting(true);
 
-    const { data, error } = await supabase
-      .schema("public")
-      .from("product_categories")
-      .insert({ name: categoryForm.name });
+      //normalize casing:
+      const normalizedCategoryName = normalizeCasing(categoryForm.name);
 
-    if (error) {
-      // handle error - clear form and display error;
+      const { data, error } = await supabase
+        .schema("public")
+        .from("product_categories")
+        .insert({ name: normalizedCategoryName });
+
+      if (error) {
+        // handle error - clear form and display error;
+        throw new Error(error.message);
+      }
+
+      await getCategories();
+    }
+    catch (error) {
+      setErrorMessage({
+        severity: "error",
+        message: `${error}`
+      })
     }
 
-    await getCategories();
     setFormSubmitting(false);
     clearForm();
   }
@@ -173,7 +195,7 @@ export default function ManageCategoriesForm() {
     )
   })
 
-  const rows = categories.map((category) => {
+  const rows = categories?.map((category) => {
     return (
       <StyledTableRow
         key={category?.name}
@@ -182,13 +204,17 @@ export default function ManageCategoriesForm() {
           setActiveCategory(category?.id)
         }}
       >
+        {/* Headers: */}
         <TableCell sx={{ border: "none" }}>
           {category?.id}
         </TableCell>
         <TableCell sx={{ border: "none" }}>
+          {/* Conditionally render a input or plain text. */}
           {
             editCategories ?
-              <TextField defaultValue={category?.name} size="small" />
+              <TextField
+                defaultValue={category?.name} size="small"
+              />
               : <Typography>
                 {category?.name}
               </Typography>
@@ -201,6 +227,7 @@ export default function ManageCategoriesForm() {
             border: "none",
           }}
         >
+          {/* "Collapse" component manages conditional "rendering" */}
           <Collapse
             in={editCategories}
             orientation="horizontal"
@@ -218,11 +245,12 @@ export default function ManageCategoriesForm() {
                 justifyContent: "flex-end",
               }}>
               <IconButton
+                id={`${category?.id}-delete-button`}
                 onClick={() => setConfirmDelete(true)}
               >
                 <DeleteForeverIcon />
               </IconButton>
-              {/* Dialog Box for confirming Delete */}
+              {/* Dialog Box for confirming Delete - "delete forever" button opens dialogue for further user action. */}
               <Dialog
                 open={confirmDelete}
               >
@@ -248,6 +276,7 @@ export default function ManageCategoriesForm() {
             </Box>
           </Collapse>
           <Switch
+            id={`${category?.id}-is_active`}
             checked={category?.is_active}
             disabled={!editCategories}
             onChange={handleUpdateCategories}
@@ -258,6 +287,7 @@ export default function ManageCategoriesForm() {
     )
   })
 
+  /** Main component **/
   return (
     <Paper
       sx={{
@@ -337,6 +367,12 @@ export default function ManageCategoriesForm() {
                     [name]: value
                   })
                 }}
+                onKeyDown={(e) => {
+                  switch (e.key) {
+                    case "Enter":
+                      handleAddCategory();
+                  }
+                }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment
@@ -370,12 +406,12 @@ export default function ManageCategoriesForm() {
                 setAddCategory(true);
                 break;
               case true:
-                handleSubmit();
+                handleAddCategory();
                 break;
             }
           }}
         >
-          {formSubmitting ? <CircularProgress /> : "Add New Category"}
+          {formSubmitting ? <CircularProgress /> : (addCategory ? "Submit" : "Add New Category")}
         </Button>
       </Stack>
     </Paper>

@@ -7,7 +7,7 @@ import { createClient } from "./server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 import formJson from "../actions/parseCookie";
-import checkAdmin from "./checkAdmin";
+import checkAdmin from "./serverActions/checkAdmin";
 
 // import * as jose from "jose"
 

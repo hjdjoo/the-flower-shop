@@ -1,4 +1,4 @@
-import { createClient } from "./server";
+import { createClient } from "../server";
 
 export async function createProfile(userId: string, isAdmin: boolean = false) {
 
