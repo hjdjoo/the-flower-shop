@@ -120,28 +120,37 @@ export default function ManageCategoriesForm() {
   }
 
   async function deleteCategory(id: number) {
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
 
-    const { data, error } = await supabase
-      .schema("public")
-      .from("product_categories")
-      .delete()
-      .eq("id", id)
+      const { error } = await supabase
+        .schema("public")
+        .from("product_categories")
+        .delete()
+        .eq("id", id)
 
-    if (error) {
-      //handle error
+      if (error) {
+        throw new Error(`Couldn't delete category! Error: ${error.message}`)
+      }
+    }
+    catch (error) {
+      setErrorMessage({
+        severity: "error",
+        message: `${error}`
+      })
     }
 
     setConfirmDelete(false);
-    getCategories();
+    await getCategories();
   }
 
   function clearForm() {
     setCategoryForm({ name: "" })
   }
 
-  function handleUpdateCategories(e: ChangeEvent<HTMLElement>) {
-    console.log(e.target.id)
+  function handleUpdateCategories() {
+
+
   }
 
   async function handleAddCategory() {
@@ -178,7 +187,7 @@ export default function ManageCategoriesForm() {
 
 
   /***** Sub-components ******/
-
+  // rendering table header
   const header = headerCols.map((col, idx) => {
     return (
       <TableCell key={col.id} id={col.id} align={col.align}>
@@ -187,6 +196,7 @@ export default function ManageCategoriesForm() {
     )
   })
 
+  // rendering table rows
   const rows = categories?.map((category) => {
     return (
       <StyledTableRow
@@ -312,7 +322,7 @@ export default function ManageCategoriesForm() {
           <TableBody>
             {rows}
           </TableBody>
-          {/* Footer with "edit" and pagination features */}
+          {/* Footer pagination features (eventually) */}
           <TableFooter>
             <TableRow
               sx={{
@@ -329,7 +339,9 @@ export default function ManageCategoriesForm() {
               >
                 {editCategories &&
                   <Button
-                    variant="outlined">
+                    variant="outlined"
+                    onClick={handleUpdateCategories}
+                  >
                     Save
                   </Button>
                 }

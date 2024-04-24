@@ -1,6 +1,6 @@
 "use client"
 
-import { ChangeEvent, MouseEvent, useState, useEffect } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 
 import Paper from "@mui/material/Paper";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -24,10 +24,7 @@ import PreviewBox from "./styled/PreviewBox";
 import getCategories from "@/utils/supabase/clientActions/getCategories";
 import uploadImage from "@/utils/supabase/clientActions/uploadImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
-// import { CategoryData } from "@/app/types/db-types";
 import { FileData, ProductForm, ErrorMessage } from "@/app/types/client-types";
-
-
 
 export default function NewProduct() {
 
@@ -41,9 +38,9 @@ export default function NewProduct() {
     name: "",
     categories: [],
     description: "",
-    standardPrice: null,
-    premiumPrice: null,
-    deluxePrice: null,
+    standardPrice: "",
+    premiumPrice: "",
+    deluxePrice: "",
     imageUrl: ""
   })
   const [alertUser, setAlertUser] = useState<ErrorMessage>({
@@ -53,6 +50,7 @@ export default function NewProduct() {
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
+    // immediately invoked async function to get categories upon first render
     (async () => {
       try {
         const { data, error } = await getCategories();
@@ -96,10 +94,6 @@ export default function NewProduct() {
 
         const ext = fileType?.slice(fileType.indexOf("/") + 1);
 
-        // console.log(ext)
-        // console.log(fileType);
-        // console.log(base64Data);
-
         setFileData({
           encodedData: base64Data,
           fileType: ext
@@ -113,21 +107,16 @@ export default function NewProduct() {
   };
 
   const handleImageUrl = async () => {
-    try {
-      const { name } = newProductForm;
-      //  -> adds to supabase -> returns URL for updating product page
-      const url = await uploadImage(name, fileData);
-      // -> updates "products" table with item & url from image.
-      if (!url) {
-        throw new Error("Couldn't add image to database!")
-      };
-      setNewProductForm({ ...newProductForm, imageUrl: url });
-    } catch (error) {
-      setAlertUser({
-        severity: "error",
-        message: `${error}`
-      })
-    }
+
+    const { name } = newProductForm;
+    //  -> adds to supabase -> returns URL for updating product page
+    const url = await uploadImage(name, fileData);
+    // -> updates "products" table with item & url from image.
+    if (!url) {
+      throw new Error("Couldn't add image to database!")
+    };
+    setNewProductForm({ ...newProductForm, imageUrl: url });
+
   }
 
   const handleSubmit = async () => {
@@ -138,13 +127,12 @@ export default function NewProduct() {
         throw new Error(`Something went wrong! ${error?.message}`)
       }
 
-      else {
-        setAlertUser({
-          severity: "success",
-          message: "Product added!"
-        });
-        clearForm();
-      }
+
+      setAlertUser({
+        severity: "success",
+        message: "Product added!"
+      });
+      clearForm();
 
     }
     catch (error) {
@@ -152,6 +140,7 @@ export default function NewProduct() {
         severity: "error",
         message: `${error}`
       })
+      clearForm();
     }
   }
 
@@ -176,16 +165,13 @@ export default function NewProduct() {
       const updatedCategories = [...categories];
       updatedCategories[activeIdx!] = category;
       setCategories(updatedCategories);
-      // console.log('handleCategories/newCategories: ', newCategories);
-      // console.log('handleCategories/categories: ', categories);
       setNewProductForm({ ...newProductForm, categories: newCategories });
     };
   };
 
-  const handleDeleteCategory = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleDeleteCategory = () => {
 
     const updatedCategories = categories.slice(0, activeIdx!).concat(categories.slice(activeIdx! + 1))
-
     setCategories(updatedCategories);
   }
 
@@ -198,15 +184,20 @@ export default function NewProduct() {
   }
 
   const clearForm = () => {
+
     setNewProductForm({
       name: "",
       categories: [],
       description: "",
-      standardPrice: null,
-      premiumPrice: null,
-      deluxePrice: null,
+      standardPrice: "",
+      premiumPrice: "",
+      deluxePrice: "",
       imageUrl: ""
-    })
+    });
+
+    setCategories([{ id: 1, label: "Default" }]);
+
+    setPreviewUrl(undefined);
   }
 
   /* Rendering inputs for adding new categories */
@@ -239,7 +230,7 @@ export default function NewProduct() {
         />
         <IconButton
           id={`delete-category-${idx + 1}`}
-          onClick={(e) => handleDeleteCategory(e)}
+          onClick={handleDeleteCategory}
         >
           <CancelIcon />
         </IconButton>
@@ -311,7 +302,10 @@ export default function NewProduct() {
             marginY: "5px"
           }}
         />
-        <Typography>
+        <Typography
+          marginTop={"15px"}
+          marginBottom={"15px"}
+        >
           Pricing:
         </Typography>
         <Grid
@@ -348,26 +342,37 @@ export default function NewProduct() {
             />
           </GridItem>
         </Grid>
-        {alertUser.severity && <Alert
-          severity={alertUser.severity}
-          sx={{ margins: "5px" }}
-        >
-          {alertUser.message}
-        </Alert>}
+
         <Button
           variant="contained"
           onClick={async () => {
-            setFormSubmitting(true);
-            await handleImageUrl();
-            await handleSubmit()
-            setFormSubmitting(false);
+            try {
+              setFormSubmitting(true);
+              await handleImageUrl();
+              await handleSubmit()
+              setFormSubmitting(false);
+            } catch (error) {
+              setAlertUser({
+                severity: "error",
+                message: `${error}`
+              })
+              setFormSubmitting(false);
+            }
           }}
           sx={{
             marginY: "10px"
           }}
         >
-          {formSubmitting ? <CircularProgress /> : "Add Product"}
+          {formSubmitting ? <CircularProgress sx={{ color: "white" }} /> : "Add Product"}
         </Button>
+        {alertUser.severity && <Alert
+          severity={alertUser.severity}
+          sx={{
+            marginY: "10px",
+          }}
+        >
+          {alertUser.message}
+        </Alert>}
       </Stack>
     </Paper>
   )

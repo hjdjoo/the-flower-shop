@@ -3,6 +3,7 @@ import { createClient } from "../client";
 import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
 import { getUrl } from "./getUrl";
+import normalizeCasing from "@/utils/actions/normalizeCasing";
 
 export default async function uploadImage(fileName: string, fileData: FileData | undefined): Promise<string> {
   // uploads image to storage and returns public URL
@@ -15,10 +16,12 @@ export default async function uploadImage(fileName: string, fileData: FileData |
   const { error } = await supabase
     .storage
     .from("products")
-    .upload(`${fileName}.${fileData.fileType}`, decode(fileData.encodedData))
+    .upload(`public/${fileName}.${fileData.fileType}`, decode(fileData.encodedData), {
+      contentType: `image/${fileData.fileType}`
+    })
 
   if (error) {
-    throw new Error("Couldn't upload file to database.")
+    throw new Error(`Couldn't upload file to database. Error: ${error.message}`)
   }
 
   const url = await getUrl(`${fileName}.${fileData.fileType}`);
