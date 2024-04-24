@@ -5,8 +5,15 @@ export interface FileData {
 
 export interface ProductForm {
   name: string,
-  categories: string[],
+  categories: number[],
   description: string,
-  prices: number[],
+  standardPrice: number | null,
+  premiumPrice: number | null,
+  deluxePrice: number | null,
   imageUrl: string,
+}
+
+export interface ErrorMessage {
+  severity: "error" | "warning" | "success" | undefined,
+  message: string
 }

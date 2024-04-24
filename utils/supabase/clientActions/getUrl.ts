@@ -1,6 +1,6 @@
 import { createClient } from "../client"
 
-console.log('about to enter getImageUrls...')
+// console.log('about to enter getUrls...')
 
 export async function getUrl(product: string) {
 

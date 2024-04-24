@@ -1,44 +1,56 @@
 "use client"
 
-import { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, MouseEvent, useState, useEffect } from "react";
 
-import Image from "next/image";
-
+import Paper from "@mui/material/Paper";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/Button";
+import CircularProgress from '@mui/material/CircularProgress';
+
+import AddIcon from "@mui/icons-material/Add";
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import { UploadButton } from "./styled/UploadButton";
 import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
-import { Paper } from "@mui/material";
 
 import getCategories from "@/utils/supabase/clientActions/getCategories";
 import uploadImage from "@/utils/supabase/clientActions/uploadImage";
-import { CategoryData } from "@/app/types/db-types";
-import { FileData, ProductForm } from "@/app/types/client-types";
+import addProduct from "@/utils/supabase/clientActions/addProduct";
+// import { CategoryData } from "@/app/types/db-types";
+import { FileData, ProductForm, ErrorMessage } from "@/app/types/client-types";
 
 
 
 export default function NewProduct() {
 
-  // Should be able to add new categories.
-  // should have input fields for product name, description, and price
-
-  const [autocompleteCategories, setAutocompleteCategories] = useState<{ label: string }[]>([])
+  /* Component states */
+  const [autocompleteCategories, setAutocompleteCategories] = useState<{ id: number, label: string }[]>([])
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [fileData, setFileData] = useState<FileData | undefined>(undefined)
+  const [activeIdx, setActiveIdx] = useState<number | null>(null)
+  const [categories, setCategories] = useState<{ id: number, label: string }[]>([{ id: 1, label: "Default" }])
   const [newProductForm, setNewProductForm] = useState<ProductForm>({
     name: "",
     categories: [],
     description: "",
-    prices: [],
+    standardPrice: null,
+    premiumPrice: null,
+    deluxePrice: null,
     imageUrl: ""
   })
+  const [alertUser, setAlertUser] = useState<ErrorMessage>({
+    severity: undefined,
+    message: ""
+  })
+  const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -49,18 +61,23 @@ export default function NewProduct() {
           throw new Error(error?.message);
         }
 
-        const categories = data.map((el) => {
-          return { label: el.name };
+        const dbCategories = data.map((el) => {
+          return { id: el.id, label: el.name };
         })
-        setAutocompleteCategories(categories);
+        setAutocompleteCategories(dbCategories);
 
       }
       catch (error) {
         // handle errors - update Alert component with user alert state.
+        setAlertUser({
+          severity: "error",
+          message: `Something went wrong: ${error}`
+        })
       }
     })();
   }, []);
 
+  /* Component-specific async handlers */
   const handlePreview = (e: ChangeEvent<HTMLInputElement>) => {
 
     const reader = new FileReader();
@@ -79,10 +96,10 @@ export default function NewProduct() {
 
         const ext = fileType?.slice(fileType.indexOf("/") + 1);
 
-        console.log(ext)
+        // console.log(ext)
+        // console.log(fileType);
+        // console.log(base64Data);
 
-        console.log(fileType);
-        console.log(base64Data);
         setFileData({
           encodedData: base64Data,
           fileType: ext
@@ -95,18 +112,142 @@ export default function NewProduct() {
 
   };
 
-  const handleSubmit = async () => {
-    // should upload picture 
-    const { name } = newProductForm;
-    //  -> adds to supabase -> returns URL for updating product page
-    const url = await uploadImage(name, fileData);
-    // -> updates "products" table with item & url from image.
-
-
-
+  const handleImageUrl = async () => {
+    try {
+      const { name } = newProductForm;
+      //  -> adds to supabase -> returns URL for updating product page
+      const url = await uploadImage(name, fileData);
+      // -> updates "products" table with item & url from image.
+      if (!url) {
+        throw new Error("Couldn't add image to database!")
+      };
+      setNewProductForm({ ...newProductForm, imageUrl: url });
+    } catch (error) {
+      setAlertUser({
+        severity: "error",
+        message: `${error}`
+      })
+    }
   }
 
+  const handleSubmit = async () => {
+    try {
+      const { data, error } = await addProduct(newProductForm);
 
+      if (error || !data) {
+        throw new Error(`Something went wrong! ${error?.message}`)
+      }
+
+      else {
+        setAlertUser({
+          severity: "success",
+          message: "Product added!"
+        });
+        clearForm();
+      }
+
+    }
+    catch (error) {
+      setAlertUser({
+        severity: "error",
+        message: `${error}`
+      })
+    }
+  }
+
+  /* Synchronous handlers and utilities */
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setNewProductForm({ ...newProductForm, [name]: value })
+  }
+
+  const handleAddCategory = (category: { id: number, label: string } | null) => {
+    const newCategories = [...newProductForm.categories];
+    if (!category) return;
+    if (newProductForm.categories.includes(category.id)) {
+      setAlertUser({
+        severity: "warning",
+        message: "Category already included!"
+      })
+      return;
+    }
+    else {
+      newCategories[activeIdx!] = category.id;
+      const updatedCategories = [...categories];
+      updatedCategories[activeIdx!] = category;
+      setCategories(updatedCategories);
+      // console.log('handleCategories/newCategories: ', newCategories);
+      // console.log('handleCategories/categories: ', categories);
+      setNewProductForm({ ...newProductForm, categories: newCategories });
+    };
+  };
+
+  const handleDeleteCategory = (e: MouseEvent<HTMLButtonElement>) => {
+
+    const updatedCategories = categories.slice(0, activeIdx!).concat(categories.slice(activeIdx! + 1))
+
+    setCategories(updatedCategories);
+  }
+
+  const addNewCategory = () => {
+
+    const newCategory = { id: 1, label: "Default" }
+    const renderCategories = [...categories];
+    renderCategories.push(newCategory);
+    setCategories(renderCategories);
+  }
+
+  const clearForm = () => {
+    setNewProductForm({
+      name: "",
+      categories: [],
+      description: "",
+      standardPrice: null,
+      premiumPrice: null,
+      deluxePrice: null,
+      imageUrl: ""
+    })
+  }
+
+  /* Rendering inputs for adding new categories */
+  const categoryInputs = categories.map((el, idx) => {
+    return (
+      <Box
+        key={`category-box-${idx + 1}`}
+        sx={{
+          width: "100%",
+          display: "flex",
+        }}
+        onClick={() => { setActiveIdx(idx) }}
+      >
+        <Autocomplete
+          id={`category${idx + 1}`}
+          value={categories[idx]}
+          options={autocompleteCategories}
+          renderInput={(params) =>
+            <TextField {...params}
+              label={"Category"}
+            />
+          }
+          isOptionEqualToValue={(option, value) => option.label === value.label}
+          size="small"
+          sx={{
+            marginY: "5px",
+            flexGrow: "1"
+          }}
+          onChange={(_event, value) => handleAddCategory(value)}
+        />
+        <IconButton
+          id={`delete-category-${idx + 1}`}
+          onClick={(e) => handleDeleteCategory(e)}
+        >
+          <CancelIcon />
+        </IconButton>
+      </Box>
+    )
+  })
+
+  /* Main component */
   return (
     <Paper
       sx={{
@@ -144,24 +285,28 @@ export default function NewProduct() {
         <TextField
           id={"new-product-name"}
           label={"Product Name"}
+          name="name"
+          value={newProductForm.name}
+          onChange={handleChange}
           size="small"
           sx={{
             marginY: "5px"
           }}
         />
-        <Autocomplete
-          options={autocompleteCategories}
-          renderInput={(params) => <TextField {...params}
-            label={"Category"}
-          />}
-          size="small"
-          sx={{
-            marginY: "5px"
-          }}
-        />
+        {categoryInputs}
+        <Button
+          fullWidth
+          onClick={addNewCategory}
+        >
+          <AddIcon />
+          Add Category
+        </Button>
         <TextField
           id={"new-product-description"}
           label={"Description"}
+          name="description"
+          value={newProductForm.description}
+          onChange={handleChange}
           sx={{
             marginY: "5px"
           }}
@@ -176,6 +321,9 @@ export default function NewProduct() {
             <TextField
               id={"new-product-price-standard"}
               label={"Standard"}
+              name="standardPrice"
+              value={newProductForm.standardPrice}
+              onChange={handleChange}
               size="small"
             />
           </GridItem>
@@ -183,6 +331,9 @@ export default function NewProduct() {
             <TextField
               id={"new-product-price-standard"}
               label={"Premium"}
+              name="premiumPrice"
+              value={newProductForm.premiumPrice}
+              onChange={handleChange}
               size="small"
             />
           </GridItem>
@@ -190,17 +341,32 @@ export default function NewProduct() {
             <TextField
               id={"new-product-price-standard"}
               label={"Deluxe"}
+              name="deluxePrice"
+              value={newProductForm.deluxePrice}
+              onChange={handleChange}
               size="small"
             />
           </GridItem>
         </Grid>
+        {alertUser.severity && <Alert
+          severity={alertUser.severity}
+          sx={{ margins: "5px" }}
+        >
+          {alertUser.message}
+        </Alert>}
         <Button
           variant="contained"
+          onClick={async () => {
+            setFormSubmitting(true);
+            await handleImageUrl();
+            await handleSubmit()
+            setFormSubmitting(false);
+          }}
           sx={{
             marginY: "10px"
           }}
         >
-          Add Product
+          {formSubmitting ? <CircularProgress /> : "Add Product"}
         </Button>
       </Stack>
     </Paper>

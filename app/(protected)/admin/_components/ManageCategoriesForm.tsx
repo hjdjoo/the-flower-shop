@@ -34,7 +34,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { createClient } from "@/utils/supabase/client";
 import getCategories from "@/utils/supabase/clientActions/getCategories";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
-
+import { ErrorMessage } from "@/app/types/client-types";
 import { CategoryData } from "@/app/types/db-types";
 import { PostgrestError } from "@supabase/supabase-js";
 
@@ -42,11 +42,6 @@ import { PostgrestError } from "@supabase/supabase-js";
 
 interface CategoryForm {
   name: string,
-}
-
-interface ErrorMessage {
-  severity: "error" | "warning" | "success" | undefined,
-  message: string
 }
 
 interface HeaderColumns {
@@ -115,10 +110,7 @@ export default function ManageCategoriesForm() {
           message: `${error}`
         })
       }
-
     })()
-
-
   }, []);
 
   /***** component utility functions *****/
@@ -161,7 +153,7 @@ export default function ManageCategoriesForm() {
       //normalize casing:
       const normalizedCategoryName = normalizeCasing(categoryForm.name);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .schema("public")
         .from("product_categories")
         .insert({ name: normalizedCategoryName });
@@ -394,7 +386,6 @@ export default function ManageCategoriesForm() {
                   width: "100%"
                 }}
               />
-
             </>
           }
         </Collapse>

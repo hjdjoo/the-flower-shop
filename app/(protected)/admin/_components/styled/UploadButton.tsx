@@ -14,8 +14,7 @@ const UploadButton = (props: UploadButtonProps) => {
     <Button
       component="label"
       role={undefined}
-      variant="contained"
-      tabIndex={-1}
+      variant="text"
       startIcon={<FileUploadIcon />}
     >
       Upload Image
@@ -24,6 +23,7 @@ const UploadButton = (props: UploadButtonProps) => {
         hidden
         accept="image/*"
         type="file"
+        tabIndex={-1}
         onChange={props.handlePreview}
       />
     </Button>
