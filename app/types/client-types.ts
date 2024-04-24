@@ -13,7 +13,21 @@ export interface ProductForm {
   imageUrl: string,
 }
 
+export interface ProductData {
+  name: string,
+  description: string,
+  standard_price: number | string | undefined,
+  premium_price: number | string | undefined,
+  deluxe_price: number | string | undefined,
+  image_url: string,
+}
+
 export interface ErrorMessage {
   severity: "error" | "warning" | "success" | undefined,
   message: string
+}
+
+export interface HomepageCategory {
+  id: number,
+  name: string
 }

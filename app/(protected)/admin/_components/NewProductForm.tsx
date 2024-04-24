@@ -29,11 +29,15 @@ import { FileData, ProductForm, ErrorMessage } from "@/app/types/client-types";
 export default function NewProduct() {
 
   /* Component states */
+  // state for rendering autocomplete fields
   const [autocompleteCategories, setAutocompleteCategories] = useState<{ id: number, label: string }[]>([])
+  // state for preview URLs and storing image file
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [fileData, setFileData] = useState<FileData | undefined>(undefined)
+  // states for managing category inputs
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [categories, setCategories] = useState<{ id: number, label: string }[]>([{ id: 1, label: "Default" }])
+  // product form
   const [newProductForm, setNewProductForm] = useState<ProductForm>({
     name: "",
     categories: [],
@@ -43,11 +47,12 @@ export default function NewProduct() {
     deluxePrice: "",
     imageUrl: ""
   })
+  const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+  // user alert
   const [alertUser, setAlertUser] = useState<ErrorMessage>({
     severity: undefined,
     message: ""
   })
-  const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     // immediately invoked async function to get categories upon first render
@@ -145,11 +150,12 @@ export default function NewProduct() {
   }
 
   /* Synchronous handlers and utilities */
+  // generic handler for updating simple form data
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setNewProductForm({ ...newProductForm, [name]: value })
   }
-
+  // handlers for managing category array
   const handleAddCategory = (category: { id: number, label: string } | null) => {
     const newCategories = [...newProductForm.categories];
     if (!category) return;
@@ -174,7 +180,6 @@ export default function NewProduct() {
     const updatedCategories = categories.slice(0, activeIdx!).concat(categories.slice(activeIdx! + 1))
     setCategories(updatedCategories);
   }
-
   const addNewCategory = () => {
 
     const newCategory = { id: 1, label: "Default" }
@@ -183,6 +188,7 @@ export default function NewProduct() {
     setCategories(renderCategories);
   }
 
+  // other utility functions
   const clearForm = () => {
 
     setNewProductForm({

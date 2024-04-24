@@ -1,27 +1,45 @@
+"use client"
+
+import { useState, useEffect } from "react";
 import { Carousel } from "@/app/_components/Carousel";
 import { Suspense } from "react";
+import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
+
+import { HomepageCategory } from "../types/client-types";
 
 // import { getImageUrls } from "@/utils/supabase/getImageUrls";
 
 console.log("@products/page.tsx: ", "entering Products page");
 
-export default async function Products() {
+export default function Products() {
 
+  const [homepageCategories, setHomepageCategories] = useState<HomepageCategory[]>([]);
 
-  // get homepage products from database;
-  // should have a "category" value that can be read and passed to the carousel.
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await getHomepageCategories();
 
-  // map homepage products to carousels.
+      if (error || !data) {
+        throw new Error(`Couldn't get homepage categories! Error: ${error?.message}`)
+      }
+      setHomepageCategories([...data]);
+    })()
+  })
 
-  // format to return: 
+  const productCarousels = homepageCategories.map((cat, idx) => {
+    return (
+      <Suspense
+        key={`category-suspense-${idx + 1}`}
+        fallback={<p>Loading Products...</p>}>
+        <Carousel category={cat}></Carousel>
+      </Suspense>
+    )
 
-
+  })
 
   return (
     <>
-      <Suspense fallback={<p>Loading Products...</p>}>
-        <Carousel category={""}></Carousel>
-      </Suspense>
+      {productCarousels}
     </>
   )
 }

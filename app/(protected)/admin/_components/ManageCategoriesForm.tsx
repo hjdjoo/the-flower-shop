@@ -116,6 +116,7 @@ export default function ManageCategoriesForm() {
   /***** component utility functions *****/
   async function updateCategories() {
     const supabase = createClient();
+    // still need to implement logic for updating category active status and such.
 
   }
 
