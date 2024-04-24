@@ -7,6 +7,8 @@ export default async function addProduct(productData: ProductForm) {
 
   const { name, description, standardPrice, premiumPrice, deluxePrice, imageUrl, categories } = productData
 
+  console.log('addProduct: ', productData);
+
   const { data, error } = await supabase
     .from("products")
     .insert({

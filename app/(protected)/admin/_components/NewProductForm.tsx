@@ -24,7 +24,7 @@ import PreviewBox from "./styled/PreviewBox";
 import getCategories from "@/utils/supabase/clientActions/getCategories";
 import uploadImage from "@/utils/supabase/clientActions/uploadImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
-import { FileData, ProductForm, ErrorMessage } from "@/app/types/client-types";
+import { type FileData, type ProductForm, type ErrorMessage } from "@/app/types/client-types";
 
 export default function NewProduct() {
 
@@ -111,27 +111,39 @@ export default function NewProduct() {
 
   };
 
-  const handleImageUrl = async () => {
+  // const handleImageUrl = async () => {
 
-    const { name } = newProductForm;
-    //  -> adds to supabase -> returns URL for updating product page
-    const url = await uploadImage(name, fileData);
-    // -> updates "products" table with item & url from image.
-    if (!url) {
-      throw new Error("Couldn't add image to database!")
-    };
-    setNewProductForm({ ...newProductForm, imageUrl: url });
+  //   const { name } = newProductForm;
+  //   //  -> adds to supabase -> returns URL for updating product page
+  //   const url = await uploadImage(name, fileData);
+  //   // -> updates "products" table with item & url from image.
+  //   console.log(url);
+  //   if (!url) {
+  //     throw new Error("Couldn't add image to database!")
+  //   };
+  //   setNewProductForm({ ...newProductForm, imageUrl: url });
 
-  }
+  // }
 
   const handleSubmit = async () => {
     try {
-      const { data, error } = await addProduct(newProductForm);
+
+      const { name } = newProductForm;
+      //  -> adds to supabase -> returns URL for updating product page
+      const url = await uploadImage(name, fileData);
+      console.log(url);
+      if (!url) {
+        throw new Error("Couldn't add image to database!")
+      };
+
+      const finalProductForm: ProductForm = { ...newProductForm, imageUrl: url }
+
+      // -> updates "products" table with item & url from image.
+      const { data, error } = await addProduct(finalProductForm);
 
       if (error || !data) {
         throw new Error(`Something went wrong! ${error?.message}`)
       }
-
 
       setAlertUser({
         severity: "success",
@@ -354,7 +366,6 @@ export default function NewProduct() {
           onClick={async () => {
             try {
               setFormSubmitting(true);
-              await handleImageUrl();
               await handleSubmit()
               setFormSubmitting(false);
             } catch (error) {
