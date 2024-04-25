@@ -32,7 +32,7 @@ export function Carousel(props: CarouselProps) {
       }
     })()
 
-  })
+  }, [id])
 
   const products = productData.map((data, idx) => {
 
@@ -42,27 +42,19 @@ export function Carousel(props: CarouselProps) {
       <CarouselItem
         key={`${name}-product-${idx + 1}`}
       >
-        <Image loader={({ src, width, quality }: ImageLoaderProps): string => `${src}?w=${width}`} src={data.image_url} alt={`${name} product ${idx + 1}`} width={150} height={150}></Image>
+        <Image
+          loader={({ src, width, quality }: ImageLoaderProps): string => `${src}?w=${width}`}
+          src={data.image_url}
+          alt={`${name} product ${idx + 1}`}
+          fill />
       </CarouselItem>
     )
   })
 
-  // const images = imageUrls?.map((url: string, i: number) => {
-  //   return (
-  //     <CarouselItem
-  //       key={`blankImg-${i}`}
-  //     >
-  //       <Image loader={({ src, width, quality }: ImageLoaderProps): string => `${src}?w=${width}`} src={url} alt={`test image ${i}`} width={150} height={150}></Image>
-  //     </CarouselItem>
-  //   )
-  // })
-
   return (
-
     <CarouselBox>
       {products}
     </CarouselBox >
-
   )
 
 }

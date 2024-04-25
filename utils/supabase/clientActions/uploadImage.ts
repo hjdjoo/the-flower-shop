@@ -16,7 +16,7 @@ export default async function uploadImage(fileName: string, fileData: FileData |
   const { error } = await supabase
     .storage
     .from("products")
-    .upload(`public/${fileName}.${fileData.fileType}`, decode(fileData.encodedData), {
+    .upload(`/${fileName}.${fileData.fileType}`, decode(fileData.encodedData), {
       contentType: `image/${fileData.fileType}`
     })
 

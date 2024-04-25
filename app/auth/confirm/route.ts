@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
-      console.log("auth/confirm/GET/verifyOtp/data: ", data)
+      // console.log("auth/confirm/GET/verifyOtp/data: ", data)
       redirectTo.searchParams.delete('next');
       return NextResponse.redirect(redirectTo);
     };

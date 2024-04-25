@@ -8,7 +8,7 @@ export default async function getHomepageCategories() {
   const { data, error } = await supabase
     .from("product_categories")
     .select("id, name")
-    .in("name", ["Spring", "Summer", "Fall", "Winter", "Bestseller"])
+    .in("name", ["Spring", "Summer", "Fall", "Winter", "Bestsellers", "Romantic"])
     .eq("is_active", true)
     .returns<HomepageCategory[]>();
 

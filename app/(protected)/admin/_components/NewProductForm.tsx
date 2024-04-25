@@ -67,6 +67,9 @@ export default function NewProduct() {
         const dbCategories = data.map((el) => {
           return { id: el.id, label: el.name };
         })
+
+        dbCategories.sort((a, b) => a.id - b.id);
+
         setAutocompleteCategories(dbCategories);
 
       }
@@ -108,7 +111,6 @@ export default function NewProduct() {
       reader.readAsDataURL(file);
       reader.removeEventListener("loadend", reader.onloadend)
     };
-
   };
 
   // const handleImageUrl = async () => {

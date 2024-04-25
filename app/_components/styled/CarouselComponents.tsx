@@ -18,5 +18,6 @@ export const CarouselItem = styled("li")({
   width: "170px",
   margin: "10px",
   display: "inline-block",
-  border: "1px dotted black"
+  border: "1px dotted black",
+  position: "relative"
 })

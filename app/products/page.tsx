@@ -22,11 +22,27 @@ export default function Products() {
       if (error || !data) {
         throw new Error(`Couldn't get homepage categories! Error: ${error?.message}`)
       }
+      console.log("products/page/useEffect/data: ", data);
       setHomepageCategories([...data]);
     })()
+  }, [])
+
+  const bestsellers = homepageCategories.filter((cat, idx) => {
+    return cat.name === "Bestsellers"
   })
 
-  const productCarousels = homepageCategories.map((cat, idx) => {
+  const bestsellersCarousel = (bestsellers: HomepageCategory[]) => {
+    if (!bestsellers.length) return;
+    console.log(bestsellers[0]);
+    return (
+      <Suspense
+        fallback={<p>Loading Products...</p>}>
+        <Carousel category={bestsellers[0]}></Carousel>
+      </Suspense>
+    )
+  }
+
+  const productCarousels = homepageCategories.filter(cat => cat.name !== "Bestsellers").map((cat, idx) => {
     return (
       <Suspense
         key={`category-suspense-${idx + 1}`}
@@ -39,6 +55,7 @@ export default function Products() {
 
   return (
     <>
+      {bestsellersCarousel(bestsellers)}
       {productCarousels}
     </>
   )
