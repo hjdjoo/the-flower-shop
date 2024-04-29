@@ -1,0 +1,305 @@
+/**********
+ * 
+ * This was a custom auth form that was being designed before the decision was made to switch to a third party auth provider to switch dev focus to more immediate value-add features.
+ * 
+ */
+
+
+"use client"
+
+import React, { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+
+
+import { useTheme } from "@mui/material";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Alert from "@mui/material/Alert";
+
+//Other imports
+import validator from "validator";
+import GoogleButton from "@/app/_components/GoogleButton";
+import { login, signup } from "../signin/actions";
+
+// Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
+export default function AuthForm() {
+
+  const theme = useTheme();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  useEffect(() => {
+    setFormSubmitted(false);
+  }, [])
+
+  /****** AuthForm specific utility functions  *****/
+
+  const toggleSignUp = (): void => {
+    setFormSubmitted(false);
+    setIsSignUp(true);
+  };
+  const checkPassword = (): boolean => {
+    // check that the password has a minimum length and is reasonably secure.
+    const validPassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{6,}$/;
+
+    return formData.password.match(validPassword) ? true : false;
+  };
+  const checkMatch = (): boolean => {
+    return formData.password === passwordConfirm;
+  };
+  const emailHelperText = (): string | null => {
+    if (!formData.email) return null;
+    if (!validator.isEmail(formData.email)) return "Please enter a valid email"
+    else return null;
+  };
+  const passwordHelperText = (): string | null => {
+    if (!formData.password || !isSignUp) return null;
+    else if (checkPassword()) return null
+    else return "Password must be at least 8 characters and contain at least 1 uppercase, lowercase, special character, and number."
+  };
+  const passConfirmHelperText = (): string | null => {
+    if (!passwordConfirm) return null;
+    if (checkMatch()) return null;
+    else return "Passwords do not match!"
+  };
+  const handleClickShowPassword = (event: MouseEvent<HTMLButtonElement>): void => {
+    console.log(event.currentTarget);
+    if (event.currentTarget.id === "show-password") {
+      setShowPassword((show) => !show)
+    }
+    if (event.currentTarget.id === "show-password-confirm") {
+      setShowPasswordConfirm((show) => !show)
+    }
+  }
+  const formReady = (): boolean | undefined => {
+    switch (isSignUp) {
+      case false:
+        if (formData.email && formData.password) return true;
+        else return false;
+      case true:
+        if (formData.email && formData.password) {
+          if (checkPassword() && checkMatch()) return true
+        }
+        else return false;
+    };
+  };
+  const handleFormData = (event: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = event.target;
+
+    setFormData({ ...formData, [name]: value })
+
+  }
+
+  /********* form logic ********/
+  // Need to adjust logic here to adapt for supabase authentication!
+  const handleSubmit = async (e: FormEvent<HTMLElement>) => {
+
+    e.preventDefault();
+    console.log('AuthForm: formData: ', formData)
+    const { email, password } = formData
+
+    const credentials = new FormData();
+    credentials.set('email', email)
+    credentials.set('password', password)
+
+    switch (isSignUp) {
+      case false:
+        // if it's not a signup form, then use login handler from supabase.
+        try {
+          await login(credentials);
+        }
+        catch (err) {
+          setFormSubmitted(true);
+          setLoginSuccess(false);
+        }
+        finally {
+          setFormData({ email: "", password: "" })
+          break;
+        }
+
+      case true:
+        // and if it is a signup form, then use signup handler from supabase.
+        try {
+          await signup(credentials);
+        }
+        catch (err) {
+          setFormSubmitted(true);
+          setLoginSuccess(false);
+        }
+        finally {
+          setFormData({ email: "", password: "" })
+          setPasswordConfirm("");
+        }
+    };
+  };
+
+  return (
+    <Container
+      id="auth-form-container"
+      sx={{
+        border: "1px solid darkgrey", marginTop: "100px", paddingBottom: "35px", width: "80%", display: "flex", flexDirection: "column", alignItems: "center"
+      }}>
+      <Typography
+        id="form-title"
+        fontFamily={theme.typography.fontFamily}
+        sx={{
+          padding: "15px", margin: "25px 0px 5px", fontSize: "20px",
+        }}
+      >
+        {isSignUp ? "Sign Up" : "Log In"}
+      </Typography>
+      <form id="auth-form"
+        style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "85%" }}>
+        <TextField
+          id="email-input"
+          label="Email"
+          name="email"
+          onChange={handleFormData}
+          value={formData.email}
+          required
+          error={!formData.email ? false : !validator.isEmail(formData.email)}
+          helperText={emailHelperText()}
+          sx={{
+            margin: "15px 0px", width: "100%",
+          }}>
+        </TextField>
+        <TextField
+          id="password-input"
+          label="Password"
+          name="password"
+          required
+          type={showPassword ? "text" : "password"}
+          value={formData.password}
+          // error will not trigger on Login page.
+          error={!isSignUp ? false : (!formData.password ? false : !checkPassword())}
+          helperText={passwordHelperText()}
+          onChange={handleFormData}
+          InputProps={{
+            endAdornment:
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  id="show-password"
+                  onClick={handleClickShowPassword}
+                  edge="end"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+          }}
+          sx={{
+            margin: "15px 0px 15px", width: "100%",
+          }}>
+        </TextField>
+        {isSignUp &&
+          <TextField
+            id="password-confirm-input"
+            label="Confirm Password"
+            type={showPasswordConfirm ? "text" : "password"}
+            error={!passwordConfirm ? false : !checkMatch()}
+            required
+            helperText={passConfirmHelperText()}
+
+            onChange={(event) => {
+              setPasswordConfirm(event.target.value)
+            }}
+            value={passwordConfirm}
+            InputProps={{
+              endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    id="show-password-confirm"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                    tabIndex={-1}
+                  >
+                    {showPasswordConfirm ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+            }}
+            sx={{
+              margin: "15px 0px 35px", width: "100%",
+            }}>
+          </TextField>}
+        {!isSignUp &&
+          <>
+            <Button
+              id="login-button"
+              form="auth-form"
+              variant="contained"
+              color="secondary"
+              disabled={!formReady()}
+              onClick={(e) => { handleSubmit(e) }}
+              type="submit"
+              sx={{ marginBottom: "10px" }}
+            >
+              Log In
+            </Button>
+            <Typography
+            >
+              No account yet?
+            </Typography>
+          </>}
+        <Button
+          id="signup-button"
+          form="auth-form"
+          variant="contained"
+          color="secondary"
+          disabled={!isSignUp ? false : !formReady()}
+          onClick={(e) => { !isSignUp ? toggleSignUp() : handleSubmit(e) }}
+          type="submit"
+          sx={{
+            marginTop: "10px"
+          }}
+        >
+          Sign Up
+        </Button>
+        <Typography
+          sx={{
+            margin: "10px 0px 10px"
+          }}>
+          Or
+        </Typography>
+        <GoogleButton />
+        {isSignUp &&
+          <>
+            <Typography
+              sx={{ marginTop: "20px" }}
+            >
+              Have an account already?
+            </Typography>
+            <Button
+              id="back-to-login"
+              onClick={() => setIsSignUp(false)}>
+              Log in
+            </Button>
+          </>}
+      </form>
+      {formSubmitted && <Alert
+        variant="filled"
+        severity={loginSuccess ? "success" : "error"}
+        sx={{
+          marginTop: "15px"
+        }}
+      >
+        {loginSuccess ? "Success! Redirecting..." : "Invalid Credentials"}
+      </Alert>}
+    </Container >
+  )
+}

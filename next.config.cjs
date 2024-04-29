@@ -1,15 +1,24 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/api/:path*",
-  //       destination: "http://localhost:3000/api/:path*"
-  //     }
-  //   ]
-  // }
 
+module.exports = {
+  images: {
+    domains: ['lofurazrorelmxjlqtdb.supabase.co'],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve = {
+        ...config.resolve,
+        fallback: {
+          net: false,
+          dns: false,
+          tls: false,
+          fs: false,
+          path: false,
+          crypto: false,
+          request: false,
+        },
+      };
+    }
+    return config;
+  },
 }
-
-
-module.exports = nextConfig

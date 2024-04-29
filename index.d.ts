@@ -1,0 +1,3 @@
+type ImageProps = {
+  imageUrls: string[]
+}
