@@ -91,7 +91,7 @@ export function Navbar() {
                     color: "white"
                   }}
                 >
-                  theflower.design
+                  beersflower.shop
                 </TitleText>
               </Link>
             </IconButton>
