@@ -1,76 +1,76 @@
-import mongoose from "mongoose";
-import User from "./models";
-import { Credentials } from "../types/authTypes";
-import { hashPassword, checkPasswords } from "@/utils/bcrypt";
+// import mongoose from "mongoose";
+// import User from "./models";
+// import { Credentials } from "../types/authTypes";
+// import { hashPassword, checkPasswords } from "@/utils/bcrypt";
 
-const { MONGO_USERNAME, MONGO_PASSWORD } = process.env;
+// const { MONGO_USERNAME, MONGO_PASSWORD } = process.env;
 
-mongoose.connect(`mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@TheFlowerShop.5s5bhqg.mongodb.net/?retryWrites=true&w=majority&appName=The-Flower-Shop`)
-
-
-// Had to take out try/catch block to allow error thrown to reach nextauth handler.
-export async function createUser(data: Credentials) {
-
-  const { email, password } = data;
-  // find user. if user exists, throw error with message "User already exists". Otherwise, insert new user.
-
-  console.log(User)
+// mongoose.connect(`mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@TheFlowerShop.5s5bhqg.mongodb.net/?retryWrites=true&w=majority&appName=The-Flower-Shop`)
 
 
-  const userExists = await User.findOne({ "email": email }, "id, email, password");
+// // Had to take out try/catch block to allow error thrown to reach nextauth handler.
+// export async function createUser(data: Credentials) {
 
-  console.log('mongo.ts/createUser/userExists: ', userExists)
+//   const { email, password } = data;
+//   // find user. if user exists, throw error with message "User already exists". Otherwise, insert new user.
 
-  if (userExists) {
-    console.log('email already in use')
-    throw new Error("Email is already in use");
-  }
+//   console.log(User)
 
-  console.log('about to create user')
-  const hashedPassword = await hashPassword(password)
 
-  // create new user if possible. User document should be returned.
-  // only send back the ID and the user email.
-  const user = await User.create({ email: email, password: hashedPassword, isAdmin: false });
+//   const userExists = await User.findOne({ "email": email }, "id, email, password");
 
-  if (!user) {
-    throw new Error("Couldn't save user!")
-  }
-  else {
-    const userInfo = {
-      userId: user._id,
-      isAdmin: user.isAdmin
-    };
+//   console.log('mongo.ts/createUser/userExists: ', userExists)
 
-    return userInfo
+//   if (userExists) {
+//     console.log('email already in use')
+//     throw new Error("Email is already in use");
+//   }
 
-  };
+//   console.log('about to create user')
+//   const hashedPassword = await hashPassword(password)
 
-}
+//   // create new user if possible. User document should be returned.
+//   // only send back the ID and the user email.
+//   const user = await User.create({ email: email, password: hashedPassword, isAdmin: false });
 
-export async function verifyCredentials(data: Credentials) {
-  const { email, password } = data;
+//   if (!user) {
+//     throw new Error("Couldn't save user!")
+//   }
+//   else {
+//     const userInfo = {
+//       userId: user._id,
+//       isAdmin: user.isAdmin
+//     };
 
-  console.log(process.env.NODE_ENV)
+//     return userInfo
 
-  const user = await User.findOne({ "email": email }, "_id email password isAdmin");
+//   };
 
-  console.log('mongo/verifyCredentials/user: ', user)
+// }
 
-  if (!user) {
-    console.log("Error in mongo.ts/verifyCredentials/user||user.password")
-    console.log(process.env.NODE_ENV === "development" ? user : "Error while finding user")
-    throw new Error("Invalid credentials.");
-  }
+// export async function verifyCredentials(data: Credentials) {
+//   const { email, password } = data;
 
-  const userIsValid = await checkPasswords(password, user.password);
+//   console.log(process.env.NODE_ENV)
 
-  console.error("Error in mongo.ts/verifyCredentials/await checkPasswords")
+//   const user = await User.findOne({ "email": email }, "_id email password isAdmin");
 
-  console.error(process.env.NODE_ENV === "development" ? userIsValid : "Something went wrong")
+//   console.log('mongo/verifyCredentials/user: ', user)
 
-  if (!userIsValid) throw new Error("Invalid credentials.");
+//   if (!user) {
+//     console.log("Error in mongo.ts/verifyCredentials/user||user.password")
+//     console.log(process.env.NODE_ENV === "development" ? user : "Error while finding user")
+//     throw new Error("Invalid credentials.");
+//   }
 
-  return { userId: user._id, email: user.email, isAdmin: user.isAdmin };
+//   const userIsValid = await checkPasswords(password, user.password);
 
-}
+//   console.error("Error in mongo.ts/verifyCredentials/await checkPasswords")
+
+//   console.error(process.env.NODE_ENV === "development" ? userIsValid : "Something went wrong")
+
+//   if (!userIsValid) throw new Error("Invalid credentials.");
+
+//   return { userId: user._id, email: user.email, isAdmin: user.isAdmin };
+
+// }

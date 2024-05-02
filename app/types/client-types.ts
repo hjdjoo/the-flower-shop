@@ -14,6 +14,7 @@ export interface ProductForm {
 }
 
 export interface ProductData {
+  id: string,
   name: string,
   description: string,
   standard_price: number | string | undefined,

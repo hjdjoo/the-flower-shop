@@ -1,11 +1,19 @@
 
 import { useState, useEffect } from 'react';
-import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
+
 import Image from 'next/image';
 import type { ImageLoaderProps } from 'next/image';
-// import ProductDat
+
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+
+
+import { useTheme } from '@mui/material';
+
+import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
+import PricePicker from './PricePicker';
 import { HomepageCategory, ProductData } from '../types/client-types';
 import getCategoryImages from '@/utils/supabase/clientActions/getCategoryImages';
 
@@ -15,8 +23,11 @@ type CarouselProps = {
 
 export function Carousel(props: CarouselProps) {
 
+  const theme = useTheme();
+
   const { name, id } = props.category;
   const [productData, setProductData] = useState<ProductData[]>([])
+  const [showButton, setShowButton] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -36,15 +47,18 @@ export function Carousel(props: CarouselProps) {
   }, [id])
 
   const products = productData.map((data, idx) => {
-
     return (
       <CarouselItem
         key={`${name}-product-${idx + 1}`}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
+        }}
       >
         <Typography>
           {data.name}
         </Typography>
-
         <Image
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
           src={data.image_url}
@@ -55,6 +69,23 @@ export function Carousel(props: CarouselProps) {
           width={250}
           height={350}
         />
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <PricePicker
+            name={data.name}
+            id={data.id}
+            standardPrice={data.standard_price}
+            premiumPrice={data.premium_price}
+            deluxePrice={data.deluxe_price}
+          />
+          <Button
+            variant="outlined"
+            sx={{
+              width: "80%"
+            }}
+          >
+            Add to Cart
+          </Button>
+        </Box>
       </CarouselItem>
     )
   })
@@ -62,16 +93,32 @@ export function Carousel(props: CarouselProps) {
   return (
     <Paper
       id={`${name}-carousel-container`}
+      sx={{
+        paddingTop: "10px",
+        marginBottom: "25px"
+      }}
     >
-      <Typography
+      <Box
         sx={{
-          margin: "10px",
-          fontSize: "1.3rem"
+          display: "flex",
+          justifyContent: "flex-start",
+          paddingLeft: "15px",
         }}
       >
-        {name}
-      </Typography>
-      <CarouselBox>
+        <Typography
+          sx={{
+            fontSize: "1.3rem",
+            fontStyle: "italic",
+          }}
+        >
+          {name}
+        </Typography>
+      </Box>
+      <CarouselBox
+        sx={{
+          display: "flex"
+        }}
+      >
         {products}
       </CarouselBox >
     </Paper>

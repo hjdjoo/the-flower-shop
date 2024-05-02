@@ -25,6 +25,7 @@ export default function Products() {
       console.log("products/page/useEffect/data: ", data);
       setHomepageCategories([...data]);
     })()
+
   }, [])
 
   const bestsellers = homepageCategories.filter((cat, idx) => {

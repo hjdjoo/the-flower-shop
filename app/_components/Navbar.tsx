@@ -18,10 +18,10 @@ import MenuItem from '@mui/material/MenuItem'
 import Avatar from '@mui/material/Avatar'
 /******* Icons ******/
 import MenuIcon from '@mui/icons-material/Menu';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PersonIcon from '@mui/icons-material/Person';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import PersonIcon from '@mui/icons-material/Person';
+// import LogoutIcon from '@mui/icons-material/Logout';
+// import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 /******** Styled Components ********/
 import { TitleText } from "@/app/_components/TitleText";
 import { NavIcons } from "./NavIcons";
@@ -82,10 +82,9 @@ export function Navbar() {
                   // component="div"
                   sx={{
                     marginTop: "2px",
-                    paddingLeft: "12px",
+                    paddingLeft: "8px",
                     border: "1px solid white",
-                    paddingRight: "11px",
-                    // fontSize: "1rem",
+                    paddingRight: "7px",
                     flexGrow: 1,
                     textAlign: "left",
                     color: "white"

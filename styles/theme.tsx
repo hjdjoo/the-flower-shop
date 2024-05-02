@@ -9,10 +9,10 @@ declare module '@mui/material/styles' {
 
 import { createTheme } from "@mui/material/styles";
 import { Theme } from "@emotion/react";
-import { Poppins } from "next/font/google"
+import { Lato } from "next/font/google"
 
-export const poppins = Poppins({
-  weight: ["100", "200", "300", "400"],
+export const lato = Lato({
+  weight: ["100", "300", "400", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"]
 })
@@ -28,7 +28,7 @@ const theme: Theme = createTheme({
     },
   },
   typography: {
-    fontFamily: poppins.style.fontFamily
+    fontFamily: lato.style.fontFamily
   },
 })
 
