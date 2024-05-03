@@ -45,56 +45,12 @@ export default function SignIn() {
   return (
     <Container
       sx={{
-        marginTop: "200px",
+        marginTop: "150px",
+        justifyContent: "center",
+        display: "flex",
       }}
     >
-      <AuthForm>
-
-      </AuthForm>
-
-      {/* <Auth
-        supabaseClient={supabase}
-        providers={["google"]}
-        appearance={{
-          theme: ThemeSupa,
-          variables: {
-            default: {
-              colors: {
-                brand: "#003d03",
-              }
-            }
-          }
-        }}
-      /> */}
-      <Button
-        sx={{
-          border: "1px solid black",
-          height: "20px"
-        }}
-        onClick={() => supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`
-          }
-        })}>
-        Sign in with Google
-      </Button>
-
-
-      <Stack
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}>
-        {/* <Typography
-          sx={{
-            justifySelf: "center",
-            fontSize: "0.85rem"
-          }}>
-          Sign In Provided by Supabase
-        </Typography> */}
-      </Stack>
+      <AuthForm/>
     </Container>
   )
 }
