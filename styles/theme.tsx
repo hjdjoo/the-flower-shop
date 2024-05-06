@@ -9,10 +9,10 @@ declare module '@mui/material/styles' {
 
 import { createTheme } from "@mui/material/styles";
 import { Theme } from "@emotion/react";
-import { Lato } from "next/font/google"
+import { Open_Sans as OpenSans } from "next/font/google"
 
-export const lato = Lato({
-  weight: ["100", "300", "400", "700"],
+export const openSans = OpenSans({
+  weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"]
 })
@@ -28,7 +28,7 @@ const theme: Theme = createTheme({
     },
   },
   typography: {
-    fontFamily: lato.style.fontFamily
+    fontFamily: openSans.style.fontFamily
   },
 })
 

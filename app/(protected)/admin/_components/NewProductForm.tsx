@@ -88,13 +88,12 @@ export default function NewProduct() {
 
     const reader = new FileReader();
     const file = e.target.files?.[0];
-    // console.log("admin/components/NewProduct/handlePreview/file: ", file)
 
     if (file) {
       // onloadend is triggered at the end of "readAsDataUrl";
       reader.onloadend = () => {
         const imageDataUrl = reader.result?.toString();
-        console.log(reader.result);
+        // console.log(reader.result);
 
         const base64Data = imageDataUrl?.replace(/data:\S*;base64,/, "");
 

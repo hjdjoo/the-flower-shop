@@ -82,9 +82,9 @@ export function Navbar() {
                   // component="div"
                   sx={{
                     marginTop: "2px",
-                    paddingLeft: "8px",
+                    paddingLeft: "5px",
                     border: "1px solid white",
-                    paddingRight: "7px",
+                    paddingRight: "5px",
                     flexGrow: 1,
                     textAlign: "left",
                     color: "white"
