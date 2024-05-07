@@ -51,7 +51,7 @@ export default function AuthForm() {
         alignItems: "center"
       }}
     >
-      <Image alt="fake pump" src={FavIcon} width="128" height="128"  style={{paddingBottom: 25}}/>
+      <Image alt="Logo" src={FavIcon} width="128" height="128"  style={{paddingBottom: 25}}/>
       <InputField
           id="email"
           label="Email"
@@ -96,7 +96,7 @@ export default function AuthForm() {
           Log in
         </Button>
         
-        <Button
+        <Button onClick={() => signup(formData)}
           sx={{
             border: "1px solid",
             borderColor: "primary.main",
@@ -131,7 +131,7 @@ export default function AuthForm() {
           </div>
         </button>
       </div>
-      
+
     </FormControl>
   )
 }
