@@ -14,7 +14,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 import Button from '@mui/material/Button';
 
-import AuthForm from '@/app/_components/_AuthFormSimple';
+import AuthForm from '@/app/_components/_AuthForm';
 
 import { createClient } from '@/utils/supabase/client';
 // import { createClient } from '@supabase/supabase-js';

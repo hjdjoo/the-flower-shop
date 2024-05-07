@@ -1,305 +1,167 @@
-// /**********
-//  * 
-//  * This was a custom auth form that was being designed before the decision was made to switch to a third party auth provider to switch dev focus to more immediate value-add features.
-//  * 
-//  */
+import Button from "@mui/material/Button"
+import Box from "@mui/material/Box"
+import { createClient } from '@/utils/supabase/client';
+import { ChangeEvent, useState } from "react";
 
+import { login, signup } from "../signin/actions"
+import { InputField } from "./styled/InputField";
 
-// "use client"
+import Image from 'next/image'
+import FavIcon from "../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
 
-// import React, { useEffect, useState } from "react";
-// import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+import { Roboto } from "next/font/google";
+import { Alert, FormControl } from "@mui/material";
 
+import { AuthFormData } from "./types/AuthFormData";
+import { ErrorMessage } from "../types/client-types";
 
-// import { useTheme } from "@mui/material";
-// import Container from "@mui/material/Container";
-// import TextField from "@mui/material/TextField";
-// import Button from "@mui/material/Button";
-// import Typography from "@mui/material/Typography";
-// import InputAdornment from "@mui/material/InputAdornment";
-// import IconButton from "@mui/material/IconButton";
-// import Visibility from "@mui/icons-material/Visibility";
-// import VisibilityOff from "@mui/icons-material/VisibilityOff";
-// import Alert from "@mui/material/Alert";
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: '700'
+})
 
-// //Other imports
-// import validator from "validator";
-// import GoogleButton from "@/app/_components/GoogleButton";
-// import { login, signup } from "../signin/actions";
+export default function AuthForm() {
+  const supabase = createClient();
+  const [formData, setFormData] = useState<AuthFormData>({
+    email: "",
+    password: ""
+  })
 
-// // Auth form is a reactive component; clicking "sign up" will not navigate away, rather re-render the form with appropriate inputs.
-// export default function AuthForm() {
+  const [LoginError, setLoginError] = useState<ErrorMessage>({
+    severity: undefined,
+    message: ""
+  })
 
-//   const theme = useTheme();
-//   const [isSignUp, setIsSignUp] = useState(false);
-//   const [formData, setFormData] = useState({
-//     email: "",
-//     password: ""
-//   });
-//   const [passwordConfirm, setPasswordConfirm] = useState('');
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-//   const [formSubmitted, setFormSubmitted] = useState(false);
-//   const [loginSuccess, setLoginSuccess] = useState(false);
+  const handleFormData = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.preventDefault();
+    const { name, value } = e.currentTarget;
 
-//   useEffect(() => {
-//     setFormSubmitted(false);
-//   }, [])
+    setFormData({
+      ...formData,
+      [name]: value
+    })
+  }
 
-//   /****** AuthForm specific utility functions  *****/
+  const handleClick = async (isLogin: boolean) => {
+    try {
+      setLoginError({
+        severity: undefined,
+        message: ""
+      });
+      isLogin ? await login(formData) : await signup(formData);
+    } catch (error) {
+      setLoginError({
+        severity: "error",
+        message: `${error}`
+      })
+    }
+  }
 
-//   const toggleSignUp = (): void => {
-//     setFormSubmitted(false);
-//     setIsSignUp(true);
-//   };
-//   const checkPassword = (): boolean => {
-//     // check that the password has a minimum length and is reasonably secure.
-//     const validPassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{6,}$/;
+  return (
 
-//     return formData.password.match(validPassword) ? true : false;
-//   };
-//   const checkMatch = (): boolean => {
-//     return formData.password === passwordConfirm;
-//   };
-//   const emailHelperText = (): string | null => {
-//     if (!formData.email) return null;
-//     if (!validator.isEmail(formData.email)) return "Please enter a valid email"
-//     else return null;
-//   };
-//   const passwordHelperText = (): string | null => {
-//     if (!formData.password || !isSignUp) return null;
-//     else if (checkPassword()) return null
-//     else return "Password must be at least 8 characters and contain at least 1 uppercase, lowercase, special character, and number."
-//   };
-//   const passConfirmHelperText = (): string | null => {
-//     if (!passwordConfirm) return null;
-//     if (checkMatch()) return null;
-//     else return "Passwords do not match!"
-//   };
-//   const handleClickShowPassword = (event: MouseEvent<HTMLButtonElement>): void => {
-//     console.log(event.currentTarget);
-//     if (event.currentTarget.id === "show-password") {
-//       setShowPassword((show) => !show)
-//     }
-//     if (event.currentTarget.id === "show-password-confirm") {
-//       setShowPasswordConfirm((show) => !show)
-//     }
-//   }
-//   const formReady = (): boolean | undefined => {
-//     switch (isSignUp) {
-//       case false:
-//         if (formData.email && formData.password) return true;
-//         else return false;
-//       case true:
-//         if (formData.email && formData.password) {
-//           if (checkPassword() && checkMatch()) return true
-//         }
-//         else return false;
-//     };
-//   };
-//   const handleFormData = (event: ChangeEvent<HTMLInputElement>): void => {
-//     const { name, value } = event.target;
+    <FormControl
+      sx={{ p: 2, 
+        border: '1px solid grey.800',
+        borderRadius: "15px", 
+        boxShadow: 4,
+        display: "flex",
+        flexDirection: "column",
+        width: "500px",
+        // height: "375px",
+        justifyContent: "center",
+        alignItems: "center"
+      }}
+    >
+      <Image alt="Logo" src={FavIcon} width="128" height="128"  style={{paddingBottom: 25}}/>
+      <InputField
+          id="email"
+          label="Email"
+          name="email"
+          onChange={handleFormData}
+          value={formData.email}
+          size="small"
+          sx={{
+            width: "80%"
+          }}
+        />
+        <InputField
+          id="password"
+          label="Password"
+          name="password"
+          type="password"
+          onChange={handleFormData}
+          value={formData.password}
+          size="small"
+          sx={{
+            width: "80%"
+          }}
+        />
 
-//     setFormData({ ...formData, [name]: value })
+      <Box
+      sx={{ p: 1,
+        display: "flex",
+        width: "80%",
+        justifyContent: "space-between",
+      }}
+      >
+        <Button onClick={() => handleClick(true)}
+          sx={{
+            backgroundColor: "primary.main",
+            color: "white",
+            width: "48%",
+            '&:hover': {
+              backgroundColor: "#017307",
+            }
+          }}
+        >
+          Log in
+        </Button>
+        
+        <Button onClick={() => handleClick(false)}
+          sx={{
+            border: "1px solid",
+            borderColor: "primary.main",
+            width: "48%",
+          }}
+        >
+          Sign up
+        </Button>
+      </Box>
 
-//   }
+      {LoginError.severity && <Alert
+          severity={LoginError.severity}
+          sx={{
+            marginY: "10px",
+          }}
+        >
+          {LoginError.message}
+        </Alert>}
 
-//   /********* form logic ********/
-//   // Need to adjust logic here to adapt for supabase authentication!
-//   const handleSubmit = async (e: FormEvent<HTMLElement>) => {
+      <div className={roboto.className}
+      style={{padding: 3}}
+      >
+        <button className="gsi-material-button" onClick={() => supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`
+          }
+        })}>
+          <div className="gsi-material-button-state"></div>
+          <div className="gsi-material-button-content-wrapper">
+            <div className="gsi-material-button-icon">
+              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlnsXlink="http://www.w3.org/1999/xlink">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
+              </svg>
+            </div>
+            <span className="gsi-material-button-contents">Continue with Google</span>
+          </div>
+        </button>
+      </div>
 
-//     e.preventDefault();
-//     console.log('AuthForm: formData: ', formData)
-//     const { email, password } = formData
-
-//     const credentials = new FormData();
-//     credentials.set('email', email)
-//     credentials.set('password', password)
-
-//     switch (isSignUp) {
-//       case false:
-//         // if it's not a signup form, then use login handler from supabase.
-//         try {
-//           await login(credentials);
-//         }
-//         catch (err) {
-//           setFormSubmitted(true);
-//           setLoginSuccess(false);
-//         }
-//         finally {
-//           setFormData({ email: "", password: "" })
-//           break;
-//         }
-
-//       case true:
-//         // and if it is a signup form, then use signup handler from supabase.
-//         try {
-//           await signup(credentials);
-//         }
-//         catch (err) {
-//           setFormSubmitted(true);
-//           setLoginSuccess(false);
-//         }
-//         finally {
-//           setFormData({ email: "", password: "" })
-//           setPasswordConfirm("");
-//         }
-//     };
-//   };
-
-//   return (
-//     <Container
-//       id="auth-form-container"
-//       sx={{
-//         border: "1px solid darkgrey", marginTop: "100px", paddingBottom: "35px", width: "80%", display: "flex", flexDirection: "column", alignItems: "center"
-//       }}>
-//       <Typography
-//         id="form-title"
-//         fontFamily={theme.typography.fontFamily}
-//         sx={{
-//           padding: "15px", margin: "25px 0px 5px", fontSize: "20px",
-//         }}
-//       >
-//         {isSignUp ? "Sign Up" : "Log In"}
-//       </Typography>
-//       <form id="auth-form"
-//         style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "85%" }}>
-//         <TextField
-//           id="email-input"
-//           label="Email"
-//           name="email"
-//           onChange={handleFormData}
-//           value={formData.email}
-//           required
-//           error={!formData.email ? false : !validator.isEmail(formData.email)}
-//           helperText={emailHelperText()}
-//           sx={{
-//             margin: "15px 0px", width: "100%",
-//           }}>
-//         </TextField>
-//         <TextField
-//           id="password-input"
-//           label="Password"
-//           name="password"
-//           required
-//           type={showPassword ? "text" : "password"}
-//           value={formData.password}
-//           // error will not trigger on Login page.
-//           error={!isSignUp ? false : (!formData.password ? false : !checkPassword())}
-//           helperText={passwordHelperText()}
-//           onChange={handleFormData}
-//           InputProps={{
-//             endAdornment:
-//               <InputAdornment position="end">
-//                 <IconButton
-//                   aria-label="toggle password visibility"
-//                   id="show-password"
-//                   onClick={handleClickShowPassword}
-//                   edge="end"
-//                   tabIndex={-1}
-//                 >
-//                   {showPassword ? <VisibilityOff /> : <Visibility />}
-//                 </IconButton>
-//               </InputAdornment>
-//           }}
-//           sx={{
-//             margin: "15px 0px 15px", width: "100%",
-//           }}>
-//         </TextField>
-//         {isSignUp &&
-//           <TextField
-//             id="password-confirm-input"
-//             label="Confirm Password"
-//             type={showPasswordConfirm ? "text" : "password"}
-//             error={!passwordConfirm ? false : !checkMatch()}
-//             required
-//             helperText={passConfirmHelperText()}
-
-//             onChange={(event) => {
-//               setPasswordConfirm(event.target.value)
-//             }}
-//             value={passwordConfirm}
-//             InputProps={{
-//               endAdornment:
-//                 <InputAdornment position="end">
-//                   <IconButton
-//                     aria-label="toggle password visibility"
-//                     id="show-password-confirm"
-//                     onClick={handleClickShowPassword}
-//                     edge="end"
-//                     tabIndex={-1}
-//                   >
-//                     {showPasswordConfirm ? <VisibilityOff /> : <Visibility />}
-//                   </IconButton>
-//                 </InputAdornment>
-//             }}
-//             sx={{
-//               margin: "15px 0px 35px", width: "100%",
-//             }}>
-//           </TextField>}
-//         {!isSignUp &&
-//           <>
-//             <Button
-//               id="login-button"
-//               form="auth-form"
-//               variant="contained"
-//               color="secondary"
-//               disabled={!formReady()}
-//               onClick={(e) => { handleSubmit(e) }}
-//               type="submit"
-//               sx={{ marginBottom: "10px" }}
-//             >
-//               Log In
-//             </Button>
-//             <Typography
-//             >
-//               No account yet?
-//             </Typography>
-//           </>}
-//         <Button
-//           id="signup-button"
-//           form="auth-form"
-//           variant="contained"
-//           color="secondary"
-//           disabled={!isSignUp ? false : !formReady()}
-//           onClick={(e) => { !isSignUp ? toggleSignUp() : handleSubmit(e) }}
-//           type="submit"
-//           sx={{
-//             marginTop: "10px"
-//           }}
-//         >
-//           Sign Up
-//         </Button>
-//         <Typography
-//           sx={{
-//             margin: "10px 0px 10px"
-//           }}>
-//           Or
-//         </Typography>
-//         <GoogleButton />
-//         {isSignUp &&
-//           <>
-//             <Typography
-//               sx={{ marginTop: "20px" }}
-//             >
-//               Have an account already?
-//             </Typography>
-//             <Button
-//               id="back-to-login"
-//               onClick={() => setIsSignUp(false)}>
-//               Log in
-//             </Button>
-//           </>}
-//       </form>
-//       {formSubmitted && <Alert
-//         variant="filled"
-//         severity={loginSuccess ? "success" : "error"}
-//         sx={{
-//           marginTop: "15px"
-//         }}
-//       >
-//         {loginSuccess ? "Success! Redirecting..." : "Invalid Credentials"}
-//       </Alert>}
-//     </Container >
-//   )
-// }
+    </FormControl>
+  )
+}
