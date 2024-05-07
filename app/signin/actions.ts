@@ -7,13 +7,13 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createProfile } from "@/utils/supabase/serverActions/createProfile";
 import { NextResponse } from "next/server";
+import { AuthFormData } from "../_components/types/AuthFormData";
 
-export async function login(formData: FormData) {
-
+export async function login(formData: AuthFormData) {
   const supabase = createClient();
   const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+    email: formData.email as string,
+    password: formData.password as string,
   }
 
   const { error } = await supabase.auth.signInWithPassword(data);
@@ -27,12 +27,12 @@ export async function login(formData: FormData) {
 
 };
 
-export async function signup(formData: FormData) {
+export async function signup(formData: AuthFormData) {
 
   const supabase = createClient();
   const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+    email: formData.email as string,
+    password: formData.password as string,
   }
 
   // console.log(data)
