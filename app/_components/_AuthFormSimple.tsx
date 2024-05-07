@@ -10,9 +10,10 @@ import Image from 'next/image'
 import FavIcon from "../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
 
 import { Roboto } from "next/font/google";
-import { FormControl } from "@mui/material";
+import { Alert, FormControl } from "@mui/material";
 
 import { AuthFormData } from "./types/AuthFormData";
+import { ErrorMessage } from "../types/client-types";
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -26,6 +27,11 @@ export default function AuthForm() {
     password: ""
   })
 
+  const [LoginError, setLoginError] = useState<ErrorMessage>({
+    severity: undefined,
+    message: ""
+  })
+
   const handleFormData = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.preventDefault();
     const { name, value } = e.currentTarget;
@@ -34,6 +40,21 @@ export default function AuthForm() {
       ...formData,
       [name]: value
     })
+  }
+
+  const handleClick = async (isLogin: boolean) => {
+    try {
+      setLoginError({
+        severity: undefined,
+        message: ""
+      });
+      isLogin ? await login(formData) : await signup(formData);
+    } catch (error) {
+      setLoginError({
+        severity: "error",
+        message: `${error}`
+      })
+    }
   }
 
   return (
@@ -46,7 +67,7 @@ export default function AuthForm() {
         display: "flex",
         flexDirection: "column",
         width: "500px",
-        height: "375px",
+        // height: "375px",
         justifyContent: "center",
         alignItems: "center"
       }}
@@ -83,7 +104,7 @@ export default function AuthForm() {
         justifyContent: "space-between",
       }}
       >
-        <Button onClick={() => login(formData)}
+        <Button onClick={() => handleClick(true)}
           sx={{
             backgroundColor: "primary.main",
             color: "white",
@@ -96,7 +117,7 @@ export default function AuthForm() {
           Log in
         </Button>
         
-        <Button onClick={() => signup(formData)}
+        <Button onClick={() => handleClick(false)}
           sx={{
             border: "1px solid",
             borderColor: "primary.main",
@@ -106,6 +127,15 @@ export default function AuthForm() {
           Sign up
         </Button>
       </Box>
+
+      {LoginError.severity && <Alert
+          severity={LoginError.severity}
+          sx={{
+            marginY: "10px",
+          }}
+        >
+          {LoginError.message}
+        </Alert>}
 
       <div className={roboto.className}
       style={{padding: 3}}

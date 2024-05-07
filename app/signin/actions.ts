@@ -17,9 +17,13 @@ export async function login(formData: AuthFormData) {
   }
 
   const { error } = await supabase.auth.signInWithPassword(data);
-
+  // console.log("Error Log:", error);
+  // console.log("error status", error?.status);
+  // console.log("error message", error?.message);
+  // console.log("error name", error?.name);
   if (error) {
-    throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/login/err: ${error}` : "Invalid credentials")
+    throw new Error(error?.message);
+    // throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/login/err: ${error}` : "Invalid credentials")
   };
 
   revalidatePath("/", "layout");
@@ -41,8 +45,11 @@ export async function signup(formData: AuthFormData) {
 
   console.log(signUpResponse.data);
 
-  if (signUpResponse.error || !signUpResponse) {
-    throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/signup/err: ${signUpResponse.error}` : "Invalid credentials")
+  if (signUpResponse.error) {
+    throw new Error(signUpResponse.error?.message);
+    // throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/signup/err: ${signUpResponse.error}` : "Invalid credentials")
+  } else if (!signUpResponse) {
+    throw new Error("No reponse from Supabase");
   };
 
   const userId = signUpResponse.data.user?.id
