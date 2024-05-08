@@ -2,10 +2,10 @@
 import { createClient } from "../client";
 import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
-import { getProductUrl } from "./getProductUrl";
+import getProductUrl from "./getProductUrl";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
 
-export default async function uploadImage(fileName: string, fileData: FileData | undefined): Promise<string> {
+export default async function uploadProductImage(fileName: string, fileData: FileData | undefined): Promise<string> {
   // uploads image to storage and returns public URL
   if (!fileData?.encodedData) {
     throw new Error("No file to upload!")

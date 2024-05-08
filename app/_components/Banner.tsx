@@ -12,21 +12,21 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import getBanners from "@/utils/supabase/clientActions/getBanners";
-import getBannerUrls from "@/utils/supabase/clientActions/getBannerUrls";
+import getBannerUrls from "@/utils/supabase/clientActions/getBannerUrls"
 
 
 export default function Banner() {
 
   const [banners, setBanners] = useState<string[]>([])
   const [activeStep, setActiveStep] = useState<number>(0)
-  const maxSteps = banners?.length;
+  const maxSteps = banners.length;
 
   useEffect(() => {
     (async () => {
       const bannerNames = await getBanners();
-      const bannerUrls = await getBannerUrls(bannerNames);
+      // const bannerUrls = await getBannerUrls(bannerNames);
 
-      setBanners(bannerUrls);
+      // setBanners(bannerUrls);
     })()
 
   }, [])

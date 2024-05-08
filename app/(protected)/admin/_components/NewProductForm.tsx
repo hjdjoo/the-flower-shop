@@ -22,7 +22,7 @@ import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 
 import getCategories from "@/utils/supabase/clientActions/getCategories";
-import uploadImage from "@/utils/supabase/clientActions/uploadImage";
+import uploadProductImage from "@/utils/supabase/clientActions/uploadProductImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
 import { type FileData, type ProductForm, type ErrorMessage } from "@/app/types/client-types";
 
@@ -131,7 +131,7 @@ export default function NewProduct() {
 
       const { name } = newProductForm;
       //  -> adds to supabase -> returns URL for updating product page
-      const url = await uploadImage(name, fileData);
+      const url = await uploadProductImage(name, fileData);
       console.log(url);
       if (!url) {
         throw new Error("Couldn't add image to database!")
