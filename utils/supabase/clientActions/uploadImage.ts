@@ -2,7 +2,7 @@
 import { createClient } from "../client";
 import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
-import { getUrl } from "./getUrl";
+import { getProductUrl } from "./getProductUrl";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
 
 export default async function uploadImage(fileName: string, fileData: FileData | undefined): Promise<string> {
@@ -24,7 +24,7 @@ export default async function uploadImage(fileName: string, fileData: FileData |
     throw new Error(`Couldn't upload file to database. Error: ${error.message}`)
   }
 
-  const url = await getUrl(`${fileName}.${fileData.fileType}`);
+  const url = await getProductUrl(`${fileName}.${fileData.fileType}`);
 
   return url;
 }

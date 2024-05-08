@@ -4,12 +4,12 @@ import { ChangeEventHandler } from "react";
 import Button, { ButtonProps } from "@mui/material/Button"
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 
-
+// Component for uploading images
 interface UploadButtonProps extends ButtonProps {
   handlePreview: ChangeEventHandler<HTMLInputElement>
 }
 
-const UploadButton = (props: UploadButtonProps) => {
+export default function UploadButton(props: UploadButtonProps) {
   return (
     <Button
       component="label"
@@ -29,7 +29,3 @@ const UploadButton = (props: UploadButtonProps) => {
     </Button>
   )
 }
-
-export {
-  UploadButton
-};

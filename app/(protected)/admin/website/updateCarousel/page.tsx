@@ -5,22 +5,36 @@ import Image from "next/image";
 import { useEffect, useState, ChangeEvent } from "react";
 
 import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import { InputField } from "@/app/_components/styled/InputField";
 
-import { UploadButton } from "../../_components/styled/UploadButton";
+import UploadButton from "../../_components/styled/UploadButton";
 import PreviewBox from "../../_components/styled/PreviewBox";
-import { uploadPreview } from "../../actions/handlePreview";
+import Banner from "@/app/_components/Banner";
 
-import { FileData } from "@/app/types/client-types";
+// import uploadBannerImage from "@/utils/supabase/clientActions/uploadBannerImage";
+
+import { createClient } from "@/utils/supabase/client";
+
+import { FileData, ErrorMessage } from "@/app/types/client-types";
 
 export default function UpdateCarouselPage() {
 
   const [fileData, setFileData] = useState<FileData | undefined>({
     encodedData: "",
     fileType: ""
-  })
+  });
+  const [bannerName, setBannerName] = useState<string>("");
+  const [bannerUrls, setBannerUrls] = useState<string[] | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
+  const [userAlert, setUserAlert] = useState<ErrorMessage>({
+    severity: undefined,
+    message: ""
+  })
 
-  /* Component-specific async handlers */
+  /*Preview handler - wanted to modularize this but had trouble maintaining state.*/
   const handlePreview = (e: ChangeEvent<HTMLInputElement>) => {
 
     const reader = new FileReader();
@@ -49,6 +63,13 @@ export default function UpdateCarouselPage() {
     };
   };
 
+  const handleUpload = async () => {
+
+    // const urls = await uploadBannerImage(bannerName, fileData);
+    // setBannerUrls(urls);
+
+  }
+
   return (
     <Container
       sx={{
@@ -58,10 +79,39 @@ export default function UpdateCarouselPage() {
         alignItems: "center"
       }}
     >
+      <Box>
+        <Typography>
+          Banner Preview:
+        </Typography>
+        <Banner />
+      </Box>
       {previewUrl && <PreviewBox previewUrl={previewUrl!} />}
       <UploadButton
+        id="preview-upload-button"
         handlePreview={handlePreview}
       />
+      {previewUrl &&
+        <>
+          <InputField
+            id="banner-name-input"
+            label="Banner name"
+            onChange={(e) => {
+              setBannerName(e.target.value);
+            }}
+            value={bannerName}
+          />
+          <Button
+            id="banner-upload-button"
+            variant="contained"
+            onClick={handleUpload}
+          >
+            Add To Carousel
+          </Button>
+        </>
+      }
+      {
+
+      }
     </Container>
   )
 }

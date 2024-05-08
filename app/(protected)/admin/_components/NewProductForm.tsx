@@ -17,7 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from '@mui/icons-material/Cancel';
 
-import { UploadButton } from "./styled/UploadButton";
+import UploadButton from "./styled/UploadButton";
 import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 

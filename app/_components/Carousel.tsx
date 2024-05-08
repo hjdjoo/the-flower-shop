@@ -37,7 +37,7 @@ export function Carousel(props: CarouselProps) {
         if (error || !data) {
           throw new Error(`Couldn't get images from DB! Error: ${error?.message}`)
         }
-        console.log('Carousel/data: ', data)
+        // console.log('Carousel/data: ', data)
         setProductData(data);
       } catch (error) {
         // handle error...
