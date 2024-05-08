@@ -1,18 +1,22 @@
 import { createClient } from "../client";
 
-export default async function getBannerUrls(product: string): Promise<string> {
+export default async function getBannerUrls(banners: string[]): Promise<string[]> {
 
   const supabase = createClient();
 
-  const { data } = await supabase
-    .storage
-    .from("products")
-    .getPublicUrl(product)
+  const urls: string[] = [];
 
-  if (!data.publicUrl) {
-    throw new Error(`Nothing found for ${product} in db`)
-  }
+  banners.forEach(async (banner) => {
 
-  return data.publicUrl;
+    const { data } = await supabase
+      .storage
+      .from("banner_images")
+      .getPublicUrl(banner);
+
+    urls.push(data.publicUrl);
+
+  })
+
+  return urls;
 
 };

@@ -11,17 +11,26 @@ import IconButton from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
+import getWindowSize from "@/utils/actions/getWindowSize";
 import getBanners from "@/utils/supabase/clientActions/getBanners";
 import getBannerUrls from "@/utils/supabase/clientActions/getBannerUrls"
 
+import type { WindowSize } from "../types/client-types";
 
 export default function Banner() {
 
+  const [windowSize, setWindowSize] = useState<WindowSize>({
+    width: 0,
+    height: 0
+  })
   const [banners, setBanners] = useState<string[]>([])
   const [activeStep, setActiveStep] = useState<number>(0)
   const maxSteps = banners.length;
 
   useEffect(() => {
+    const window = getWindowSize();
+    setWindowSize(window);
+
     (async () => {
       const bannerNames = await getBanners();
       // const bannerUrls = await getBannerUrls(bannerNames);
@@ -55,29 +64,11 @@ export default function Banner() {
           style={{
             objectFit: "fill"
           }}
-          width={250}
-          height={250}
+          width={windowSize.width * 0.93}
+          height={windowSize.height / 2}
         >
         </Image>
       </Box>
-      <MobileStepper
-        steps={maxSteps}
-        activeStep={activeStep}
-        nextButton={
-          <IconButton
-            onClick={handleNext}
-          >
-            <KeyboardArrowRight />
-          </IconButton>
-        }
-        backButton={
-          <IconButton
-            onClick={handleBack}
-          >
-            <KeyboardArrowLeft />
-          </IconButton>
-        }
-      />
     </Paper>
   )
 

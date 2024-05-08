@@ -14,7 +14,7 @@ import UploadButton from "../../_components/styled/UploadButton";
 import PreviewBox from "../../_components/styled/PreviewBox";
 import Banner from "@/app/_components/Banner";
 
-// import uploadBannerImage from "@/utils/supabase/clientActions/uploadBannerImage";
+import uploadBannerImage from "@/utils/supabase/clientActions/uploadBannerImage";
 
 import { createClient } from "@/utils/supabase/client";
 
@@ -32,6 +32,11 @@ export default function UpdateCarouselPage() {
   const [userAlert, setUserAlert] = useState<ErrorMessage>({
     severity: undefined,
     message: ""
+  })
+
+  useEffect(() => {
+
+
   })
 
   /*Preview handler - wanted to modularize this but had trouble maintaining state.*/

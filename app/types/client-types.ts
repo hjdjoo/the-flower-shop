@@ -32,3 +32,8 @@ export interface HomepageCategory {
   id: number,
   name: string
 }
+
+export interface WindowSize {
+  width: number
+  height: number
+}
