@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 // import { getImageUrls } from '../../../lib/supabaseDb/supabase';
-import { getImageUrls } from "@/utils/supabase/clientActions/getUrl";
+import { getUrl } from "@/utils/supabase/clientActions/getUrl";
 
 console.log('Entering api/image-urls/route.ts')
 // type Data = string[] | undefined
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   console.log('getting Image URLs...')
   try {
-    const urls = await getImageUrls();
+    const urls = await getUrl();
     return NextResponse.json(urls);
 
   }
