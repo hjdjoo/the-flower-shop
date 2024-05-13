@@ -4,12 +4,16 @@ import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
 import getProductUrl from "./getProductUrl";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
+import getBanners from "./getBanners";
 import getBannerUrls from "./getBannerUrls";
 
-export default async function uploadBannerImage(fileName: string, fileData: FileData | undefined): Promise<string> {
+export default async function uploadBannerImage(fileName: string, fileData: FileData | undefined): Promise<string[]> {
   // uploads image to storage and returns public URL
   if (!fileData?.encodedData) {
     throw new Error("No file to upload!")
+  }
+  if (!fileName) {
+    throw new Error("Please enter a name!")
   }
 
   const supabase = createClient();
@@ -25,7 +29,10 @@ export default async function uploadBannerImage(fileName: string, fileData: File
     throw new Error(`Couldn't upload file to database. Error: ${error.message}`)
   }
 
-  const urls = await getBannerUrls();
+  else {
+    const banners = await getBanners();
+    const urls = await getBannerUrls(banners);
+    return urls;
+  }
 
-  return url;
 }

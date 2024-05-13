@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import '@/styles/global.css';
 import theme from '../styles/theme';
 import { Navbar } from './_components/Navbar';
+import BackgroundBanner from './_components/BackgroundBanner';
 
 import { UserProvider } from '@/lib/contexts/UserContext';
 
@@ -47,6 +48,7 @@ export default async function RootLayout(
             <UserProvider currentUser={user}>
               <Navbar />
               <main>
+                <BackgroundBanner></BackgroundBanner>
                 {children}
               </main>
             </UserProvider>

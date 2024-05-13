@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState, useRef } from "react"
 
 import Image from "next/image";
@@ -5,7 +7,7 @@ import type { ImageLoaderProps } from "next/image";
 
 import MobileStepper from "@mui/material/MobileStepper";
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
+import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -17,7 +19,7 @@ import getBannerUrls from "@/utils/supabase/clientActions/getBannerUrls"
 
 import type { WindowSize } from "../types/client-types";
 
-export default function Banner() {
+export default function BackgroundBanner() {
 
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
@@ -33,9 +35,9 @@ export default function Banner() {
 
     (async () => {
       const bannerNames = await getBanners();
-      // const bannerUrls = await getBannerUrls(bannerNames);
+      const bannerUrls = await getBannerUrls(bannerNames);
 
-      // setBanners(bannerUrls);
+      setBanners(bannerUrls);
     })()
 
   }, [])
@@ -49,27 +51,31 @@ export default function Banner() {
   }
 
   return (
-    <Paper
-      id="promo-banner-container"
+
+    <Box
+      position={"absolute"}
+      sx={{
+        width: windowSize.width * 1.05,
+        height: windowSize.height / 2,
+        overflow: "hidden",
+        // border: "1px solid black",
+      }}
     >
-      <Box
-        position={"relative"}
+      <Image
+        id="backround-image"
+        loader={({ src }: ImageLoaderProps): string => {
+          return `${src}?w=${windowSize.width}`
+        }}
+        src={banners[activeStep]}
+        alt="promotional image"
+        style={{
+          objectFit: "contain",
+          zIndex: -1
+        }}
+        fill
       >
-        <Image
-          loader={({ src, width }: ImageLoaderProps): string => {
-            return `${src}?w=${width}`
-          }}
-          src={banners[activeStep]}
-          alt="promotional image"
-          style={{
-            objectFit: "fill"
-          }}
-          width={windowSize.width * 0.93}
-          height={windowSize.height / 2}
-        >
-        </Image>
-      </Box>
-    </Paper>
+      </Image>
+    </Box>
   )
 
 }

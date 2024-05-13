@@ -14,9 +14,10 @@ export default async function getBanners(): Promise<string[]> {
   }
 
   else {
-    // const banners = data
     console.log('getBanners/data: ', data);
-    return [];
+    const banners = data.filter((banner) => banner.name !== ".emptyFolderPlaceholder").map((banner) => {
+      return banner.name
+    })
+    return banners
   }
-
 }
