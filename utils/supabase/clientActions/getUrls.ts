@@ -7,9 +7,7 @@ export const getUrls = cache(async (imgNames: string[], bucketFolder: string): P
     throw new Error("Must specify an image folder");
   }
   try {
-
     const supabase = createClient();
-
     const urls: string[] = [];
 
     imgNames.forEach(async (img) => {
@@ -20,7 +18,6 @@ export const getUrls = cache(async (imgNames: string[], bucketFolder: string): P
         .getPublicUrl(img);
 
       urls.push(data.publicUrl);
-
     })
 
     return {

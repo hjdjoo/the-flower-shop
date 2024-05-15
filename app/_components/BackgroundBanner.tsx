@@ -7,10 +7,12 @@ import type { ImageLoaderProps } from "next/image";
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import normalizeCasing from "@/utils/actions/normalizeCasing";
 
 import getWindowSize from "@/utils/actions/getWindowSize";
 
@@ -23,6 +25,10 @@ interface BackgroundBannerProps {
 export default function BackgroundBanner(props: BackgroundBannerProps) {
 
   const { bannerData } = props;
+
+  const bannerNames = bannerData.map(banner => {
+    return normalizeCasing(banner.name.replace(/(\..*)$/, ""))
+  })
 
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
@@ -86,13 +92,17 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       <Box
         sx={{
           width: "100%",
+          height: Math.floor(windowSize.height / 3),
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          paddingTop: "10%"
+          alignItems: "flex-end"
         }}
       >
-        <IconButton>
+        <IconButton
+          onClick={handleBack}
+          disableRipple
+        >
           <KeyboardArrowLeft
             sx={{
               fontSize: "2.5rem",
@@ -100,7 +110,29 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             }}
           />
         </IconButton>
-        <IconButton>
+        <ButtonBase
+          sx={{
+            height: "10%",
+            maxWidth: "60%",
+            borderBottom: "1px solid white",
+            borderTop: "1px solid white",
+            color: "white",
+            marginBottom: "15px"
+          }}
+        >
+          <Typography
+            sx={{
+              fontStyle: "italic",
+              textShadow: "1px 1px 3px grey"
+            }}
+          >
+            Shop {bannerNames[activeStep]} Flowers {">>"}
+          </Typography>
+        </ButtonBase>
+        <IconButton
+          onClick={handleNext}
+          disableRipple
+        >
           <KeyboardArrowRight
             sx={{
               fontSize: "2.5rem",
