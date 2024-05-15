@@ -9,6 +9,11 @@
     U+2215, U+FEFF, U+FFFD;
 } */
 
+* {
+  margin: 0;
+  padding: 0;
+}
+
 button>a {
   color: #FFF;
   text-decoration: none;
@@ -18,6 +23,27 @@ button>a {
   color: #FFF;
   text-decoration: none;
 }
+
+@keyframes fadein {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1
+  }
+
+  to {
+    opacity: 0
+  }
+}
+
 
 .g_id_signin {
   transform: scale(1.05)
@@ -111,7 +137,7 @@ button>a {
   opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
   background-color: #303030;
   opacity: 12%;

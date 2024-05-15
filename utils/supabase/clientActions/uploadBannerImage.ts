@@ -4,8 +4,8 @@ import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
 import getProductUrl from "./getProductUrl";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
-import getBanners from "./getBanners";
-import getBannerUrls from "./getBannerUrls";
+import { getBanners } from "./getBanners";
+import { getUrls } from "./getUrls";
 
 export default async function uploadBannerImage(fileName: string, fileData: FileData | undefined): Promise<string[]> {
   // uploads image to storage and returns public URL
@@ -30,9 +30,14 @@ export default async function uploadBannerImage(fileName: string, fileData: File
   }
 
   else {
-    const banners = await getBanners();
-    const urls = await getBannerUrls(banners);
+    const { data: banners } = await getBanners();
+    if (!banners) {
+      throw new Error("Couldn't get banners")
+    }
+    const { data: urls } = await getUrls(banners, "banner_images");
+    if (!urls) {
+      throw new Error("Couldn't get banner URLS")
+    }
     return urls;
-  }
-
+  };
 }

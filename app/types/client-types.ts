@@ -37,3 +37,8 @@ export interface WindowSize {
   width: number
   height: number
 }
+
+export interface BannerData {
+  name: string,
+  url: string
+}

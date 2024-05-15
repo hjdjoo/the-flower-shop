@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import '@/styles/global.css';
 import theme from '../styles/theme';
 import { Navbar } from './_components/Navbar';
+import BannerNav from './_components/BannerSpacer';
 import BackgroundBanner from './_components/BackgroundBanner';
 
 import { UserProvider } from '@/lib/contexts/UserContext';
@@ -32,13 +33,12 @@ export default async function RootLayout(
 ) {
 
   const cookieStore = cookies();
+  const supabase = createClient();
 
   const userRole = cookieStore.get("userRole")?.value;
   const user = { role: userRole ? userRole : "guest" }
-  const supabase = createClient();
 
   await supabase.auth.getSession();
-
 
   return (
     <html lang="en">
@@ -48,7 +48,6 @@ export default async function RootLayout(
             <UserProvider currentUser={user}>
               <Navbar />
               <main>
-                <BackgroundBanner></BackgroundBanner>
                 {children}
               </main>
             </UserProvider>

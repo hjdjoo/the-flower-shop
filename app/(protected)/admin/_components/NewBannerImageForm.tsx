@@ -12,7 +12,7 @@ import { InputField } from "@/app/_components/styled/InputField";
 
 import UploadButton from "./styled/UploadButton";
 import PreviewBox from "./styled/PreviewBox";
-import Banner from "@/app/_components/Banner";
+import BackgroundBanner from "@/app/_components/BackgroundBanner";
 
 import uploadBannerImage from "@/utils/supabase/clientActions/uploadBannerImage";
 
@@ -98,6 +98,7 @@ export default function NewBannerImageForm() {
       />
       {previewUrl &&
         <>
+          {/* This should be refactored to select from categories */}
           <InputField
             id="banner-name-input"
             label="Banner name"

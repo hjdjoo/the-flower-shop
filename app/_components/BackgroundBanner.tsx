@@ -5,49 +5,54 @@ import { useEffect, useState, useRef } from "react"
 import Image from "next/image";
 import type { ImageLoaderProps } from "next/image";
 
-import MobileStepper from "@mui/material/MobileStepper";
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 import getWindowSize from "@/utils/actions/getWindowSize";
-import getBanners from "@/utils/supabase/clientActions/getBanners";
-import getBannerUrls from "@/utils/supabase/clientActions/getBannerUrls"
 
-import type { WindowSize } from "../types/client-types";
+import type { WindowSize, BannerData } from "../types/client-types";
 
-export default function BackgroundBanner() {
+interface BackgroundBannerProps {
+  bannerData: BannerData[]
+}
+
+export default function BackgroundBanner(props: BackgroundBannerProps) {
+
+  const { bannerData } = props;
 
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
     height: 0
-  })
-  const [banners, setBanners] = useState<string[]>([])
+  });
   const [activeStep, setActiveStep] = useState<number>(0)
-  const maxSteps = banners.length;
 
   useEffect(() => {
     const window = getWindowSize();
     setWindowSize(window);
 
-    (async () => {
-      const bannerNames = await getBanners();
-      const bannerUrls = await getBannerUrls(bannerNames);
-
-      setBanners(bannerUrls);
-    })()
-
   }, [])
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setActiveStep((prevStep) => {
+        return prevStep + 1 === bannerData.length ? 0 : prevStep + 1;
+      });
+    }, 6000)
+    return () => {
+      clearInterval(intervalId);
+    }
+  })
+
   const handleBack = () => {
-    setActiveStep((activeStep - 1) % maxSteps)
+    setActiveStep(activeStep - 1 < 0 ? bannerData.length - 1 : activeStep - 1);
   }
 
   const handleNext = () => {
-    setActiveStep((activeStep + 1) % maxSteps)
+    setActiveStep(activeStep + 1 === bannerData.length ? 0 : activeStep + 1);
   }
 
   return (
@@ -55,26 +60,55 @@ export default function BackgroundBanner() {
     <Box
       position={"absolute"}
       sx={{
-        width: windowSize.width * 1.05,
-        height: windowSize.height / 2,
+        width: windowSize.width,
+        height: windowSize.width * (3 / 4),
         overflow: "hidden",
-        // border: "1px solid black",
+        display: "flex",
       }}
     >
       <Image
-        id="backround-image"
+        id="background-image"
         loader={({ src }: ImageLoaderProps): string => {
-          return `${src}?w=${windowSize.width}`
+          return `${src}`
         }}
-        src={banners[activeStep]}
+        src={bannerData[activeStep].url}
+        onClick={() => {
+
+        }}
         alt="promotional image"
         style={{
           objectFit: "contain",
           zIndex: -1
         }}
+        priority
         fill
+      />
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          paddingTop: "10%"
+        }}
       >
-      </Image>
+        <IconButton>
+          <KeyboardArrowLeft
+            sx={{
+              fontSize: "2.5rem",
+              color: "white"
+            }}
+          />
+        </IconButton>
+        <IconButton>
+          <KeyboardArrowRight
+            sx={{
+              fontSize: "2.5rem",
+              color: "white"
+            }}
+          />
+        </IconButton>
+      </Box>
     </Box>
   )
 

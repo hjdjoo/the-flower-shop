@@ -95,7 +95,8 @@ export function Carousel(props: CarouselProps) {
       id={`${name}-carousel-container`}
       sx={{
         paddingTop: "10px",
-        marginBottom: "25px"
+        marginBottom: "25px",
+        flexShrink: 0,
       }}
     >
       <Box

@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
 import NewBannerImageForm from "../../_components/NewBannerImageForm";
-import Banner from "@/app/_components/Banner";
+import BackgroundBanner from "@/app/_components/BackgroundBanner";
 
 
 export default function UpdateCarouselPage() {
@@ -30,7 +30,7 @@ export default function UpdateCarouselPage() {
         <Typography>
           Banner Preview:
         </Typography>
-        <Banner />
+        {/* <BackgroundBanner /> */}
       </Box>
       <NewBannerImageForm />
     </Container>
