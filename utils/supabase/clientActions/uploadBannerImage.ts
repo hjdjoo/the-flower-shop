@@ -2,8 +2,6 @@
 import { createClient } from "../client";
 import { decode } from "base64-arraybuffer";
 import { FileData } from "@/app/types/client-types";
-import getProductUrl from "./getProductUrl";
-import normalizeCasing from "@/utils/actions/normalizeCasing";
 import { getBanners } from "./getBanners";
 import { getUrls } from "./getUrls";
 
