@@ -19,7 +19,7 @@ export default function WebsiteSettingsPage() {
           marginTop: "15px"
         }}
       >
-        <GridItem>
+        <GridItem xs={12} marginBottom="15px">
           <Button
             onClick={() => router.push('/admin/website/manageProducts')}
             sx={{
@@ -29,8 +29,18 @@ export default function WebsiteSettingsPage() {
             Manage Products
           </Button>
         </GridItem>
+        <GridItem xs={12} marginBottom="15px">
+          <Button
+            onClick={() => router.push('/admin/website/updateCarousel')}
+            sx={{
+              border: "1px solid black"
+            }}
+          >
+            Update Carousel
+          </Button>
+        </GridItem>
       </Grid>
-    </StyledContainer>
+    </StyledContainer >
   )
 
 }

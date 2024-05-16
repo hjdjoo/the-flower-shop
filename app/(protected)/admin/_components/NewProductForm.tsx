@@ -17,12 +17,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from '@mui/icons-material/Cancel';
 
-import { UploadButton } from "./styled/UploadButton";
+import UploadButton from "./styled/UploadButton";
 import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 
 import getCategories from "@/utils/supabase/clientActions/getCategories";
-import uploadImage from "@/utils/supabase/clientActions/uploadImage";
+import uploadProductImage from "@/utils/supabase/clientActions/uploadProductImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
 import { type FileData, type ProductForm, type ErrorMessage } from "@/app/types/client-types";
 
@@ -88,13 +88,12 @@ export default function NewProduct() {
 
     const reader = new FileReader();
     const file = e.target.files?.[0];
-    // console.log("admin/components/NewProduct/handlePreview/file: ", file)
 
     if (file) {
       // onloadend is triggered at the end of "readAsDataUrl";
       reader.onloadend = () => {
         const imageDataUrl = reader.result?.toString();
-        console.log(reader.result);
+        // console.log(reader.result);
 
         const base64Data = imageDataUrl?.replace(/data:\S*;base64,/, "");
 
@@ -132,7 +131,7 @@ export default function NewProduct() {
 
       const { name } = newProductForm;
       //  -> adds to supabase -> returns URL for updating product page
-      const url = await uploadImage(name, fileData);
+      const url = await uploadProductImage(name, fileData);
       console.log(url);
       if (!url) {
         throw new Error("Couldn't add image to database!")

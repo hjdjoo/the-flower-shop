@@ -50,13 +50,12 @@ export function NavIcons(props: NavIconsProps) {
           </PersonIcon>
         </Link>
       </StyledIconButton>
-      {!(userRole === "admin") &&
-        <StyledIconButton>
-          <ShoppingCartIcon
-            sx={{
-              color: "white"
-            }} />
-        </StyledIconButton>}
+      <StyledIconButton>
+        <ShoppingCartIcon
+          sx={{
+            color: "white"
+          }} />
+      </StyledIconButton>
       <StyledIconButton
         onClick={() => signOut()}
       >

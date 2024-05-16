@@ -13,20 +13,20 @@ export default function PreviewBox(props: PreviewBoxProps) {
     slot: "root"
   })(({ theme }) => ({
     [theme.breakpoints.between('xs', 'sm')]: {
-      minWidth: "200px",
-      minHeight: "200px",
-      maxWidth: "350px",
-      maxHeight: "350px",
-    },
-    [theme.breakpoints.between('sm', 'md')]: {
       minWidth: "350px",
       minHeight: "350px",
+      maxWidth: "450px",
+      maxHeight: "450px",
+    },
+    [theme.breakpoints.between('sm', 'md')]: {
+      minWidth: "450px",
+      minHeight: "450px",
       maxWidth: "650px",
       maxHeight: "650px",
     },
     [theme.breakpoints.up('md')]: {
-      minWidth: "500px",
-      minHeight: "500px",
+      minWidth: "650px",
+      minHeight: "650px",
       maxWidth: "800px",
       maxHeight: "800px",
     },
@@ -56,7 +56,7 @@ export default function PreviewBox(props: PreviewBoxProps) {
   return (
     <StyledBox >
       <StyledImage
-        id="product-upload-preview"
+        id="upload-preview"
         src={props.previewUrl}
         fill
         alt={"Image Preview"}

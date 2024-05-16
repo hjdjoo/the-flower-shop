@@ -14,6 +14,7 @@ export interface ProductForm {
 }
 
 export interface ProductData {
+  id: string,
   name: string,
   description: string,
   standard_price: number | string | undefined,
@@ -30,4 +31,14 @@ export interface ErrorMessage {
 export interface HomepageCategory {
   id: number,
   name: string
+}
+
+export interface WindowSize {
+  width: number
+  height: number
+}
+
+export interface BannerData {
+  name: string,
+  url: string
 }

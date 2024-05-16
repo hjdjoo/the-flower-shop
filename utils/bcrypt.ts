@@ -1,23 +1,23 @@
-"use server"
+// "use server"
 
-import bcrypt from "bcrypt"
-// import dotenv
-const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
+// import bcrypt from "bcrypt"
+// // import dotenv
+// const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
 
-export async function hashPassword(password: string | undefined): Promise<string> {
+// export async function hashPassword(password: string | undefined): Promise<string> {
 
-  const hashedPassword = await bcrypt.hash(password!, saltRounds);
+//   const hashedPassword = await bcrypt.hash(password!, saltRounds);
 
-  return hashedPassword;
+//   return hashedPassword;
 
-}
+// }
 
-export async function checkPasswords(password: string, hash: string): Promise<Boolean> {
+// export async function checkPasswords(password: string, hash: string): Promise<Boolean> {
 
-  console.error("utils/bcrypt/checkPasswords: ", "password: ", password, "hash: ", hash)
+//   console.error("utils/bcrypt/checkPasswords: ", "password: ", password, "hash: ", hash)
 
-  const isMatch = bcrypt.compare(password, hash);
+//   const isMatch = bcrypt.compare(password, hash);
 
-  return isMatch;
+//   return isMatch;
 
-}
+// }

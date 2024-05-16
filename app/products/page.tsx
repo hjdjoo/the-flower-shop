@@ -9,7 +9,7 @@ import { HomepageCategory } from "../types/client-types";
 
 // import { getImageUrls } from "@/utils/supabase/getImageUrls";
 
-console.log("@products/page.tsx: ", "entering Products page");
+// console.log("@products/page.tsx: ", "entering Products page");
 
 export default function Products() {
 
@@ -22,9 +22,10 @@ export default function Products() {
       if (error || !data) {
         throw new Error(`Couldn't get homepage categories! Error: ${error?.message}`)
       }
-      console.log("products/page/useEffect/data: ", data);
+      // console.log("products/page/useEffect/data: ", data);
       setHomepageCategories([...data]);
     })()
+
   }, [])
 
   const bestsellers = homepageCategories.filter((cat, idx) => {
@@ -33,7 +34,7 @@ export default function Products() {
 
   const bestsellersCarousel = (bestsellers: HomepageCategory[]) => {
     if (!bestsellers.length) return;
-    console.log(bestsellers[0]);
+    // console.log(bestsellers[0]);
     return (
       <Suspense
         fallback={<p>Loading Products...</p>}>

@@ -73,11 +73,9 @@ export async function updateSession(request: NextRequest) {
 
   const { data, error } = await supabase.auth.getUser();
 
-  if (error) {
+  if (error || !data.user) {
     console.log('Error while checking supabase.auth.getUser()')
     console.error(error);
-  }
-  if (!data.user) {
     console.log("No user found!")
     response.cookies.set("userRole", "guest")
     return response;

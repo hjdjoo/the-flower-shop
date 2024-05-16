@@ -63,6 +63,7 @@ describe("AuthForm Component", () => {
   });
 
   it("shows password when visibility icon is clicked", () => {
+    ``
 
     const visibilityButton = screen.getByLabelText(/toggle password visibility/i);
     fireEvent.click(visibilityButton);
