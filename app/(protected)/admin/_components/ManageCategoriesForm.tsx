@@ -32,7 +32,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import { createClient } from "@/utils/supabase/client";
-import getCategories from "@/utils/supabase/clientActions/getCategories";
+import { getCategories } from "@/utils/supabase/clientActions/getCategories";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
 import { ErrorMessage } from "@/app/types/client-types";
 import { CategoryData } from "@/app/types/db-types";

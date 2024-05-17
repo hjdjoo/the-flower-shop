@@ -14,8 +14,9 @@ import { useTheme } from '@mui/material';
 
 import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
 import PricePicker from './PricePicker';
-import { HomepageCategory, ProductData } from '../types/client-types';
-import getCategoryImages from '@/utils/supabase/clientActions/getCategoryImages';
+import { HomepageCategory } from '../types/client-types';
+import { ProductData } from '../types/db-types';
+import { getCategoryItems } from '@/utils/supabase/clientActions/getCategoryItems';
 
 type CarouselProps = {
   category: HomepageCategory
@@ -32,7 +33,7 @@ export function Carousel(props: CarouselProps) {
   useEffect(() => {
     (async () => {
       try {
-        const { data, error } = await getCategoryImages(id);
+        const { data, error } = await getCategoryItems(id);
 
         if (error || !data) {
           throw new Error(`Couldn't get images from DB! Error: ${error?.message}`)

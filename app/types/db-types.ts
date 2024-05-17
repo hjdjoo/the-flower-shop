@@ -10,3 +10,14 @@ export interface CategoryData {
   name: string,
   is_active: boolean,
 }
+
+
+export interface ProductData {
+  id: string,
+  name: string,
+  description: string,
+  standard_price: number | string | undefined,
+  premium_price: number | string | undefined,
+  deluxe_price: number | string | undefined,
+  image_url: string,
+}

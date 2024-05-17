@@ -21,7 +21,7 @@ import UploadButton from "./styled/UploadButton";
 import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 
-import getCategories from "@/utils/supabase/clientActions/getCategories";
+import { getCategories } from "@/utils/supabase/clientActions/getCategories";
 import uploadProductImage from "@/utils/supabase/clientActions/uploadProductImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
 import { type FileData, type ProductForm, type ErrorMessage } from "@/app/types/client-types";
