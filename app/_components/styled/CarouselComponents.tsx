@@ -8,14 +8,17 @@ export const CarouselBox = styled("ul", {
   name: "Carousel",
   slot: "root"
 })((theme) => ({
-  // border: "1px solid black",
-  height: "500px",
+  height: "400px",
   listStyle: "none",
   overflowX: "scroll",
   whiteSpace: "nowrap",
   alignContent: "center",
-  paddingLeft: "15px",
-  // border: "1px solid black"
+  paddingLeft: "40px",
+  // border: "1px solid blue",
+  overflowY: 'hidden',
+  '&::-webkit-scrollbar': {
+    display: 'hidden',
+  },
 }))
 
 export const CarouselItem = styled("li", {
@@ -27,6 +30,6 @@ export const CarouselItem = styled("li", {
   marginLeft: "15px",
   marginBottom: "15px",
   display: "inline-block",
-  // border: "1px dotted black",
   position: "relative",
+  height: 375,
 })

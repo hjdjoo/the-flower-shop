@@ -7,8 +7,9 @@ import type { ImageLoaderProps } from 'next/image';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
+import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 
 import { useTheme } from '@mui/material';
 
@@ -24,6 +25,18 @@ type CarouselProps = {
 export function Carousel(props: CarouselProps) {
 
   const theme = useTheme();
+  const CardTextStyles = {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    color: 'white',
+    padding: '8px',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+  };
+
 
   const { name, id } = props.category;
   const [productData, setProductData] = useState<ProductData[]>([])
@@ -46,6 +59,22 @@ export function Carousel(props: CarouselProps) {
 
   }, [id])
 
+  const handleScroll = (e: any, translateX: number) => {
+    if (e.target instanceof HTMLButtonElement) {
+      e.target.parentElement.scrollBy({
+        left: (translateX),
+        top: 0,
+        behavior: 'smooth'
+      })
+    } else { // if user clicks on svg of button
+      e.target.parentElement.parentElement.scrollBy({
+        left: (translateX),
+        top: 0,
+        behavior: 'smooth'
+      })
+    }
+  };
+
   const products = productData.map((data, idx) => {
     return (
       <CarouselItem
@@ -53,23 +82,29 @@ export function Carousel(props: CarouselProps) {
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-        <Typography>
+        {/* <Typography>
           {data.name}
-        </Typography>
+        </Typography> */}
         <Image
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
           src={data.image_url}
           alt={`${name} product ${idx + 1}`}
-          style={{
-            objectFit: "contain"
-          }}
+          // style={{
+          //   objectFit: "contain"
+          // }}
           width={250}
           height={350}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Typography variant='h5' component='h5' sx={{CardTextStyles}}>
+          {data.name}
+        </Typography>
+        <Typography component='p' sx={{CardTextStyles}}>
+          {`$${data.standard_price}`}
+        </Typography>
+        {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <PricePicker
             name={data.name}
             id={data.id}
@@ -85,7 +120,7 @@ export function Carousel(props: CarouselProps) {
           >
             Add to Cart
           </Button>
-        </Box>
+        </Box> */}
       </CarouselItem>
     )
   })
@@ -115,12 +150,56 @@ export function Carousel(props: CarouselProps) {
           {name}
         </Typography>
       </Box>
-      <CarouselBox
-        sx={{
-          display: "flex"
-        }}
+      <CarouselBox sx={{ display: "flex" }}
       >
-        {products}
+        <IconButton 
+          onClick={(event) => {handleScroll(event, -500)}}
+          sx={{
+            position: 'absolute',
+            color: 'black',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            left: 0,
+            borderRadius: 0,
+            height: 400,
+            zIndex: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white'
+          }
+        }}>
+          <ArrowBackIosOutlinedIcon 
+            fontSize='large'
+            sx={{
+              position: 'relative',
+              bottom: '30px'
+            }}
+          />
+        </IconButton>
+          {products}
+        <IconButton 
+          onClick={(event) => { handleScroll(event, 500) }}
+          sx={{
+            position: 'absolute',
+            color: 'black',
+            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+            right: 0,
+            borderRadius: 0,
+            height: 400,
+            zIndex: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white'
+            }
+          }}
+        >
+          <ArrowForwardIosOutlinedIcon 
+            fontSize='large'
+            sx={{
+              position: 'relative',
+              bottom: '30px'
+            }}
+          />
+        </IconButton>
       </CarouselBox >
     </Paper>
   )

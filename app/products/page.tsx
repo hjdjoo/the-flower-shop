@@ -55,9 +55,9 @@ export default function Products() {
   })
 
   return (
-    <>
+    <div>
       {bestsellersCarousel(bestsellers)}
       {productCarousels}
-    </>
+    </div>
   )
 }
