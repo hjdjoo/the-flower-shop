@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 
 import Image from 'next/image';
 import type { ImageLoaderProps } from 'next/image';
@@ -7,13 +7,10 @@ import type { ImageLoaderProps } from 'next/image';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
-import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 
 import { useTheme } from '@mui/material';
 
-import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
+import * as CarouselComp from './styled/CarouselComponents';
 import PricePicker from './PricePicker';
 import { HomepageCategory, ProductData } from '../types/client-types';
 import getCategoryImages from '@/utils/supabase/clientActions/getCategoryImages';
@@ -59,15 +56,17 @@ export function Carousel(props: CarouselProps) {
 
   }, [id])
 
-  const handleScroll = (e: any, translateX: number) => {
-    if (e.target instanceof HTMLButtonElement) {
-      e.target.parentElement.scrollBy({
+  const handleScroll = (event: SyntheticEvent<HTMLButtonElement, MouseEvent>, translateX: number) => {
+    if (event.target instanceof HTMLButtonElement) {
+      event.target.parentElement?.scrollBy({
         left: (translateX),
         top: 0,
         behavior: 'smooth'
       })
-    } else { // if user clicks on svg of button
-      e.target.parentElement.parentElement.scrollBy({
+    } 
+    
+    if (event.target !instanceof HTMLButtonElement) { // if user clicks on svg of button
+      event.target.parentElement?.parentElement?.scrollBy({
         left: (translateX),
         top: 0,
         behavior: 'smooth'
@@ -77,7 +76,7 @@ export function Carousel(props: CarouselProps) {
 
   const products = productData.map((data, idx) => {
     return (
-      <CarouselItem
+      <CarouselComp.CarItem
         key={`${name}-product-${idx + 1}`}
         sx={{
           display: "flex",
@@ -85,16 +84,10 @@ export function Carousel(props: CarouselProps) {
           alignItems: "center",
         }}
       >
-        {/* <Typography>
-          {data.name}
-        </Typography> */}
         <Image
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
           src={data.image_url}
           alt={`${name} product ${idx + 1}`}
-          // style={{
-          //   objectFit: "contain"
-          // }}
           width={250}
           height={350}
         />
@@ -121,7 +114,7 @@ export function Carousel(props: CarouselProps) {
             Add to Cart
           </Button>
         </Box> */}
-      </CarouselItem>
+      </CarouselComp.CarItem>
     )
   })
 
@@ -150,57 +143,23 @@ export function Carousel(props: CarouselProps) {
           {name}
         </Typography>
       </Box>
-      <CarouselBox sx={{ display: "flex" }}
-      >
-        <IconButton 
+      <CarouselComp.CarBox sx={{ display: "flex" }}>
+        <CarouselComp.CarButton 
           onClick={(event) => {handleScroll(event, -500)}}
-          sx={{
-            position: 'absolute',
-            color: 'black',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            left: 0,
-            borderRadius: 0,
-            height: 400,
-            zIndex: 1,
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white'
-          }
-        }}>
-          <ArrowBackIosOutlinedIcon 
-            fontSize='large'
-            sx={{
-              position: 'relative',
-              bottom: '30px'
-            }}
-          />
-        </IconButton>
-          {products}
-        <IconButton 
-          onClick={(event) => { handleScroll(event, 500) }}
-          sx={{
-            position: 'absolute',
-            color: 'black',
-            backgroundColor: 'rgba(255, 255, 255, 0.6)',
-            right: 0,
-            borderRadius: 0,
-            height: 400,
-            zIndex: 1,
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white'
-            }
-          }}
+          disableRipple
+          sx={{ left: 0 }}
         >
-          <ArrowForwardIosOutlinedIcon 
-            fontSize='large'
-            sx={{
-              position: 'relative',
-              bottom: '30px'
-            }}
-          />
-        </IconButton>
-      </CarouselBox >
+          <CarouselComp.CarPrevIcon fontSize='large'/>
+        </CarouselComp.CarButton>
+          {products}
+        <CarouselComp.CarButton 
+          onClick={(event) => {handleScroll(event, 500)}}
+          disableRipple
+          sx={{ right: 0 }}
+        >
+          <CarouselComp.CarNextIcon fontSize='large'/>
+        </CarouselComp.CarButton>
+      </CarouselComp.CarBox >
     </Paper>
   )
 
