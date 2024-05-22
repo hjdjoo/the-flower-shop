@@ -1,5 +1,5 @@
 
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 import type { ImageLoaderProps } from 'next/image';
@@ -56,22 +56,12 @@ export function Carousel(props: CarouselProps) {
 
   }, [id])
 
-  const handleScroll = (event: SyntheticEvent<HTMLButtonElement, MouseEvent>, translateX: number) => {
-    if (event.target instanceof HTMLButtonElement) {
-      event.target.parentElement?.scrollBy({
-        left: (translateX),
-        top: 0,
-        behavior: 'smooth'
-      })
-    } 
-    
-    if (event.target !instanceof HTMLButtonElement) { // if user clicks on svg of button
-      event.target.parentElement?.parentElement?.scrollBy({
-        left: (translateX),
-        top: 0,
-        behavior: 'smooth'
-      })
-    }
+  const handleScroll = (carouselName: string, translateX: number) => {
+    document.getElementById(`${carouselName}-carousel`)?.scrollBy({
+      left: (translateX),
+      top: 0,
+      behavior: 'smooth'
+    })
   };
 
   const products = productData.map((data, idx) => {
@@ -143,9 +133,9 @@ export function Carousel(props: CarouselProps) {
           {name}
         </Typography>
       </Box>
-      <CarouselComp.CarBox sx={{ display: "flex" }}>
+      <CarouselComp.CarBox id={`${name}-carousel`} sx={{ display: "flex" }}>
         <CarouselComp.CarButton 
-          onClick={(event) => {handleScroll(event, -500)}}
+          onClick={(event) => {handleScroll(name, -500)}}
           disableRipple
           sx={{ left: 0 }}
         >
@@ -153,7 +143,7 @@ export function Carousel(props: CarouselProps) {
         </CarouselComp.CarButton>
           {products}
         <CarouselComp.CarButton 
-          onClick={(event) => {handleScroll(event, 500)}}
+          onClick={(event) => {handleScroll(name, 500)}}
           disableRipple
           sx={{ right: 0 }}
         >
