@@ -2,15 +2,11 @@
 
 import { useState, useEffect } from "react";
 
-
 import { ProductData } from "@/app/types/db-types";
 
 
-
 export default function CategoryPage(
-  {
-    params,
-  }
+  { params, }
     :
     {
       params:

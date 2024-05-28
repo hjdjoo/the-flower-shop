@@ -6,7 +6,6 @@ import checkAdmin from "./utils/supabase/serverActions/checkAdmin";
 console.log('Entering middleware.ts')
 
 export const middleware = async (request: NextRequest) => {
-
   // console.log('middleware/request.cookies: ', request.cookies)
   if (request.cookies.has("next-auth.session-token")) {
     request.cookies.delete("next-auth.session-token")

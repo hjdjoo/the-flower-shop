@@ -2,7 +2,7 @@ import { PostgrestError } from "@supabase/supabase-js"
 
 export interface SupabaseResponse<T> {
   data: T | null
-  error: PostgrestError | Error | unknown | null
+  error: PostgrestError | unknown | null
 }
 
 export interface CategoryData {
@@ -15,6 +15,7 @@ export interface CategoryData {
 export interface ProductData {
   id: string,
   name: string,
+  categories: number[] | null
   description: string,
   standard_price: number | string | undefined,
   premium_price: number | string | undefined,

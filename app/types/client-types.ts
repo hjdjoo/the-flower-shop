@@ -3,7 +3,7 @@ export interface FileData {
   fileType: string | undefined
 }
 
-export interface ProductForm {
+export interface ProductData {
   name: string,
   categories: number[],
   description: string,
