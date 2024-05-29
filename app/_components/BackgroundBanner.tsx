@@ -110,6 +110,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             }}
           />
         </IconButton>
+        {/* Need to add routing/navigation functionality to buttons; the banner names should be category names (meaning the banner upload form should specify categories to upload banners for, rather than simply a filename.) */}
         <ButtonBase
           sx={{
             height: "10%",

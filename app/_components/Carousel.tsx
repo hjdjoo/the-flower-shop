@@ -7,12 +7,10 @@ import type { ImageLoaderProps } from 'next/image';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-
 
 import { useTheme } from '@mui/material';
 
-import { CarouselBox, CarouselItem } from './styled/CarouselComponents';
+import * as CarouselComp from './styled/CarouselComponents';
 import PricePicker from './PricePicker';
 import { HomepageCategory } from '../types/client-types';
 import { ProductData } from '../types/db-types';
@@ -25,6 +23,18 @@ type CarouselProps = {
 export function Carousel(props: CarouselProps) {
 
   const theme = useTheme();
+  const CardTextStyles = {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    color: 'white',
+    padding: '8px',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+  };
+
 
   const { name, id } = props.category;
   const [productData, setProductData] = useState<ProductData[]>([])
@@ -47,30 +57,38 @@ export function Carousel(props: CarouselProps) {
 
   }, [id])
 
+  const handleScroll = (carouselName: string, translateX: number) => {
+    document.getElementById(`${carouselName}-carousel`)?.scrollBy({
+      left: (translateX),
+      top: 0,
+      behavior: 'smooth'
+    })
+  };
+
   const products = productData.map((data, idx) => {
     return (
-      <CarouselItem
+      <CarouselComp.CarItem
         key={`${name}-product-${idx + 1}`}
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-        <Typography>
-          {data.name}
-        </Typography>
         <Image
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
           src={data.image_url}
           alt={`${name} product ${idx + 1}`}
-          style={{
-            objectFit: "contain"
-          }}
           width={250}
           height={350}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Typography variant='h5' component='h5' sx={{CardTextStyles}}>
+          {data.name}
+        </Typography>
+        <Typography component='p' sx={{CardTextStyles}}>
+          {`$${data.standard_price}`}
+        </Typography>
+        {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <PricePicker
             name={data.name}
             id={data.id}
@@ -86,8 +104,8 @@ export function Carousel(props: CarouselProps) {
           >
             Add to Cart
           </Button>
-        </Box>
-      </CarouselItem>
+        </Box> */}
+      </CarouselComp.CarItem>
     )
   })
 
@@ -116,13 +134,23 @@ export function Carousel(props: CarouselProps) {
           {name}
         </Typography>
       </Box>
-      <CarouselBox
-        sx={{
-          display: "flex"
-        }}
-      >
-        {products}
-      </CarouselBox >
+      <CarouselComp.CarBox id={`${name}-carousel`} sx={{ display: "flex" }}>
+        <CarouselComp.CarButton 
+          onClick={(event) => {handleScroll(name, -500)}}
+          disableRipple
+          sx={{ left: 0 }}
+        >
+          <CarouselComp.CarPrevIcon fontSize='large'/>
+        </CarouselComp.CarButton>
+          {products}
+        <CarouselComp.CarButton 
+          onClick={(event) => {handleScroll(name, 500)}}
+          disableRipple
+          sx={{ right: 0 }}
+        >
+          <CarouselComp.CarNextIcon fontSize='large'/>
+        </CarouselComp.CarButton>
+      </CarouselComp.CarBox >
     </Paper>
   )
 
