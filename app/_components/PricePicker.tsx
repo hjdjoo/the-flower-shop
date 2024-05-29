@@ -37,14 +37,14 @@ export default function PricePicker(props: PricePickerProps) {
   }
 
 
-  const PriceButtons = prices.map((price, idx) => {
+  const PriceButtons = prices?.map((price, idx) => {
     return (
       <Button
         variant={selectedPrice === idx ? "contained" : "outlined"}
         key={`price-button-${idx + 1}`}
         id={`price-button-`}
         onClick={() => handlePrice(idx)}
-        aria-label=""
+        aria-label={`Select ${priceTiers[idx]}`}
       >
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Typography fontSize={"0.8rem"}>{priceTiers[idx]}</Typography>

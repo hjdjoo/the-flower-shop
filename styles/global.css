@@ -19,6 +19,11 @@ button>a {
   text-decoration: none;
 }
 
+a {
+  color: #003d03;
+  text-decoration: none;
+}
+
 #nav-to-home {
   color: #FFF;
   text-decoration: none;

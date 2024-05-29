@@ -7,8 +7,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import '@/styles/global.css';
 import theme from '../styles/theme';
 import { Navbar } from './_components/Navbar';
-import BannerNav from './_components/BannerSpacer';
-import BackgroundBanner from './_components/BackgroundBanner';
+
+
 
 import { UserProvider } from '@/lib/contexts/UserContext';
 
