@@ -2,32 +2,22 @@ import { useState, Dispatch, SetStateAction, ChangeEvent } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Radio, { RadioProps } from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormLabel from "@mui/material/FormLabel";
-import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { Button } from "@mui/material";
 
 import { OrderFormData } from "./types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
-interface PricePickerProps extends RadioProps {
+interface PricePickerProps {
   // prices: Array<number | string | undefined>
   productInfo: { id: number, description: string, prices: Array<number | undefined> }
   orderInfo: OrderFormData
   setOrderInfo: Dispatch<SetStateAction<OrderFormData>>
 }
 
-interface ItemPrice {
-  id: string
-  price: number
-}
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { id, productInfo, orderInfo, setOrderInfo } = props;
+  const { productInfo, orderInfo, setOrderInfo } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
@@ -48,7 +38,7 @@ export default function PricePicker(props: PricePickerProps) {
     }
     else {
       for (let product of updatedOrderInfo.products) {
-        if (product?.productId === id) {
+        if (product?.productId === productInfo.id) {
           product!.value = price
         }
       }
