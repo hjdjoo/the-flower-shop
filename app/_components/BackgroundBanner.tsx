@@ -27,6 +27,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
   const { bannerData } = props;
 
   const bannerNames = bannerData.map(banner => {
+    // the "replace" method is taking the extensions (.jpg, .png, etc) and removing it.
     return normalizeCasing(banner.name.replace(/(\..*)$/, ""))
   })
 
@@ -34,6 +35,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
     width: 0,
     height: 0
   });
+
   const [activeStep, setActiveStep] = useState<number>(0)
 
   useEffect(() => {
@@ -64,16 +66,18 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
   return (
 
     <Box
+      className="banner-box"
       position={"absolute"}
       sx={{
-        width: windowSize.width,
-        height: windowSize.width * (3 / 4),
         overflow: "hidden",
         display: "flex",
+        flexDirection: "column",
+        zIndex: -1
       }}
     >
       <Image
         id="background-image"
+        className="banner-image"
         loader={({ src }: ImageLoaderProps): string => {
           return `${src}`
         }}
@@ -82,21 +86,20 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
         }}
         alt="promotional image"
+        sizes="100vw"
         style={{
-          objectFit: "contain",
-          zIndex: -1
+          zIndex: -1,
         }}
-        priority
         fill
+        priority
       />
       <Box
+        className="banner-navigation"
         sx={{
-          width: "100%",
-          height: Math.floor(windowSize.height / 3),
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          alignItems: "flex-end"
+          alignItems: "flex-end",
         }}
       >
         <IconButton
@@ -143,6 +146,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         </IconButton>
       </Box>
     </Box>
+
   )
 
 }
