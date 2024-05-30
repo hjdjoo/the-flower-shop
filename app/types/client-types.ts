@@ -7,9 +7,9 @@ export interface ProductData {
   name: string,
   categories: number[],
   description: string,
-  standardPrice: number | string | undefined,
-  premiumPrice: number | string | undefined,
-  deluxePrice: number | string | undefined,
+  standardPrice: number | undefined,
+  premiumPrice: number | undefined,
+  deluxePrice: number | undefined,
   imageUrl: string,
 }
 

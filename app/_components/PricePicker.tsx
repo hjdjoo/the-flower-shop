@@ -14,8 +14,9 @@ import { OrderFormData } from "./types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps extends RadioProps {
-  name: string
-  prices: Array<number | string | undefined>
+  // prices: Array<number | string | undefined>
+  productInfo: { id: number, description: string, prices: Array<number | undefined> }
+  orderInfo: OrderFormData
   setOrderInfo: Dispatch<SetStateAction<OrderFormData>>
 }
 
@@ -26,25 +27,48 @@ interface ItemPrice {
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { name, id, prices, setOrderInfo } = props;
+  const { id, productInfo, orderInfo, setOrderInfo } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
   const priceTiers = ["Standard", "Premium", "Deluxe"]
 
-  const handlePrice = (idx: number) => {
+  const handlePrice = (price: number, idx: number) => {
     setSelectedPrice(idx);
+
+    const updatedOrderInfo = { ...orderInfo };
+
+    if (!updatedOrderInfo.products.length) {
+      updatedOrderInfo.products.push({
+        productId: productInfo.id,
+        description: productInfo.description,
+        productType: undefined,
+        value: price
+      })
+    }
+    else {
+      for (let product of updatedOrderInfo.products) {
+        if (product?.productId === id) {
+          product!.value = price
+        }
+      }
+    }
+
+    setOrderInfo(updatedOrderInfo)
   }
 
 
-  const PriceButtons = prices?.map((price, idx) => {
+  const PriceButtons = productInfo.prices?.map((price, idx) => {
     return (
       <Button
         variant={selectedPrice === idx ? "contained" : "outlined"}
         key={`price-button-${idx + 1}`}
         id={`price-button-`}
-        onClick={() => handlePrice(idx)}
+        onClick={() => handlePrice(price!, idx)}
         aria-label={`Select ${priceTiers[idx]}`}
+        sx={{
+          width: "25%"
+        }}
       >
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Typography fontSize={"0.8rem"}>{priceTiers[idx]}</Typography>

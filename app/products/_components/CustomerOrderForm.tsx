@@ -1,17 +1,18 @@
+
 import SenderInfo from "@/app/_components/SenderInfo";
 
 import RecipientInfo from "@/app/_components/RecipientInfo";
-import { useState, Dispatch, SetStateAction, MouseEvent, ChangeEvent } from "react";
+import { useState, useRef, Dispatch, SetStateAction, MouseEvent, ChangeEvent } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import IconButton from "@mui/material/Button";
-import Icon from "@mui/material/Icon";
+import ButtonBase from "@mui/material/ButtonBase";
+// import IconButton from "@mui/material/Button";
+// import Icon from "@mui/material/Icon";
 
-import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 // import { TextField } from "@/app/_components/styled/TextField";
@@ -19,6 +20,8 @@ import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
 import { OrderFormData } from "@/app/_components/types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
+
+import verifyDeliveryDate from "@/utils/actions/types/verifyDeliveryDate";
 
 interface CustomerOrderFormProps {
   orderInfo: OrderFormData
@@ -31,19 +34,33 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   const { orderInfo, setOrderInfo } = props;
 
-  const orderFields = ["deliveryDate", "deliveryZip", "cardMessage"];
+  // const orderFields = ["deliveryDate", "deliveryZip", "deliveryInstructions"];
+
+  const activeRef = useRef(null);
 
   const [activeField, setActiveField] = useState<string | undefined>()
 
-  const [userAlert, setUserAlert] = useState<ErrorMessage>({
+  const [deliveryDateAlert, setDeliveryDateAlert] = useState<ErrorMessage>({
     severity: undefined,
     message: ""
   })
+  const [deliveryZipAlert, setDeliveryZipAlert] = useState<ErrorMessage>({
+    severity: undefined,
+    message: ""
+  })
+  const [deliveryInstructionsAlert, setDeliveryInstructionsAlert] = useState<ErrorMessage>({
+    severity: undefined,
+    message: `${orderInfo.deliveryInstructions.length}/200`
+  })
 
+  /* Handler Functions */
   // handle open/close for delivery fields
-  const handleActiveField = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleActiveField = (e: MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
 
-    const fieldName = e.currentTarget.name;
+
+    const currNode = e.currentTarget.lastChild as HTMLButtonElement
+    console.log(currNode.name);
+    const fieldName = currNode?.name;
     if (activeField === fieldName) setActiveField(undefined);
     else setActiveField(fieldName);
 
@@ -55,66 +72,102 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
     setOrderInfo({ ...orderInfo, [name]: value })
   }
 
-  const verifyDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  /* Other utility functions and handlers */
+  // confirm that the delivery date is valid
+  const checkDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
-    console.log("verifying delivery date; input value: ", value);
+    const validDate = verifyDeliveryDate(value)
 
-    const today = Date.now();
-
-    const deliveryDate = Date.parse(value);
-
-    if (deliveryDate < today) {
-      setUserAlert({
+    if (!validDate) {
+      setDeliveryDateAlert({
         severity: "error",
-        message: "We can't go back in time!"
+        message: "We cannot halt the inexorable forward march of time!"
       })
     }
-
+    else {
+      setDeliveryDateAlert({
+        severity: undefined,
+        message: ""
+      })
+    }
   }
-
+  // simple check with zip code regexp
   const verifyZip = async (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
+    const validZipRegExp = /^[0-9]{5}$/
 
+    if (!value.match(validZipRegExp)) {
+      setDeliveryZipAlert({
+        severity: "error",
+        message: "Please enter a valid ZIP"
+      })
+    }
+    else setDeliveryZipAlert({
+      severity: undefined,
+      message: ""
+    })
   }
 
-  const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const checkInstructionLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
+    if (value.length <= 200) {
+      setDeliveryInstructionsAlert({
+        severity: undefined,
+        message: `${value.length}/200`
+      })
+    }
+    else {
+      setDeliveryInstructionsAlert({
+        severity: "error",
+        message: `${value.length}/200 - too long!`
+      })
+    }
+  }
+
+  const checkDeliveryArea = async () => {
+    // Either: have a list of delivery zip codes in DB (not great)
+    // Or: utilize Google Maps API to check that the driving distance and time are within a preset limit.
+    // Either way -- if outside typical delivery zone, display message (maybe as a popup?) something like:
+    // "Oops! It looks like this is outside of our typical delivery area. Please call the shop for further assistance: 201 445 4111"
   }
 
   return (
     <Box
+      id="customer-order-form-box"
       width="100%"
       marginTop="15px"
       display="flex"
       flexDirection="column"
     >
-      <Box
+      <Box id="delivery-date-toggle-box"
         marginTop="15px"
         marginBottom="5px"
         paddingLeft="15px"
         display="flex"
         alignItems="center"
         sx={{
-          backgroundColor: "lightgrey"
+          backgroundColor: "lightgrey",
+          "&:hover": {
+            backgroundColor: "grey",
+            color: "white"
+          }
         }}
-        aria-label="Select Delivery Date"
+        onClick={handleActiveField}
       >
         <Typography>Select Delivery Date</Typography>
         <ExpandMore
           expand={activeField === "deliveryDate"}
           name="deliveryDate"
-          onClick={(e) => handleActiveField(e)}
-          aria-label="Show delivery date input"
+          aria-label="Toggle delivery date input"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </Box>
-      <Box
+      <Box id="delivery-date-box"
         width="100%"
-        id="delivery-date-box"
       >
         <Collapse in={activeField === "deliveryDate"}>
           <Typography>{"When would you like them delivered?"}</Typography>
@@ -123,90 +176,126 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
             type="date"
             name="deliveryDate"
             value={orderInfo.deliveryDate}
+            error={!!deliveryDateAlert.severity}
+            helperText={deliveryDateAlert.message}
             onChange={(e) => {
-              verifyDeliveryDate(e)
+              checkDeliveryDate(e)
               handleOrderInfo(e)
             }}
             sx={{
               marginTop: "5px",
               marginBottom: "15px"
             }}
-          // fullWidth
           />
         </Collapse>
       </Box>
-      <Box
+      <Box id="delivery-zip-toggle-box"
         marginBottom="5px"
         paddingLeft="15px"
         display="flex"
         alignItems="center"
         sx={{
-          backgroundColor: "lightgrey"
-        }}>
+          backgroundColor: "lightgrey",
+          "&:hover": {
+            backgroundColor: "grey",
+            color: "white"
+          }
+        }}
+        onClick={handleActiveField}
+      >
         <Typography>Delivery Zip</Typography>
         <ExpandMore
           expand={activeField === "deliveryZip"}
           name="deliveryZip"
-          onClick={(e) => handleActiveField(e)}
-          aria-label="Show delivery zip input"
+          aria-label="Toggle delivery zip input"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </Box>
-      <Box
-        id="delivery-zip-box"
-      >
+      <Box id="delivery-zip-box">
         <Collapse in={activeField === "deliveryZip"}>
           <Typography>{"Where's this going?"}</Typography>
-          <TextField
-            id="delivery-zip-input"
-            label="Enter Zip Code"
-            name="recipZip"
-            value={orderInfo.recipZip}
-            onChange={(e) => {
-              verifyZip(e);
-              handleOrderInfo(e);
-            }}
-            sx={{
-              marginTop: "5px",
-              marginBottom: "15px"
-            }}
-          />
+          <Box
+            display="flex"
+            alignItems="center">
+            <TextField
+              id="delivery-zip-input"
+              label="Enter Zip Code"
+              name="recipZip"
+              value={orderInfo.recipZip ? orderInfo.recipZip : ""}
+              error={!!deliveryZipAlert.severity}
+              helperText={deliveryZipAlert.message}
+              onChange={(e) => {
+                verifyZip(e);
+                handleOrderInfo(e);
+              }}
+              sx={{
+                marginTop: "5px",
+                marginBottom: "15px"
+              }}
+            />
+            <Button
+              variant="outlined"
+              sx={{
+                marginX: "15px"
+              }}
+              onClick={checkDeliveryArea}
+            >
+              Check Zip
+            </Button>
+            <Box
+              height="100%"
+              display="flex"
+              flexDirection="column"
+            >
+              <Typography>Estimated Delivery Fee:</Typography>
+              <Typography>(Insert Fee Calculation Here)</Typography>
+            </Box>
+          </Box>
         </Collapse>
       </Box>
-      <Box
+      <Box id="delivery-instructions-toggle-box"
+        marginBottom="5px"
         paddingLeft="15px"
         display="flex"
         alignItems={"center"}
         sx={{
-          backgroundColor: "lightgrey"
-        }}>
-        <Typography>Card Message</Typography>
+          backgroundColor: "lightgrey",
+          "&:hover": {
+            backgroundColor: "grey",
+            color: "white"
+          }
+        }}
+        onClick={handleActiveField}
+      >
+        <Typography>Delivery Instructions</Typography>
         <ExpandMore
-          expand={activeField === "cardMessage"}
-          name="cardMessage"
-          onClick={(e) => handleActiveField(e)}
-          aria-label="Show card message input"
+          expand={activeField === "deliveryInstructions"}
+          name="deliveryInstructions"
+          aria-label="Toggle delivery instructions input"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </Box>
-      <Box id="card-message-box">
-        <Collapse in={activeField === "cardMessage"}>
-          <Typography>{"What would you like to say?"}</Typography>
+      <Box id="delivery-instructions-box">
+        <Collapse in={activeField === "deliveryInstructions"}>
+          <Typography>{"Any specific instructions?"}</Typography>
           <TextField
             id="card-message-input"
-            sx={{
-              marginBottom: "15px"
-            }}
-            name="cardMessage"
-            value={orderInfo.cardMessage}
+            name="deliveryInstructions"
+            value={orderInfo.deliveryInstructions}
+            error={!!deliveryInstructionsAlert.severity}
+            helperText={deliveryInstructionsAlert.message}
             onChange={(e) => {
               handleOrderInfo(e);
-              checkMessageLength(e);
+              checkInstructionLength(e);
             }}
             fullWidth
             multiline
+            sx={{
+              marginTop: "5px",
+              marginBottom: "15px"
+            }}
           />
         </Collapse>
       </Box>

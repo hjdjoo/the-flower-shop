@@ -13,7 +13,7 @@ export default function CartPreview() {
       height="auto"
       display="flex"
       justifyContent="center"
-      border="1px solid black"
+      border="1px dotted black"
     >
       <Typography
         fontFamily={theme.typography.fontFamily}

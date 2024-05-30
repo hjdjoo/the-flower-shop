@@ -17,5 +17,7 @@ export const OrderForm = {
   products: [],
   orderDate: "",
   deliveryDate: "",
+  deliveryFee: undefined,
+  deliveryInstructions: ""
 
 } as OrderFormData

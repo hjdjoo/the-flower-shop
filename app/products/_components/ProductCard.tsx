@@ -44,7 +44,7 @@ export default function ProductCard(props: ProductCardProps) {
     (async () => {
 
       const { data } = await getCategoryNames(categories);
-      console.log(data);
+      // console.log(data);
 
       setRelatedCategories(data)
 
@@ -59,23 +59,35 @@ export default function ProductCard(props: ProductCardProps) {
 
   const relatedCategoriesLinks = relatedCategories?.map((category, idx) => {
     return (
-      <>
+      <Box
+        key={`related-categories-box-${idx + 1}`}>
         <Link href={`/category/${category.id}`}>
           <Box
-            key={`related-categories-box-${idx + 1}`}
-            marginY="10px"
+            marginY="15px"
+            width="100%"
             display="flex"
             justifyContent="space-between"
             sx={{
-              backgroundColor: theme.palette.primary.light
+              backgroundColor: theme.palette.primary.light,
+              boxShadow: "2px 2px 4px lightgrey",
+              "&:hover": {
+                backgroundColor: "lightgrey",
+              }
             }}
           >
-            <Typography>Explore {category.name} flowers</Typography>
-            <Typography>{">>"}</Typography>
+            <Typography
+              sx={{
+                paddingLeft: "15px"
+              }}
+            >Explore {category.name} flowers</Typography>
+            <Typography
+              sx={{
+                paddingRight: "15px"
+              }}
+            >{">"}</Typography>
           </Box>
         </Link>
-
-      </>
+      </Box>
     )
   })
 
@@ -85,10 +97,7 @@ export default function ProductCard(props: ProductCardProps) {
     >
       <Grid
         container>
-        <Grid
-          xs={12}
-          sm={6}
-        >
+        <Grid xs={12} sm={6} id="product-display-grid-area" >
           <Box
             id="product-display-box"
             paddingX="15px"
@@ -99,7 +108,7 @@ export default function ProductCard(props: ProductCardProps) {
           >
             <Box
               id="product-name-box"
-              height={"50px"}
+              height={"75px"}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -107,7 +116,10 @@ export default function ProductCard(props: ProductCardProps) {
                 marginBottom: "15px"
               }}
             >
-              <Typography id="product-name">{name}</Typography>
+              <Typography
+                id="product-name"
+                fontSize="1.2rem"
+              >{name}</Typography>
             </Box>
             <Box
               id="product-image-box"
@@ -125,18 +137,31 @@ export default function ProductCard(props: ProductCardProps) {
                 loader={imageLoader}
                 src={imageUrl}
                 alt="Product-image"
-                objectFit="contain"
+                style={{
+                  objectFit: "contain"
+                }}
                 fill
                 priority
               />
             </Box>
-            <Typography marginBottom={"15px"} id="product-description">
+            <Typography
+              id="product-description"
+              marginTop="15px"
+              marginBottom="15px"
+            >
               {description}
             </Typography>
-            <PricePicker name={name} prices={[standardPrice, premiumPrice, deluxePrice]} setOrderInfo={setOrderInfo} />
+            <PricePicker
+              productInfo={{
+                id: productId,
+                description: description,
+                prices: [standardPrice, premiumPrice, deluxePrice]
+              }}
+              orderInfo={orderInfo}
+              setOrderInfo={setOrderInfo} />
           </Box>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid xs={12} sm={6} id="order-form-grid-area">
           <Box
             width="100%"
             id="order-form-box"
@@ -160,7 +185,7 @@ export default function ProductCard(props: ProductCardProps) {
                 sx={{
                   marginTop: "15px"
                 }}
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart()}
                 fullWidth
               >
                 Add to Cart
@@ -171,15 +196,23 @@ export default function ProductCard(props: ProductCardProps) {
                 marginTop="3px"
               >You can update your order at any time.</Typography>
             </Box>
-            <CartPreview></CartPreview>
+            <Box id="cart-preview-box"
+              marginTop="50px"
+            >
+              <Typography>Cart Preview:</Typography>
+              <CartPreview />
+            </Box>
           </Box>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid xs={12} sm={6} id="related-categories-grid-area">
           <Box
             id="category-suggestion-box"
             marginTop="30px"
           >
-            <Typography>Related Categories:</Typography>
+            <Typography
+              fontSize={"1.2rem"}
+              fontStyle={"italic"}
+            >Related Categories:</Typography>
             {relatedCategoriesLinks}
           </Box>
         </Grid>

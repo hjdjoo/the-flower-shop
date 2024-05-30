@@ -60,7 +60,9 @@ export default function PreviewBox(props: PreviewBoxProps) {
         src={props.previewUrl}
         fill
         alt={"Image Preview"}
-        objectFit="contain"
+        style={{
+          objectFit: "contain"
+        }}
       />
     </StyledBox>
   )

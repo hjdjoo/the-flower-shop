@@ -22,15 +22,15 @@ export default async function ProductPage({ params }: { params: { productId: num
     name: name,
     categories: categories!,
     description: description,
-    standardPrice: standard_price,
-    premiumPrice: premium_price,
-    deluxePrice: deluxe_price,
+    standardPrice: Number(standard_price),
+    premiumPrice: Number(premium_price),
+    deluxePrice: Number(deluxe_price),
     imageUrl: image_url
   }
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<p>Loading...</p>}>
         <ProductCard productId={productId} productInfo={productInfo} />
       </Suspense>
     </>
