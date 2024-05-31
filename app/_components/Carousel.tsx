@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import type { ImageLoaderProps } from 'next/image';
 
+import { useRouter } from 'next/navigation';
+
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -12,14 +14,17 @@ import { useTheme } from '@mui/material';
 
 import * as CarouselComp from './styled/CarouselComponents';
 import PricePicker from './PricePicker';
-import { HomepageCategory, ProductData } from '../types/client-types';
-import getCategoryImages from '@/utils/supabase/clientActions/getCategoryImages';
+import { HomepageCategory } from '../types/client-types';
+import { ProductData } from '../types/db-types';
+import { getCategoryItems } from '@/utils/supabase/clientActions/getCategoryItems';
 
 type CarouselProps = {
   category: HomepageCategory
 }
 
 export function Carousel(props: CarouselProps) {
+
+  const router = useRouter();
 
   const theme = useTheme();
   const CardTextStyles = {
@@ -42,7 +47,7 @@ export function Carousel(props: CarouselProps) {
   useEffect(() => {
     (async () => {
       try {
-        const { data, error } = await getCategoryImages(id);
+        const { data, error } = await getCategoryItems(id);
 
         if (error || !data) {
           throw new Error(`Couldn't get images from DB! Error: ${error?.message}`)
@@ -56,6 +61,7 @@ export function Carousel(props: CarouselProps) {
 
   }, [id])
 
+  // i think document.getElementById can be refactored with a useRef for slightly cleaner syntax - might be nice to look into.
   const handleScroll = (carouselName: string, translateX: number) => {
     document.getElementById(`${carouselName}-carousel`)?.scrollBy({
       left: (translateX),
@@ -73,6 +79,7 @@ export function Carousel(props: CarouselProps) {
           flexDirection: "column",
           alignItems: "center",
         }}
+        onClick={() => router.push(`products/${data.id}`)}
       >
         <Image
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
@@ -81,10 +88,10 @@ export function Carousel(props: CarouselProps) {
           width={250}
           height={350}
         />
-        <Typography variant='h5' component='h5' sx={{CardTextStyles}}>
+        <Typography variant='h5' component='h5' sx={{ CardTextStyles }}>
           {data.name}
         </Typography>
-        <Typography component='p' sx={{CardTextStyles}}>
+        <Typography component='p' sx={{ CardTextStyles }}>
           {`$${data.standard_price}`}
         </Typography>
         {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -134,20 +141,20 @@ export function Carousel(props: CarouselProps) {
         </Typography>
       </Box>
       <CarouselComp.CarBox id={`${name}-carousel`} sx={{ display: "flex" }}>
-        <CarouselComp.CarButton 
-          onClick={(event) => {handleScroll(name, -500)}}
+        <CarouselComp.CarButton
+          onClick={(event) => { handleScroll(name, -500) }}
           disableRipple
           sx={{ left: 0 }}
         >
-          <CarouselComp.CarPrevIcon fontSize='large'/>
+          <CarouselComp.CarPrevIcon fontSize='large' />
         </CarouselComp.CarButton>
-          {products}
-        <CarouselComp.CarButton 
-          onClick={(event) => {handleScroll(name, 500)}}
+        {products}
+        <CarouselComp.CarButton
+          onClick={(event) => { handleScroll(name, 500) }}
           disableRipple
           sx={{ right: 0 }}
         >
-          <CarouselComp.CarNextIcon fontSize='large'/>
+          <CarouselComp.CarNextIcon fontSize='large' />
         </CarouselComp.CarButton>
       </CarouselComp.CarBox >
     </Paper>

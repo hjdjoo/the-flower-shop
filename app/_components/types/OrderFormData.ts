@@ -15,9 +15,11 @@ export interface OrderFormData {
   recipPhone: number | undefined,
   cardMessage: string,
   deliveryDate: string,
+  deliveryFee: number | undefined,
+  deliveryInstructions: string,
 
   products: Array<undefined | {
-    productId: string | undefined,
+    productId: string | number | undefined,
     productType: string | undefined,
     description: string,
     value: number

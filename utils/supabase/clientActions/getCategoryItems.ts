@@ -1,7 +1,10 @@
+import { cache } from "react";
 import { createClient } from "../client";
-import { ProductData } from "@/app/types/client-types";
+import { ProductData } from "@/app/types/db-types";
 
-export default async function getCategoryImages(categoryId: number) {
+export const revalidate = 3600;
+
+export const getCategoryItems = cache(async (categoryId: number) => {
 
   const supabase = createClient();
 
@@ -13,4 +16,4 @@ export default async function getCategoryImages(categoryId: number) {
 
   return { data, error };
 
-}
+})

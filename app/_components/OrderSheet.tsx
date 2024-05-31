@@ -9,6 +9,9 @@ import { InputField } from "./styled/InputField";
 import SenderInfo from "./SenderInfo";
 import RecipientInfo from "./RecipientInfo";
 import OrderInfo from "./OrderInfo";
+
+import { OrderForm as orderForm } from "./lib/OrderForm";
+
 /***** types *****/
 import { OrderFormData } from "./types/OrderFormData";
 
@@ -20,25 +23,7 @@ interface OrderSheetProps {
 
 export default function OrderSheet() {
 
-  const [formData, setFormData] = useState<OrderFormData>({
-
-    senderId: undefined,
-    senderFirst: "",
-    senderLast: "",
-    senderPhone: undefined,
-    senderEmail: "",
-    recipFirst: "",
-    recipLast: "",
-    recipStreetAddress1: "",
-    recipStreetAddress2: "",
-    recipTownCity: "",
-    recipZip: undefined,
-    recipPhone: undefined,
-    cardMessage: "",
-    products: [],
-    deliveryDate: "",
-
-  });
+  const [formData, setFormData] = useState<OrderFormData>({ ...orderForm });
 
   const handleFormData = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 import { createClient } from "../client";
-import { ProductForm } from "@/app/types/client-types";
+import { ProductData } from "@/app/types/client-types";
 
-export default async function addProduct(productData: ProductForm) {
+export default async function addProduct(productData: ProductData) {
 
   const supabase = createClient();
 

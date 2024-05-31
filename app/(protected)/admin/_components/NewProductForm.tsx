@@ -21,10 +21,10 @@ import UploadButton from "./styled/UploadButton";
 import { GridItem } from "@/app/_components/styled/GridItem";
 import PreviewBox from "./styled/PreviewBox";
 
-import getCategories from "@/utils/supabase/clientActions/getCategories";
+import { getCategories } from "@/utils/supabase/clientActions/getCategories";
 import uploadProductImage from "@/utils/supabase/clientActions/uploadProductImage";
 import addProduct from "@/utils/supabase/clientActions/addProduct";
-import { type FileData, type ProductForm, type ErrorMessage } from "@/app/types/client-types";
+import { type FileData, type ProductData, type ErrorMessage } from "@/app/types/client-types";
 
 export default function NewProduct() {
 
@@ -38,7 +38,7 @@ export default function NewProduct() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [categories, setCategories] = useState<{ id: number, label: string }[]>([{ id: 1, label: "Default" }])
   // product form
-  const [newProductForm, setNewProductForm] = useState<ProductForm>({
+  const [newProductForm, setNewProductForm] = useState<ProductData>({
     name: "",
     categories: [],
     description: "",
@@ -137,7 +137,7 @@ export default function NewProduct() {
         throw new Error("Couldn't add image to database!")
       };
 
-      const finalProductForm: ProductForm = { ...newProductForm, imageUrl: url }
+      const finalProductForm: ProductData = { ...newProductForm, imageUrl: url }
 
       // -> updates "products" table with item & url from image.
       const { data, error } = await addProduct(finalProductForm);

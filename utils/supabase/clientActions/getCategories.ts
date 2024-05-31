@@ -1,7 +1,11 @@
+import { cache } from "react";
 import { createClient } from "../client";
 import { CategoryData } from "@/app/types/db-types";
 
-export default async function getCategories() {
+export const revalidate = 3600;
+
+export const getCategories = cache(async () => {
+
   const supabase = createClient();
   const { data, error } = await supabase
     .schema("public")
@@ -10,4 +14,5 @@ export default async function getCategories() {
     .returns<CategoryData[]>();
 
   return { data, error }
-}
+
+});

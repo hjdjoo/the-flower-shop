@@ -7,5 +7,4 @@ export const InputField = styled(TextField, {
   name: "InputField",
 })(() => ({
   margin: "5px",
-
 })) as typeof TextField
