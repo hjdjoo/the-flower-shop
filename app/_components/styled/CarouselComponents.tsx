@@ -11,21 +11,15 @@ export const CarBox = styled("ul", {
   name: "Carousel",
   slot: "root",
 })((theme) => ({
-  height: "400px",
   listStyle: "none",
   overflowX: "scroll",
   whiteSpace: "nowrap",
   alignContent: "center",
-  paddingLeft: "40px",
-  // border: "1px solid blue",
+  paddingLeft: "5px",
   overflowY: 'hidden',
   '&::-webkit-scrollbar': {
     display: 'hidden',
   },
-  sx: {
-
-  }
-
 }))
 
 export const CarItem = styled("li", {
@@ -33,12 +27,11 @@ export const CarItem = styled("li", {
   slot: "item"
 })((theme) => ({
   marginTop: "0px",
-  marginRight: "15px",
-  marginLeft: "15px",
-  marginBottom: "15px",
+  marginRight: "5px",
+  marginLeft: "5px",
+  marginBottom: "5px",
   display: "inline-block",
   position: "relative",
-  height: 375,
 }))
 
 export const CarButton = styled(IconButton, {
@@ -48,7 +41,7 @@ export const CarButton = styled(IconButton, {
   position: 'absolute',
   color: 'grey',
   borderRadius: 0,
-  height: 400,
+  height: "auto",
   zIndex: 1,
   '&:hover': {
     backgroundColor: 'transparent',
@@ -61,7 +54,6 @@ export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {
   slot: "backIcon"
 })({
   position: 'relative',
-  top: '150px'
 })
 
 export const CarNextIcon = styled(ArrowForwardIosOutlinedIcon, {
@@ -69,5 +61,4 @@ export const CarNextIcon = styled(ArrowForwardIosOutlinedIcon, {
   slot: "nextIcon"
 })({
   position: 'relative',
-  top: '150px'
 })

@@ -69,8 +69,9 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
   return (
 
     <Box
-      className="banner-box"
+      className="image-box"
       position={"absolute"}
+      marginTop="25px"
       sx={{
         overflow: "hidden",
         display: "flex",
@@ -80,7 +81,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
     >
       <Image
         id="background-image"
-        className="banner-image"
+        className="responsive-image"
         loader={({ src }: ImageLoaderProps): string => {
           return `${src}`
         }}
@@ -97,7 +98,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         priority
       />
       <Box
-        className="banner-navigation"
+        id="banner-navigation"
         sx={{
           display: "flex",
           flexDirection: "row",
