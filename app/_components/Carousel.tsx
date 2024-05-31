@@ -94,23 +94,6 @@ export function Carousel(props: CarouselProps) {
         <Typography component='p' sx={{ CardTextStyles }}>
           {`$${data.standard_price}`}
         </Typography>
-        {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <PricePicker
-            name={data.name}
-            id={data.id}
-            standardPrice={data.standard_price}
-            premiumPrice={data.premium_price}
-            deluxePrice={data.deluxe_price}
-          />
-          <Button
-            variant="outlined"
-            sx={{
-              width: "80%"
-            }}
-          >
-            Add to Cart
-          </Button>
-        </Box> */}
       </CarouselComp.CarItem>
     )
   })

@@ -9,7 +9,7 @@ import { useTheme } from "@mui/material/styles";
 // custom product carousel components for natural swiping;
 export const CarBox = styled("ul", {
   name: "Carousel",
-  slot: "root"
+  slot: "root",
 })((theme) => ({
   height: "400px",
   listStyle: "none",
@@ -22,12 +22,16 @@ export const CarBox = styled("ul", {
   '&::-webkit-scrollbar': {
     display: 'hidden',
   },
+  sx: {
+
+  }
+
 }))
 
 export const CarItem = styled("li", {
   name: "Carousel",
   slot: "item"
-})({
+})((theme) => ({
   marginTop: "0px",
   marginRight: "15px",
   marginLeft: "15px",
@@ -35,7 +39,7 @@ export const CarItem = styled("li", {
   display: "inline-block",
   position: "relative",
   height: 375,
-})
+}))
 
 export const CarButton = styled(IconButton, {
   name: "Carousel",
@@ -49,20 +53,20 @@ export const CarButton = styled(IconButton, {
   '&:hover': {
     backgroundColor: 'transparent',
     color: 'black'
-}
+  }
 })
 
 export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {
-  name: "CarouselPrev",
-  slot: "icon"
+  name: "Carousel",
+  slot: "backIcon"
 })({
   position: 'relative',
   top: '150px'
 })
 
 export const CarNextIcon = styled(ArrowForwardIosOutlinedIcon, {
-  name: "CarouselNext",
-  slot: "icon"
+  name: "Carousel",
+  slot: "nextIcon"
 })({
   position: 'relative',
   top: '150px'

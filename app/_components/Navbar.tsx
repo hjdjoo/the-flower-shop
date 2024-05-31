@@ -103,11 +103,6 @@ export function Navbar() {
           </Box>
         </Toolbar>
       </AppBar >
-      {/* <Toolbar
-        sx={{
-          minHeight: "48px"
-        }}
-      /> */}
     </>
   );
 }

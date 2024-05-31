@@ -94,6 +94,9 @@ export default function ProductCard(props: ProductCardProps) {
   return (
     <Container
       id="product-container"
+      sx={{
+        marginTop: "50px"
+      }}
     >
       <Grid
         container>
