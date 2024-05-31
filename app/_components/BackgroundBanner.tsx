@@ -5,6 +5,8 @@ import { useEffect, useState, useRef } from "react"
 import Image from "next/image";
 import type { ImageLoaderProps } from "next/image";
 
+import { useTheme } from "@mui/material";
+
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -24,6 +26,7 @@ interface BackgroundBannerProps {
 
 export default function BackgroundBanner(props: BackgroundBannerProps) {
 
+  const theme = useTheme();
   const { bannerData } = props;
 
   const bannerNames = bannerData.map(banner => {
@@ -127,7 +130,13 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           <Typography
             sx={{
               fontStyle: "italic",
-              textShadow: "1px 1px 3px grey"
+              textShadow: "1px 1px 3px grey",
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "0.7rem"
+              },
+              [theme.breakpoints.down("md")]: {
+                fontSize: "0.8rem"
+              }
             }}
           >
             Shop {bannerNames[activeStep]} Flowers {">>"}

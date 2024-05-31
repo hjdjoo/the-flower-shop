@@ -73,6 +73,7 @@ export function Carousel(props: CarouselProps) {
   const products = productData.map((data, idx) => {
     return (
       <CarouselComp.CarItem
+        id={`${data.name}-product`}
         key={`${name}-product-${idx + 1}`}
         sx={{
           display: "flex",
@@ -82,6 +83,7 @@ export function Carousel(props: CarouselProps) {
         onClick={() => router.push(`products/${data.id}`)}
       >
         <Image
+          id={`${data.name}-image`}
           loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
           src={data.image_url}
           alt={`${name} product ${idx + 1}`}
@@ -104,7 +106,6 @@ export function Carousel(props: CarouselProps) {
       sx={{
         paddingTop: "10px",
         marginBottom: "25px",
-        flexShrink: 0,
       }}
     >
       <Box
