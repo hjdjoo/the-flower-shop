@@ -73,6 +73,7 @@ export function Carousel(props: CarouselProps) {
   const products = productData.map((data, idx) => {
     return (
       <CarouselComp.CarItem
+        id={`${data.name}-product`}
         key={`${name}-product-${idx + 1}`}
         sx={{
           display: "flex",
@@ -81,36 +82,59 @@ export function Carousel(props: CarouselProps) {
         }}
         onClick={() => router.push(`products/${data.id}`)}
       >
-        <Image
-          loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
-          src={data.image_url}
-          alt={`${name} product ${idx + 1}`}
-          width={250}
-          height={350}
-        />
-        <Typography variant='h5' component='h5' sx={{ CardTextStyles }}>
+        <Box
+          className="image-box"
+          sx={{
+            [theme.breakpoints.between("xs", "sm")]: {
+              width: "150px",
+            },
+            [theme.breakpoints.between("sm", "md")]: {
+              width: "175px",
+            },
+            [theme.breakpoints.up("md")]: {
+              width: "250px",
+            },
+          }}
+        >
+          <Image
+            id={`${data.name}-image`}
+            className="responsive-image"
+            loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
+            src={data.image_url}
+            alt={`${name} product ${idx + 1}`}
+            fill
+            style={{
+              objectFit: "contain"
+            }}
+          />
+        </Box>
+        <Typography component='p' sx={{
+          [theme.breakpoints.between("xs", "sm")]: {
+            fontSize: "0.8rem"
+          },
+          [theme.breakpoints.between("sm", "md")]: {
+            fontSize: "0.9rem"
+          },
+          [theme.breakpoints.up("md")]: {
+            fontSize: "1rem"
+          },
+        }}>
           {data.name}
         </Typography>
-        <Typography component='p' sx={{ CardTextStyles }}>
+        <Typography component='p'
+          sx={{
+            [theme.breakpoints.between("xs", "sm")]: {
+              fontSize: "0.7rem"
+            },
+            [theme.breakpoints.between("sm", "md")]: {
+              fontSize: "0.8rem"
+            },
+            [theme.breakpoints.up("md")]: {
+              fontSize: "0.9rem"
+            },
+          }}>
           {`$${data.standard_price}`}
         </Typography>
-        {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <PricePicker
-            name={data.name}
-            id={data.id}
-            standardPrice={data.standard_price}
-            premiumPrice={data.premium_price}
-            deluxePrice={data.deluxe_price}
-          />
-          <Button
-            variant="outlined"
-            sx={{
-              width: "80%"
-            }}
-          >
-            Add to Cart
-          </Button>
-        </Box> */}
       </CarouselComp.CarItem>
     )
   })
@@ -119,45 +143,73 @@ export function Carousel(props: CarouselProps) {
     <Paper
       id={`${name}-carousel-container`}
       sx={{
-        paddingTop: "10px",
         marginBottom: "25px",
-        flexShrink: 0,
       }}
     >
       <Box
+        className="carousel-header-box"
+        id={`${name}-carousel-header-box`}
+        marginBottom="10px"
         sx={{
+          backgroundColor: `${theme.palette.secondary.main}`,
           display: "flex",
           justifyContent: "flex-start",
           paddingLeft: "15px",
         }}
       >
         <Typography
+          className="carousel-name"
           sx={{
-            fontSize: "1.3rem",
-            fontStyle: "italic",
+            color: "white",
+            [theme.breakpoints.between("xs", "sm")]: {
+              fontSize: "1rem"
+            },
+            [theme.breakpoints.between("sm", "md")]: {
+              fontSize: "1.1rem"
+            },
+            [theme.breakpoints.up("md")]: {
+              fontSize: "1.3rem"
+            },
           }}
         >
           {name}
         </Typography>
       </Box>
-      <CarouselComp.CarBox id={`${name}-carousel`} sx={{ display: "flex" }}>
+      <CarouselComp.CarBox id={`${name}-carousel`}
+        sx={{ display: "flex", alignItems: "flex-end" }}>
         <CarouselComp.CarButton
-          onClick={(event) => { handleScroll(name, -500) }}
+          onClick={() => { handleScroll(name, -500) }}
           disableRipple
-          sx={{ left: 0 }}
+          sx={{
+            left: 0,
+          }}
         >
-          <CarouselComp.CarPrevIcon fontSize='large' />
+          <CarouselComp.CarPrevIcon sx={{
+            [theme.breakpoints.between("xs", "sm")]: {
+              fontSize: "1.2rem"
+            },
+            [theme.breakpoints.between("sm", "md")]: {
+              fontSize: "1.5rem"
+            },
+          }} />
         </CarouselComp.CarButton>
         {products}
         <CarouselComp.CarButton
-          onClick={(event) => { handleScroll(name, 500) }}
+          onClick={() => { handleScroll(name, 500) }}
           disableRipple
           sx={{ right: 0 }}
         >
-          <CarouselComp.CarNextIcon fontSize='large' />
+          <CarouselComp.CarNextIcon sx={{
+            [theme.breakpoints.between("xs", "sm")]: {
+              fontSize: "1.2rem"
+            },
+            [theme.breakpoints.between("sm", "md")]: {
+              fontSize: "1.5rem"
+            },
+          }} />
         </CarouselComp.CarButton>
       </CarouselComp.CarBox >
-    </Paper>
+    </Paper >
   )
 
 }

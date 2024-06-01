@@ -14,14 +14,55 @@
   padding: 0;
 }
 
+
+a {
+  color: #003d03;
+  text-decoration: none;
+}
+
 button>a {
   color: #FFF;
   text-decoration: none;
 }
 
-a {
-  color: #003d03;
-  text-decoration: none;
+.image-box {
+  width: 100%;
+
+  >div {
+    position: unset !important;
+  }
+
+  .responsive-image {
+    object-fit: contain;
+    width: 100% !important;
+    position: relative !important;
+    height: unset !important;
+  }
+
+  #banner-navigation {
+    width: 100%;
+    height: 66%;
+    position: absolute !important;
+  }
+}
+
+/* .carousel-header-box {
+  opacity: 95%;
+  background: hsla(123, 100%, 12%, 1);
+
+  background: linear-gradient(270deg, hsla(123, 100%, 12%, 1) 0%, hsla(117, 35%, 32%, 1) 79%, hsla(113, 24%, 45%, 1) 100%);
+
+  background: -moz-linear-gradient(270deg, hsla(123, 100%, 12%, 1) 0%, hsla(117, 35%, 32%, 1) 79%, hsla(113, 24%, 45%, 1) 100%);
+
+  background: -webkit-linear-gradient(270deg, hsla(123, 100%, 12%, 1) 0%, hsla(117, 35%, 32%, 1) 79%, hsla(113, 24%, 45%, 1) 100%);
+
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#003D03", endColorstr="#376D34", GradientType=1);
+} */
+
+.banner-spacer {
+  position: relative;
+  width: 100vw;
+  height: 52vw;
 }
 
 #nav-to-home {

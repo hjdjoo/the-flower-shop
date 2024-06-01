@@ -32,7 +32,6 @@ import { useUser } from "@/lib/contexts/UserContext";
 
 import { createClient } from "@/utils/supabase/client";
 
-
 interface NavbarProps {
   isAdmin: boolean
 }
@@ -104,11 +103,6 @@ export function Navbar() {
           </Box>
         </Toolbar>
       </AppBar >
-      <Toolbar
-        sx={{
-          minHeight: "48px"
-        }}
-      />
     </>
   );
 }

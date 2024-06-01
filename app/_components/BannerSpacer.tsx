@@ -22,8 +22,7 @@ export default function BannerSpacer() {
 
   return (
     <Box
-      width={windowSize.width}
-      height={Math.floor(windowSize.height / 3)}
+      className="banner-spacer"
     />
   )
 }

@@ -9,15 +9,13 @@ import { useTheme } from "@mui/material/styles";
 // custom product carousel components for natural swiping;
 export const CarBox = styled("ul", {
   name: "Carousel",
-  slot: "root"
+  slot: "root",
 })((theme) => ({
-  height: "400px",
   listStyle: "none",
   overflowX: "scroll",
   whiteSpace: "nowrap",
   alignContent: "center",
-  paddingLeft: "40px",
-  // border: "1px solid blue",
+  paddingLeft: "5px",
   overflowY: 'hidden',
   '&::-webkit-scrollbar': {
     display: 'hidden',
@@ -27,15 +25,14 @@ export const CarBox = styled("ul", {
 export const CarItem = styled("li", {
   name: "Carousel",
   slot: "item"
-})({
+})((theme) => ({
   marginTop: "0px",
-  marginRight: "15px",
-  marginLeft: "15px",
-  marginBottom: "15px",
+  marginRight: "5px",
+  marginLeft: "5px",
+  marginBottom: "5px",
   display: "inline-block",
   position: "relative",
-  height: 375,
-})
+}))
 
 export const CarButton = styled(IconButton, {
   name: "Carousel",
@@ -44,26 +41,24 @@ export const CarButton = styled(IconButton, {
   position: 'absolute',
   color: 'grey',
   borderRadius: 0,
-  height: 400,
+  height: "auto",
   zIndex: 1,
   '&:hover': {
     backgroundColor: 'transparent',
     color: 'black'
-}
+  }
 })
 
 export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {
-  name: "CarouselPrev",
-  slot: "icon"
+  name: "Carousel",
+  slot: "backIcon"
 })({
   position: 'relative',
-  top: '150px'
 })
 
 export const CarNextIcon = styled(ArrowForwardIosOutlinedIcon, {
-  name: "CarouselNext",
-  slot: "icon"
+  name: "Carousel",
+  slot: "nextIcon"
 })({
   position: 'relative',
-  top: '150px'
 })
