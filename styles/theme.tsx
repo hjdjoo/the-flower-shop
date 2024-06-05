@@ -24,12 +24,13 @@ const theme: Theme = createTheme({
       light: "#F0FEF1",
     },
     secondary: {
-      main: "#4D7B4F"
+      main: "#FFF0FD"
     },
   },
   typography: {
     fontFamily: openSans.style.fontFamily
   },
+
 })
 
 export default theme;

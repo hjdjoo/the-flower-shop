@@ -1,11 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { Carousel } from "@/app/_components/Carousel";
 import { Suspense } from "react";
-import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
+
+import Box from "@mui/material/Box";
+
+import { Carousel } from "@/app/_components/Carousel";
 
 import { HomepageCategory } from "../types/client-types";
+
+import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
+import getWindowSize from "@/utils/actions/getWindowSize";
 
 // import { getImageUrls } from "@/utils/supabase/getImageUrls";
 
@@ -14,6 +19,11 @@ import { HomepageCategory } from "../types/client-types";
 export default function Products() {
 
   const [homepageCategories, setHomepageCategories] = useState<HomepageCategory[]>([]);
+
+  const [windowSize, setWindowSize] = useState({
+    width: 0,
+    height: 0,
+  })
 
   useEffect(() => {
     (async () => {
@@ -25,6 +35,10 @@ export default function Products() {
       // console.log("products/page/useEffect/data: ", data);
       setHomepageCategories([...data]);
     })()
+
+    const window = getWindowSize();
+    console.log(window);
+    setWindowSize(window);
 
   }, [])
 
@@ -55,9 +69,12 @@ export default function Products() {
   })
 
   return (
-    <div>
+    <Box
+      className="product-box"
+      position="absolute"
+    >
       {bestsellersCarousel(bestsellers)}
       {productCarousels}
-    </div>
+    </Box>
   )
 }

@@ -26,7 +26,7 @@ export const CarItem = styled("li", {
   name: "Carousel",
   slot: "item"
 })((theme) => ({
-  marginTop: "0px",
+  marginTop: "20px",
   marginRight: "5px",
   marginLeft: "5px",
   marginBottom: "5px",
