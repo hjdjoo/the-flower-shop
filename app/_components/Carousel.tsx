@@ -16,7 +16,6 @@ import { useTheme } from '@mui/material';
 import { ExpandMore } from './styled/ExpandIcon';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as CarouselComp from './styled/CarouselComponents';
-import PricePicker from './PricePicker';
 
 
 import { HomepageCategory } from '../types/client-types';
@@ -103,6 +102,7 @@ export function Carousel(props: CarouselProps) {
               width: "250px",
             },
           }}
+          position="relative"
         >
           <Image
             id={`${data.name}-image`}
@@ -114,6 +114,7 @@ export function Carousel(props: CarouselProps) {
             style={{
               objectFit: "contain"
             }}
+            priority={idx < 5}
           />
         </Box>
         <Typography component='p' sx={{

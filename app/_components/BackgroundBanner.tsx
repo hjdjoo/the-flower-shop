@@ -7,16 +7,9 @@ import type { ImageLoaderProps } from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useTheme } from "@mui/material";
-import { keyframes } from "@mui/material";
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonBase from '@mui/material/ButtonBase';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/Button';
-
-import Fade from "@mui/material/Fade";
-import Slide from "@mui/material/Slide";
 
 import * as CarouselComp from "@/app/_components/styled/CarouselComponents";
 import { BannerButton } from "@/app/_components/styled/BannerComponents";
@@ -126,6 +119,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         <Box
           className="banner-item-box"
           minWidth="100vw"
+          position="relative"
         >
           <Image
             id="background-image"
@@ -135,7 +129,6 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             }}
             src={data.url}
             alt="promotional image"
-            // sizes="100vw"
             style={{
               zIndex: -1,
             }}
@@ -201,9 +194,13 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             const newWindowSize = getWindowSize();
             setWindowSize(newWindowSize);
             handleScroll("banner", -newWindowSize.width)
-          }
-          }
+          }}
           disableRipple
+          sx={{
+            "&:hover": {
+              backgroundColor: "transparent"
+            }
+          }}
         >
           <KeyboardArrowLeft
             sx={{
@@ -220,6 +217,11 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             handleScroll("banner", newWindowSize.width)
           }}
           disableRipple
+          sx={{
+            "&:hover": {
+              backgroundColor: "transparent"
+            }
+          }}
         >
           <KeyboardArrowRight
             className="nav-arrow"

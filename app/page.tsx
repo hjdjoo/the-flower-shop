@@ -34,7 +34,6 @@ export default async function Main() {
   return (
     <>
       <BackgroundBanner bannerData={bannerData} />
-      {/* <BannerSpacer /> */}
       <Products />
     </>
   )

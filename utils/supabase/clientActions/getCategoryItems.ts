@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { createClient } from "../client";
 import { ProductData } from "@/app/types/db-types";
 
