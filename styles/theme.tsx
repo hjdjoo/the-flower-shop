@@ -26,6 +26,9 @@ const theme: Theme = createTheme({
     secondary: {
       main: "#FFF0FD"
     },
+    info: {
+      main: "#789E7A"
+    }
   },
   typography: {
     fontFamily: openSans.style.fontFamily

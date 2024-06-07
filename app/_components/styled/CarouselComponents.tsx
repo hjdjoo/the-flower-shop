@@ -43,10 +43,11 @@ export const CarButton = styled(IconButton, {
   borderRadius: 0,
   height: "auto",
   zIndex: 1,
-  '&:hover': {
-    backgroundColor: 'transparent',
-    color: 'black'
-  }
+  backgroundColor: "transparent",
+  // '&:hover': {
+  //   backgroundColor: 'transparent',
+  //   color: 'black'
+  // }
 })
 
 export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {

@@ -164,8 +164,12 @@ export function Carousel(props: CarouselProps) {
           justifyContent: "flex-start",
           alignItems: "center",
           paddingLeft: "15px",
-          paddingY: "5px"
+          paddingY: "5px",
+          "&:hover": name === "Bestsellers" ? null : {
+            cursor: "pointer"
+          }
         }}
+        onClick={() => { if (name !== "Bestsellers") setViewCategory(!viewCategory) }}
       >
         <Typography
           className="carousel-name"
@@ -187,7 +191,6 @@ export function Carousel(props: CarouselProps) {
         {name !== "Bestsellers" &&
           <ExpandMore
             expand={viewCategory}
-            onClick={() => { setViewCategory(!viewCategory) }}
             sx={{
               padding: "0px"
             }}
@@ -203,6 +206,7 @@ export function Carousel(props: CarouselProps) {
         <CarouselComp.CarBox id={`${name}-carousel`}
           sx={{ display: "flex", alignItems: "flex-end" }}>
           <CarouselComp.CarButton
+            className="carousel-arrow"
             onClick={() => { handleScroll(name, -500) }}
             disableRipple
             sx={{
@@ -220,6 +224,7 @@ export function Carousel(props: CarouselProps) {
           </CarouselComp.CarButton>
           {products}
           <CarouselComp.CarButton
+            className="carousel-arrow"
             onClick={() => { handleScroll(name, 500) }}
             disableRipple
             sx={{ right: 0 }}

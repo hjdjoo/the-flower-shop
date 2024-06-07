@@ -4,7 +4,7 @@ import { ProductData } from "@/app/types/db-types";
 
 export const revalidate = 3600;
 
-export const getCategoryItems = cache(async (categoryId: number) => {
+export const getCategoryItems = async (categoryId: number) => {
 
   const supabase = createClient();
 
@@ -16,4 +16,4 @@ export const getCategoryItems = cache(async (categoryId: number) => {
 
   return { data, error };
 
-})
+}

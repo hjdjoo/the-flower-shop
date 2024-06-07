@@ -4,8 +4,10 @@ import { useEffect, useState, useRef } from "react"
 
 import Image from "next/image";
 import type { ImageLoaderProps } from "next/image";
+import { useRouter } from "next/navigation";
 
 import { useTheme } from "@mui/material";
+import { keyframes } from "@mui/material";
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -17,6 +19,8 @@ import Fade from "@mui/material/Fade";
 import Slide from "@mui/material/Slide";
 
 import * as CarouselComp from "@/app/_components/styled/CarouselComponents";
+import { BannerButton } from "@/app/_components/styled/BannerComponents";
+
 
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
@@ -32,20 +36,19 @@ interface BackgroundBannerProps {
 
 export default function BackgroundBanner(props: BackgroundBannerProps) {
 
+  const router = useRouter();
   const theme = useTheme();
   const { bannerData } = props;
-
-  const bannerNames = bannerData.map(banner => {
-    // the "replace" method is taking the extensions (.jpg, .png, etc) and removing it.
-    return normalizeCasing(banner.name.replace(/(\..*)$/, ""))
-  })
-
+  const activeStep = useRef<number>(0)
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
     height: 0
   });
 
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const bannerNames = bannerData.map(banner => {
+    // the "replace" method is taking the extensions (.jpg, .png, etc) and removing it.
+    return normalizeCasing(banner.name.replace(/(\..*)$/, ""))
+  })
 
   // useEffect for managing the carousel upon resizing
   useEffect(() => {
@@ -60,9 +63,6 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
     const intervalId = setInterval(() => {
       const currWindow = getWindowSize();
       setWindowSize(currWindow);
-      setActiveStep((prevStep) => {
-        return prevStep + 1 === bannerData.length ? 0 : prevStep + 1;
-      });
       handleScroll("banner", currWindow.width)
     }, 6000)
     return () => {
@@ -74,7 +74,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
   const handleResize = () => {
     const currWindow = getWindowSize();
     document.getElementById("banner-carousel")?.scrollTo({
-      left: currWindow.width * activeStep
+      left: currWindow.width * activeStep.current
     })
   }
 
@@ -82,21 +82,36 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
     const carousel = document.getElementById(`${carouselName}-carousel`)
 
-    if (carousel?.scrollLeft === windowSize.width && translateX > 0) {
-      carousel?.scrollTo({ left: 0, behavior: "smooth" })
-    }
-    else if (carousel?.scrollLeft === 0 && translateX < 0) {
-
-      carousel?.scrollTo({ left: windowSize.width * (bannerData.length - 1), behavior: "smooth" })
-    }
-    else {
-      carousel?.scrollBy({
-        left: (translateX),
-        top: 0,
-        behavior: 'smooth'
-      })
-    }
-
+    // if we're trying to scroll right, handle resetting the activeStep ref and scroll behavior at the end of the carousel.
+    // Invert logic if we're trying to scroll left.
+    switch (translateX > 0) {
+      case true:
+        if (activeStep.current === bannerData.length - 1) {
+          activeStep.current = 0;
+          carousel?.scrollTo({ left: 0, behavior: "smooth" })
+        } else {
+          activeStep.current += 1;
+          carousel?.scrollBy({
+            left: (translateX),
+            top: 0,
+            behavior: 'smooth'
+          })
+        }
+        break;
+      case false:
+        if (carousel?.scrollLeft === 0) {
+          activeStep.current = bannerData.length - 1;
+          carousel?.scrollTo({ left: windowSize.width * (bannerData.length - 1), behavior: "smooth" })
+        } else {
+          activeStep.current -= 1;
+          carousel?.scrollBy({
+            left: (translateX),
+            top: 0,
+            behavior: 'smooth'
+          })
+        }
+        break;
+    };
   };
 
   const bannerImages = bannerData.map((data, idx) => {
@@ -119,9 +134,6 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
               return `${src}`
             }}
             src={data.url}
-            onClick={() => {
-
-            }}
             alt="promotional image"
             // sizes="100vw"
             style={{
@@ -132,38 +144,20 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           />
           {/* Need to add routing/navigation functionality to buttons; the banner names should be category names (meaning the banner upload form should specify categories to upload banners for, rather than simply a filename.) */}
           <Box
+            className="banner-link-box"
             display="flex"
             justifyContent="center"
             zIndex={1}
           >
-            <ButtonBase
+            <BannerButton
               className="banner-link"
-              sx={{
-                height: "10%",
-                maxWidth: "60%",
-                borderBottom: "1px solid white",
-                borderTop: "1px solid white",
-                color: "white",
-                marginBottom: "15px",
-                position: "absolute",
+              disableRipple
+              onClick={() => {
+                router.push(`/categories/${bannerNames[activeStep.current]}`)
               }}
             >
-              <Typography
-                sx={{
-                  color: theme.palette.secondary.main,
-                  fontStyle: "italic",
-                  textShadow: "1px 1px 3px grey",
-                  [theme.breakpoints.down("sm")]: {
-                    fontSize: "0.7rem"
-                  },
-                  [theme.breakpoints.down("md")]: {
-                    fontSize: "0.8rem"
-                  },
-                }}
-              >
-                Shop {bannerNames[idx]} Flowers {">>"}
-              </Typography>
-            </ButtonBase>
+              Shop {bannerNames[idx]} Flowers {">>"}
+            </BannerButton>
           </Box>
         </Box>
       </CarouselComp.CarItem>
@@ -202,12 +196,10 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       >
         <IconButton
           id="prev-banner-button"
+          className="nav-arrow"
           onClick={() => {
             const newWindowSize = getWindowSize();
             setWindowSize(newWindowSize);
-            setActiveStep((prevStep) => {
-              return prevStep - 1 < 0 ? bannerData.length - 1 : prevStep - 1;
-            });
             handleScroll("banner", -newWindowSize.width)
           }
           }
@@ -216,22 +208,21 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           <KeyboardArrowLeft
             sx={{
               fontSize: "2.5rem",
-              color: "white"
+              color: "white",
             }}
           />
         </IconButton>
         <IconButton
+          id="next-banner-button"
+          className="nav-arrow"
           onClick={() => {
             const newWindowSize = getWindowSize();
-            setWindowSize(newWindowSize);
-            setActiveStep((prevStep) => {
-              return prevStep + 1 === bannerData.length ? 0 : prevStep + 1;
-            });
             handleScroll("banner", newWindowSize.width)
           }}
           disableRipple
         >
           <KeyboardArrowRight
+            className="nav-arrow"
             sx={{
               fontSize: "2.5rem",
               color: "white"
