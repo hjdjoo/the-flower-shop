@@ -51,10 +51,13 @@ export function NavIcons(props: NavIconsProps) {
         </Link>
       </StyledIconButton>
       <StyledIconButton>
-        <ShoppingCartIcon
-          sx={{
-            color: "white"
-          }} />
+        <Link href={'/checkout'}>
+          <ShoppingCartIcon
+            sx={{
+              color: "white"
+            }} 
+          />
+        </Link>
       </StyledIconButton>
       <StyledIconButton
         onClick={() => signOut()}
