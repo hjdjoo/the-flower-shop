@@ -1,7 +1,6 @@
 // "use client"
 import Products from "./products/page";
 import BackgroundBanner from "./_components/BackgroundBanner";
-import BannerSpacer from "./_components/BannerSpacer";
 import Head from "next/head";
 
 import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
