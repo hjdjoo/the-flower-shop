@@ -1,6 +1,8 @@
 "use client"
 
 import { styled } from "@mui/material/styles";
+
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
@@ -10,12 +12,13 @@ import { useTheme } from "@mui/material/styles";
 export const CarBox = styled("ul", {
   name: "Carousel",
   slot: "root",
-})((theme) => ({
+})(({ theme }) => ({
   listStyle: "none",
   overflowX: "scroll",
   whiteSpace: "nowrap",
   alignContent: "center",
-  paddingLeft: "5px",
+  paddingLeft: "30px",
+  paddingRight: "30px",
   overflowY: 'hidden',
   '&::-webkit-scrollbar': {
     display: 'hidden',
@@ -25,7 +28,7 @@ export const CarBox = styled("ul", {
 export const CarItem = styled("li", {
   name: "Carousel",
   slot: "item"
-})((theme) => ({
+})(({ theme }) => ({
   marginTop: "20px",
   marginRight: "5px",
   marginLeft: "5px",
@@ -34,20 +37,40 @@ export const CarItem = styled("li", {
   position: "relative",
 }))
 
+export const CarSpacer = styled(Box, {
+  name: "Carousel",
+  slot: "spacer"
+})(({ theme }) => ({
+  display: "flex",
+  position: "absolute",
+  height: "auto",
+  alignItems: "flex-end",
+  zIndex: 1,
+  [theme.breakpoints.between("xs", "md")]: {
+    width: "25px"
+  },
+  [theme.breakpoints.between("md", "lg")]: {
+    width: "35px"
+  },
+  [theme.breakpoints.up("lg")]: {
+    width: "45px"
+  },
+}))
+
 export const CarButton = styled(IconButton, {
   name: "Carousel",
   slot: "button"
 })({
   position: 'absolute',
   color: 'grey',
-  borderRadius: 0,
+  borderRadius: 100,
   height: "auto",
-  zIndex: 1,
-  backgroundColor: "transparent",
-  // '&:hover': {
-  //   backgroundColor: 'transparent',
-  //   color: 'black'
-  // }
+  zIndex: 2,
+  backgroundColor: "white",
+  '&:hover': {
+    backgroundColor: "#e8e8e8",
+    color: 'black'
+  }
 })
 
 export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {

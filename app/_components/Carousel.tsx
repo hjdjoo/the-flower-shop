@@ -17,6 +17,7 @@ import { ExpandMore } from './styled/ExpandIcon';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as CarouselComp from './styled/CarouselComponents';
 
+import useBreakpoints from '@/utils/hooks/useBreakpoints';
 
 import { HomepageCategory } from '../types/client-types';
 import { ProductData } from '../types/db-types';
@@ -31,8 +32,10 @@ export function Carousel(props: CarouselProps) {
   const [viewCategory, setViewCategory] = useState<boolean>(false)
 
   const router = useRouter();
-
   const theme = useTheme();
+  const { mobile, large, xlarge } = useBreakpoints();
+
+
   const CardTextStyles = {
     position: 'absolute',
     bottom: 0,
@@ -92,14 +95,15 @@ export function Carousel(props: CarouselProps) {
           className="image-box"
           onClick={() => router.push(`products/${data.id}`)}
           sx={{
-            [theme.breakpoints.between("xs", "sm")]: {
-              width: "150px",
+            minWidth: () => {
+              if (mobile) return "130px";
+              else if (large) return "175px";
+              else if (xlarge) return "250px";
             },
-            [theme.breakpoints.between("sm", "md")]: {
-              width: "175px",
-            },
-            [theme.breakpoints.up("md")]: {
-              width: "250px",
+            maxWidth: () => {
+              if (mobile) return "130px";
+              else if (large) return "175px";
+              else if (xlarge) return "250px";
             },
           }}
           position="relative"
@@ -114,6 +118,7 @@ export function Carousel(props: CarouselProps) {
             style={{
               objectFit: "contain"
             }}
+            sizes={"(max-width: 850) "}
             priority={idx < 5}
           />
         </Box>
@@ -150,16 +155,24 @@ export function Carousel(props: CarouselProps) {
 
 
   return (
-    <Paper
+    <Box
       id={`${name}-carousel-container`}
       className="carousel-container"
       sx={{
+        backgroundColor: "white",
         marginBottom: name === "Bestsellers" ? "0px" : "5px",
+        width: () => {
+          if (mobile) return "100%";
+        },
+        marginX: () => {
+          if (mobile) return "0%";
+          if (large) return "10%";
+          if (xlarge) return "15%";
+        }
       }}
     >
-      <Box
+      <Box id={`${name}-carousel-header-box`}
         className="carousel-header-box"
-        id={`${name}-carousel-header-box`}
         sx={{
           display: "flex",
           justifyContent: "flex-start",
@@ -203,15 +216,38 @@ export function Carousel(props: CarouselProps) {
             />
           </ExpandMore>}
       </Box>
-      <Collapse in={name === "Bestsellers" ? true : viewCategory}>
+      <Collapse in={name === "Bestsellers" ? true : viewCategory}
+      >
         <CarouselComp.CarBox id={`${name}-carousel`}
-          sx={{ display: "flex", alignItems: "flex-end" }}>
+          sx={{
+            display: "flex",
+            alignItems: "flex-end",
+          }}>
+          <CarouselComp.CarSpacer
+            className="carousel-spacer-start"
+            sx={{
+              height: () => {
+                if (mobile) return "220px";
+                if (large) return "290px";
+                if (xlarge) return "380px";
+              },
+              left: () => {
+                if (mobile) return "0%"
+                if (large) return "10%";
+                if (xlarge) return "15%";
+              }
+            }}
+          />
           <CarouselComp.CarButton
             className="carousel-arrow"
             onClick={() => { handleScroll(name, -500) }}
             disableRipple
             sx={{
-              left: 0,
+              left: () => {
+                if (mobile) return "1%"
+                if (large) return "11%";
+                if (xlarge) return "16%";
+              }
             }}
           >
             <CarouselComp.CarPrevIcon sx={{
@@ -223,12 +259,20 @@ export function Carousel(props: CarouselProps) {
               },
             }} />
           </CarouselComp.CarButton>
+
           {products}
+
           <CarouselComp.CarButton
             className="carousel-arrow"
             onClick={() => { handleScroll(name, 500) }}
             disableRipple
-            sx={{ right: 0 }}
+            sx={{
+              right: () => {
+                if (mobile) return "1%"
+                if (large) return "11%";
+                if (xlarge) return "16%";
+              }
+            }}
           >
             <CarouselComp.CarNextIcon sx={{
               [theme.breakpoints.between("xs", "sm")]: {
@@ -239,9 +283,24 @@ export function Carousel(props: CarouselProps) {
               },
             }} />
           </CarouselComp.CarButton>
+          <CarouselComp.CarSpacer
+            className="carousel-spacer-end"
+            sx={{
+              height: () => {
+                if (mobile) return "220px";
+                if (large) return "290px";
+                if (xlarge) return "380px";
+              },
+              right: () => {
+                if (mobile) return "0%"
+                if (large) return "10%";
+                if (xlarge) return "15%";
+              }
+            }}
+          />
         </CarouselComp.CarBox >
       </Collapse>
-    </Paper >
+    </Box >
   )
 
 }

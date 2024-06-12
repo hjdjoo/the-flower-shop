@@ -15,9 +15,12 @@ import * as CarouselComp from "@/app/_components/styled/CarouselComponents";
 import { BannerButton } from "@/app/_components/styled/BannerComponents";
 
 
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
+import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
+// import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+// import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 import normalizeCasing from "@/utils/actions/normalizeCasing";
 import getWindowSize from "@/utils/actions/getWindowSize";
 
@@ -31,6 +34,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
   const router = useRouter();
   const theme = useTheme();
+  const { mobile, large, xlarge } = useBreakpoints();
   const { bannerData } = props;
   const activeStep = useRef<number>(0)
   const [windowSize, setWindowSize] = useState<WindowSize>({
@@ -119,19 +123,27 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         <Box
           className="banner-item-box"
           minWidth="100vw"
+          paddingX={() => {
+            if (mobile) return "0%";
+            if (large) return "10%";
+            if (xlarge) return "15%";
+          }}
           position="relative"
         >
           <Image
             id="background-image"
             className="responsive-image"
-            loader={({ src }: ImageLoaderProps): string => {
-              return `${src}`
+            loader={({ src, width }: ImageLoaderProps): string => {
+              return `${src}?w=${width}`
             }}
             src={data.url}
             alt="promotional image"
             style={{
               zIndex: -1,
             }}
+            sizes={
+              "(max-width: 900px) 80%, (max-width: 1200px) 80%, 70%"
+            }
             fill
             priority
           />
@@ -165,15 +177,18 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       position={"absolute"}
       marginTop="25px"
       sx={{
+        width: "100%",
         overflow: "hidden",
         display: "flex",
         flexDirection: "row",
-        zIndex: -1
+        zIndex: 1
       }}
     >
       <CarouselComp.CarBox
         id="banner-carousel"
-        sx={{ padding: "0px" }}
+        sx={{
+          padding: "0px",
+        }}
       >
         {bannerImages}
       </CarouselComp.CarBox>
@@ -182,7 +197,6 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         sx={{
           display: "flex",
           flexDirection: "row",
-          // alignSelf: "center-end",
           justifyContent: "space-between",
           alignItems: "flex-end",
         }}
@@ -197,14 +211,21 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           }}
           disableRipple
           sx={{
-            "&:hover": {
-              backgroundColor: "transparent"
-            }
+            left: () => {
+              if (mobile) return "1%"
+              if (large) return "11%";
+              if (xlarge) return "16%";
+            },
           }}
         >
-          <KeyboardArrowLeft
+          <ArrowBackIosOutlinedIcon
+            className="arrow-icon"
             sx={{
-              fontSize: "2.5rem",
+              fontSize: () => {
+                if (mobile) return "1.5rem";
+                if (large) return "1.8rem";
+                if (xlarge) return "2rem";
+              },
               color: "white",
             }}
           />
@@ -218,21 +239,27 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           }}
           disableRipple
           sx={{
-            "&:hover": {
-              backgroundColor: "transparent"
-            }
+            right: () => {
+              if (mobile) return "1%"
+              if (large) return "11%";
+              if (xlarge) return "16%";
+            },
           }}
         >
-          <KeyboardArrowRight
-            className="nav-arrow"
+          <ArrowForwardIosOutlinedIcon
+            className="arrow-icon"
             sx={{
-              fontSize: "2.5rem",
+              fontSize: () => {
+                if (mobile) return "1.5rem";
+                if (large) return "1.8rem";
+                if (xlarge) return "2rem";
+              },
               color: "white"
             }}
           />
         </IconButton>
       </Box>
-    </Box>
+    </Box >
 
   )
 

@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { Suspense } from "react";
 
+import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 
 import { Carousel } from "@/app/_components/Carousel";
 
 import { HomepageCategory } from "../types/client-types";
+
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
 import getWindowSize from "@/utils/actions/getWindowSize";
@@ -18,7 +21,10 @@ import getWindowSize from "@/utils/actions/getWindowSize";
 
 export default function Products() {
 
+  const theme = useTheme();
   const [homepageCategories, setHomepageCategories] = useState<HomepageCategory[]>([]);
+
+  const { mobile, large, xlarge } = useBreakpoints();
 
   const [windowSize, setWindowSize] = useState({
     width: 0,
@@ -37,7 +43,6 @@ export default function Products() {
     })()
 
     const window = getWindowSize();
-    console.log(window);
     setWindowSize(window);
 
   }, [])
@@ -70,8 +75,15 @@ export default function Products() {
 
   return (
     <Box
+      id="product-box"
+      width="100%"
       className="product-box"
-      position="absolute"
+      marginTop={() => {
+        if (mobile) return "53%";
+        if (large) return "43%";
+        if (xlarge) return "39%";
+      }}
+      zIndex={2}
     >
       {bestsellersCarousel(bestsellers)}
       {productCarousels}

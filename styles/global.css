@@ -14,9 +14,17 @@
   --info-main: #789E7A;
 }
 
+
 * {
   margin: 0;
   padding: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-Index: -1
 }
 
 a {
@@ -86,9 +94,22 @@ button>a {
   }
 }
 
+.gutter-spacer {
+  background: hsla(0, 0%, 91%, 1);
+
+  background: linear-gradient(270deg, hsla(0, 0%, 91%, 1) 0%, hsla(0, 0%, 96%, 1) 30%, hsla(0, 0%, 100%, 1) 100%);
+  
+  background: -moz-linear-gradient(270deg, hsla(0, 0%, 91%, 1) 0%, hsla(0, 0%, 96%, 1) 30%, hsla(0, 0%, 100%, 1) 100%);
+  
+  background: -webkit-linear-gradient(270deg, hsla(0, 0%, 91%, 1) 0%, hsla(0, 0%, 96%, 1) 30%, hsla(0, 0%, 100%, 1) 100%);
+  
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E8E8E8", endColorstr="#F4F4F4", GradientType=1 );
+}
+
 .banner-box {
   width: 100vw;
   overflow-x: hidden;
+  z-index: 1;
 
   >div {
     position: unset !important;
@@ -112,7 +133,7 @@ button>a {
     .banner-link {
       bottom: 34%;
       padding: 4px;
-      z-index: 3;
+      z-index: 2;
 
       :hover {
         cursor: pointer;
@@ -127,10 +148,12 @@ button>a {
   height: 62%;
   position: absolute !important;
 
-  .nav-arrow {
-    :hover {
+  .nav-arrow:hover {
+    background-color: transparent;
+    .arrow-icon {
       animation: whiteToMain 0.2s forwards;
     }
+    
   }
 
 }
@@ -162,19 +185,16 @@ button>a {
 
 }
 
-.product-box {
-  margin-top: calc(100vw*3/4*0.7)
+
+.carousel-spacer-start {
+    background: rgb(255,255,255);
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.7357143541010154) 55%, rgba(255,255,255,0) 100%);
+}
+.carousel-spacer-end {
+    background: rgb(255,255,255);
+    background: linear-gradient(270deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.7357143541010154) 55%, rgba(255,255,255,0) 100%);
 }
 
-.carousel-container {
-  width: 100vw;
-
-  .carousel-arrow {
-    :hover {
-      animation: greyToMain 0.2s forwards;
-    }
-  }
-}
 
 .carousel-header-box {
   background: hsla(123, 100%, 12%, 1);

@@ -92,7 +92,7 @@ export default function ProductCard(props: ProductCardProps) {
   })
 
   return (
-    <Container
+    <Box
       id="product-container"
       sx={{
         marginTop: "50px"
@@ -220,6 +220,6 @@ export default function ProductCard(props: ProductCardProps) {
           </Box>
         </Grid>
       </Grid>
-    </Container >
+    </Box >
   )
 }

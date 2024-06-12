@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from "react";
 
+import { useTheme } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+
+
 import Products from "./products/page";
 import BackgroundBanner from "./_components/BackgroundBanner";
 
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
 import { getBanners } from "@/utils/supabase/clientActions/getBanners";
 import { getUrls } from "@/utils/supabase/clientActions/getUrls";
 import { BannerData } from "./types/client-types";
-import Container from "@mui/material/Container";
 
 
 export default function Main() {
+
+  const { mobile, large, xlarge } = useBreakpoints();
 
   const [bannerData, setBannerData] = useState<BannerData[]>([])
 
@@ -42,23 +50,42 @@ export default function Main() {
     })()
   }, [])
 
-  useEffect(() => {
-    console.log("navigator: ", navigator);
-    // document.querySelector()
-  }, [])
-
 
   return (
-    <Container id="main-box"
-      disableGutters
-      sx={{
-        padding: "15px",
-        margin: 0,
-        // maxWidth: 
-      }}
-    >
+    <CssBaseline>
+      <Box
+        className="gutter-spacer"
+        position="fixed"
+        alignSelf={"flex-start"}
+        height="100vh"
+        width={() => {
+          if (mobile) return "0%";
+          if (large) return "10%";
+          if (xlarge) return "15%";
+        }}
+        zIndex={2}
+        sx={{
+          backgroundColor: "#E8E8E8"
+        }}
+      />
+
       <BackgroundBanner bannerData={bannerData} />
       <Products />
-    </Container>
+      <Box
+        className="gutter-spacer"
+        position="fixed"
+        alignSelf={"flex-end"}
+        width={() => {
+          if (mobile) return "0%";
+          if (large) return "10%";
+          if (xlarge) return "15%";
+        }}
+        height="100vh"
+        zIndex={2}
+        sx={{
+          backgroundColor: "#E8E8E8"
+        }}
+      />
+    </CssBaseline>
   )
 }

@@ -18,6 +18,15 @@ export const openSans = OpenSans({
 })
 
 const theme: Theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 550,
+      md: 850,
+      lg: 1080,
+      xl: 1200
+    }
+  },
   palette: {
     primary: {
       main: "#003d03",
