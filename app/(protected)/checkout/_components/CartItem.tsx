@@ -12,7 +12,7 @@ import FormControl from "@mui/material/FormControl";
 import { InputField } from "@/app/_components/styled/InputField";
 
 const CartItem = (props: any) => {
-  const { product, demoOrder, setDemoOrder, orderIndex, dateIndex } = props;
+  const { product, demoOrder, setDemoOrder, orderIndex, dateIndex, demoDates, setDemoDates } = props;
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(product.price);
   const [recipFirst, setRecipFirst] = useState<string>( product.recipFirst);
@@ -52,6 +52,23 @@ const CartItem = (props: any) => {
     else { 
       setToggleEdit(true);
     }
+  }
+
+  const deleteItem = () => {
+    let updateOrder = structuredClone(demoOrder);
+    let updateItems = updateOrder[dateIndex];
+    updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
+
+    // delete Accordion for coresponding date if all items for one date are deleted
+    // otherwise, keep the date Accordion and other items
+    if (updateItems.length == 0) {
+      let updateDates = structuredClone(demoDates);
+      updateDates = updateDates.slice(0, dateIndex).concat(updateDates.slice(dateIndex + 1));
+      setDemoDates(updateDates);
+    } else {
+      updateOrder[dateIndex] = updateItems;
+    }
+    setDemoOrder(updateOrder);
   }
 
   return (
@@ -204,6 +221,9 @@ const CartItem = (props: any) => {
                 borderColor: "primary.main",
                 mt: 1,
                 ml: 3.5,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
               }}
             >
               Confirm
@@ -212,16 +232,33 @@ const CartItem = (props: any) => {
               onClick={() => {
                 toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
               }}
+              variant="outlined"
               sx={{
-                border: "1px solid",
-                borderColor: "primary.main",
                 mt: 1,
-                ml: 3
+                ml: 3,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
               }}
             >
               Edit
             </Button>
-          }
+        }
+        <Button 
+          onClick={() => deleteItem()}
+          variant="outlined"
+          color="error"
+          sx={{
+            mt: 1,
+            ml: 2,
+            '&:hover': {
+              bgcolor: "#d32e2f",
+              color: "white"
+            }
+          }}
+        >
+          Delete
+        </Button>
       </Container>
     </Container>
   )

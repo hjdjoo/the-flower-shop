@@ -91,7 +91,7 @@ export default function Checkout() {
             <Container className="Description-Root">
               {demoOrder[dateIndex].map((product, orderIndex) => 
               <Container className="CartItem-Root" key={orderIndex}>
-                <CartItem product={product} demoOrder={demoOrder} setDemoOrder={setDemoOrder} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
+                <CartItem product={product} demoOrder={demoOrder} setDemoOrder={setDemoOrder} orderIndex={orderIndex} dateIndex={dateIndex} setDemoDates={setDemoDates} demoDates={demoDates}></CartItem>
               </Container>
               )}
             </Container>
