@@ -13,7 +13,6 @@ import CartItem from "./_components/CartItem";
 export default function Checkout() {
 
   const [demoDates, setDemoDates] = useState<OrderTypes.Dates>(["9/16/2024","12/25/2024"]);
-
   const [demoAddress, setDemoAddress] = useState<OrderTypes.Addresses>([
     {
       streetAddress1: '71 Tennyson Drive',

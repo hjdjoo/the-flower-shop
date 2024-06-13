@@ -36,6 +36,7 @@ const CartItem = (props: any) => {
         recipLast,
         recipPhone,
         cardMessage,
+        //this is implemented incorrectly, the demoAddresse array has to be updated instead
         recipAddress: {
           streetAddress1,
           streetAddress2,
