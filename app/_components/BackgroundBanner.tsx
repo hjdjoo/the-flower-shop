@@ -10,9 +10,12 @@ import { useTheme } from "@mui/material";
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/Button';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
 
 import * as CarouselComp from "@/app/_components/styled/CarouselComponents";
-import { BannerButton } from "@/app/_components/styled/BannerComponents";
+import { BannerButton, BannerStepConnector, BannerStepIcon, } from "@/app/_components/styled/BannerComponents";
 
 
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
@@ -122,11 +125,10 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       >
         <Box
           className="banner-item-box"
-          minWidth="100vw"
-          paddingX={() => {
-            if (mobile) return "0%";
-            if (large) return "10%";
-            if (xlarge) return "15%";
+          minWidth={() => {
+            if (mobile) return "100vw";
+            if (large) return "80vw";
+            if (xlarge) return "70vw";
           }}
           position="relative"
         >
@@ -160,14 +162,37 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
               onClick={() => {
                 router.push(`/categories/${bannerNames[activeStep.current]}`)
               }}
+              sx={{
+                fontWeight: "500",
+                fontStyle: "italic",
+              }}
             >
-              Shop {bannerNames[idx]} Flowers {">>"}
+              Shop {bannerNames[idx]} Flowers {">"}
             </BannerButton>
           </Box>
         </Box>
       </CarouselComp.CarItem>
     )
   })
+
+  const BannerStepper = () => {
+    return (
+      <Stepper
+        alternativeLabel
+        activeStep={activeStep.current}
+        connector={<BannerStepConnector />}
+      >
+        {bannerData.map((item, idx) => {
+          return (<Step
+            key={`step-${idx + 1}`}
+          >
+            <StepLabel StepIconComponent={BannerStepIcon} />
+          </Step>)
+        })}
+      </Stepper>
+    )
+  }
+
 
   return (
 
@@ -177,6 +202,11 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       position={"absolute"}
       marginTop="25px"
       sx={{
+        paddingX: () => {
+          if (mobile) return "0%";
+          if (large) return "10%";
+          if (xlarge) return "15%";
+        },
         width: "100%",
         overflow: "hidden",
         display: "flex",
@@ -195,6 +225,11 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       <Box
         id="banner-navigation"
         sx={{
+          width: () => {
+            if (mobile) return "100vw";
+            if (large) return "80vw";
+            if (xlarge) return "70vw";
+          },
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
@@ -211,11 +246,18 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           }}
           disableRipple
           sx={{
-            left: () => {
-              if (mobile) return "1%"
-              if (large) return "11%";
-              if (xlarge) return "16%";
+            padding: 0,
+            width: () => {
+              if (mobile) return "48px";
+              if (large) return "56px";
+              if (xlarge) return "64px";
             },
+            height: () => {
+              if (mobile) return "48px";
+              if (large) return "56px";
+              if (xlarge) return "64px";
+            },
+            left: "1%"
           }}
         >
           <ArrowBackIosOutlinedIcon
@@ -230,6 +272,21 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             }}
           />
         </IconButton>
+        <Box
+          sx={{
+            transform: () => {
+              if (mobile) return "translateY(calc(0.8vh))"
+              if (large) return "translateY(calc(1.1vh))"
+              if (xlarge) return "translateY(calc(2vh))"
+            },
+            [theme.breakpoints.down("sm")]: {
+              transform: "translateY(calc(0.1vh))"
+            }
+
+          }}
+        >
+          <BannerStepper />
+        </Box>
         <IconButton
           id="next-banner-button"
           className="nav-arrow"
@@ -239,11 +296,19 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           }}
           disableRipple
           sx={{
-            right: () => {
-              if (mobile) return "1%"
-              if (large) return "11%";
-              if (xlarge) return "16%";
+            position: "relative",
+            padding: 0,
+            width: () => {
+              if (mobile) return "48px";
+              if (large) return "56px";
+              if (xlarge) return "64px";
             },
+            height: () => {
+              if (mobile) return "48px";
+              if (large) return "56px";
+              if (xlarge) return "64px";
+            },
+            right: "1%"
           }}
         >
           <ArrowForwardIosOutlinedIcon

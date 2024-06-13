@@ -28,7 +28,7 @@ main {
 }
 
 a {
-  color: #003d03;
+  color: rgb(0, 61, 3);
   text-decoration: none;
 
   :hover {
@@ -52,17 +52,17 @@ button>a {
   }
 }
 
-@keyframes niceBackdrop {
+@keyframes clearToMain {
   0% {
     background-color: transparent;
   }
 
   50% {
-    background-color: rgba(255, 240, 253, 0.3)
+    background-color: rgba(0, 61, 3, 0.2)
   }
 
   100% {
-    background-color: rgba(240, 254, 241, 0.55);
+    background-color: rgba(0, 61, 3, 0.5);
   }
 }
 
@@ -124,36 +124,49 @@ button>a {
 
   .banner-link-box {
 
-    :hover {
-      animation: lift 0.2s forwards,
-        whiteToMain 0.2s forwards,
-        niceBackdrop 0.2s forwards;
-    }
-
     .banner-link {
-      bottom: 34%;
+      background-color: rgba(0, 61, 3, 0.5);
+      color: rgba(255, 255, 255, 0.9);
+      bottom: 38%;
       padding: 4px;
       z-index: 2;
-
-      :hover {
-        cursor: pointer;
-      }
-
+    }
+    .banner-link:hover {
+      background-color: rgba(0, 61, 3, 0.8);
+      color: rgba(255, 255, 255, 0.9);
     }
   }
 }
 
 #banner-navigation {
-  width: 100%;
-  height: 62%;
+  height: 60%;
   position: absolute !important;
-
+  
+  .nav-arrow {
+    border-radius: 100%;
+    min-width: 0;
+    
+  }
   .nav-arrow:hover {
-    background-color: transparent;
+    background-color: rgba(232, 232, 232, 0.3);
     .arrow-icon {
       animation: whiteToMain 0.2s forwards;
     }
-    
+  }
+
+}
+
+@keyframes zoom {
+  0% {
+    transform: scale(1, 1);
+  }
+
+  50% {
+    transform: scale(1.04, 1.04);
+  }
+
+  100% {
+    transform: scale(1.07, 1.07);
   }
 
 }
@@ -177,10 +190,12 @@ button>a {
     width: 100% !important;
     position: relative !important;
     height: unset !important;
+
   }
 
-  :hover {
-    cursor: pointer
+  .product-image:hover {
+    cursor: pointer;
+    animation: zoom 0.2s forwards;
   }
 
 }

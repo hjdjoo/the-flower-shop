@@ -107,6 +107,7 @@ export function Carousel(props: CarouselProps) {
             },
           }}
           position="relative"
+          overflow={"hidden"}
         >
           <Image
             id={`${data.name}-image`}
