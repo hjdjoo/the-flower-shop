@@ -27,21 +27,17 @@ export interface OrderFormData {
 
 }
 
-export interface Dates {
-  dates: string[]
-};
+export type Dates = string[];
 
 export interface Address {
-  StreetAddress1: string,
-  StreetAddress2: string,
-  TownCity: string,
-  State: string,
-  Zip: number,
+  streetAddress1: string,
+  streetAddress2: string,
+  townCity: string,
+  state: string,
+  zip: string,
 }
 
-export interface Addresses {
-  addresses: Address[]
-};
+export type Addresses =  Address[];
 
 export interface OrderItem {
   productID: number,
@@ -55,10 +51,11 @@ export interface OrderItem {
   deliveryInstructions: string,
 }
 
-export interface Order {
-  orders: OrderItem[],
+export type Order = OrderItem[][];
+
+export interface SenderInfo {
   senderFirst: string,
   senderLast: string,
   phoneNumber: number,
-  email: string | undefined
+  email: string
 }
