@@ -1,10 +1,5 @@
 import { createContext, useContext, useState } from "react";
-
-type productData = {
-  id: number,
-  address: string,
-  note: string
-}
+import * as OrderTypes from "../../app/_components/types/OrderFormData"
 
 const CartContext = createContext([]);
 
