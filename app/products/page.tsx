@@ -24,7 +24,7 @@ export default function Products() {
   const theme = useTheme();
   const [homepageCategories, setHomepageCategories] = useState<HomepageCategory[]>([]);
 
-  const { mobile, large, xlarge } = useBreakpoints();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const [windowSize, setWindowSize] = useState({
     width: 0,
@@ -80,6 +80,7 @@ export default function Products() {
       className="product-box"
       marginTop={() => {
         if (mobile) return "53%";
+        if (tablet) return "55%";
         if (large) return "43%";
         if (xlarge) return "39%";
       }}

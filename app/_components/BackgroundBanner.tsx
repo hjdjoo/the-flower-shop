@@ -37,9 +37,10 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
   const router = useRouter();
   const theme = useTheme();
-  const { mobile, large, xlarge } = useBreakpoints();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
   const { bannerData } = props;
-  const activeStep = useRef<number>(0)
+  const activeIdx = useRef<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(0)
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: 0,
     height: 0
@@ -74,7 +75,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
   const handleResize = () => {
     const currWindow = getWindowSize();
     document.getElementById("banner-carousel")?.scrollTo({
-      left: currWindow.width * activeStep.current
+      left: currWindow.width * activeIdx.current
     })
   }
 
@@ -82,15 +83,17 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
     const carousel = document.getElementById(`${carouselName}-carousel`)
 
-    // if we're trying to scroll right, handle resetting the activeStep ref and scroll behavior at the end of the carousel.
+    // if we're trying to scroll right, handle resetting the activeIdx ref and scroll behavior at the end of the carousel.
     // Invert logic if we're trying to scroll left.
     switch (translateX > 0) {
       case true:
-        if (activeStep.current === bannerData.length - 1) {
-          activeStep.current = 0;
+        if (activeIdx.current === bannerData.length - 1) {
+          activeIdx.current = 0;
+          setActiveStep(0);
           carousel?.scrollTo({ left: 0, behavior: "smooth" })
         } else {
-          activeStep.current += 1;
+          activeIdx.current += 1;
+          setActiveStep(activeStep + 1)
           carousel?.scrollBy({
             left: (translateX),
             top: 0,
@@ -100,10 +103,12 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         break;
       case false:
         if (carousel?.scrollLeft === 0) {
-          activeStep.current = bannerData.length - 1;
+          activeIdx.current = bannerData.length - 1;
+          setActiveStep(bannerData.length - 1);
           carousel?.scrollTo({ left: windowSize.width * (bannerData.length - 1), behavior: "smooth" })
         } else {
-          activeStep.current -= 1;
+          activeIdx.current -= 1;
+          setActiveStep(activeStep + 1);
           carousel?.scrollBy({
             left: (translateX),
             top: 0,
@@ -126,7 +131,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         <Box
           className="banner-item-box"
           minWidth={() => {
-            if (mobile) return "100vw";
+            if (mobile || tablet) return "100vw";
             if (large) return "80vw";
             if (xlarge) return "70vw";
           }}
@@ -144,7 +149,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
               zIndex: -1,
             }}
             sizes={
-              "(max-width: 900px) 80%, (max-width: 1200px) 80%, 70%"
+              "(max-width: 900px) 80%, (max-width: 1200px) 70%, 70%"
             }
             fill
             priority
@@ -160,7 +165,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
               className="banner-link"
               disableRipple
               onClick={() => {
-                router.push(`/categories/${bannerNames[activeStep.current]}`)
+                router.push(`/categories/${bannerNames[activeIdx.current]}`)
               }}
               sx={{
                 fontWeight: "500",
@@ -179,7 +184,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
     return (
       <Stepper
         alternativeLabel
-        activeStep={activeStep.current}
+        activeStep={activeIdx.current}
         connector={<BannerStepConnector />}
       >
         {bannerData.map((item, idx) => {
@@ -193,6 +198,12 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
     )
   }
 
+  const getNavArrowSize = () => {
+    if (mobile || tablet) return "48px";
+    if (large) return "56px";
+    if (xlarge) return "64px";
+  }
+
 
   return (
 
@@ -203,7 +214,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
       marginTop="25px"
       sx={{
         paddingX: () => {
-          if (mobile) return "0%";
+          if (mobile || tablet) return "0%";
           if (large) return "10%";
           if (xlarge) return "15%";
         },
@@ -226,7 +237,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
         id="banner-navigation"
         sx={{
           width: () => {
-            if (mobile) return "100vw";
+            if (mobile || tablet) return "100vw";
             if (large) return "80vw";
             if (xlarge) return "70vw";
           },
@@ -248,14 +259,10 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
           sx={{
             padding: 0,
             width: () => {
-              if (mobile) return "48px";
-              if (large) return "56px";
-              if (xlarge) return "64px";
+              return getNavArrowSize();
             },
             height: () => {
-              if (mobile) return "48px";
-              if (large) return "56px";
-              if (xlarge) return "64px";
+              return getNavArrowSize();
             },
             left: "1%"
           }}
@@ -264,7 +271,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             className="arrow-icon"
             sx={{
               fontSize: () => {
-                if (mobile) return "1.5rem";
+                if (mobile || tablet) return "1.5rem";
                 if (large) return "1.8rem";
                 if (xlarge) return "2rem";
               },
@@ -272,17 +279,14 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             }}
           />
         </IconButton>
-        <Box
+        <Box id="banner-stepper-box"
           sx={{
             transform: () => {
-              if (mobile) return "translateY(calc(0.8vh))"
+              if (mobile) return "translateY(calc(0.3vh))"
+              if (tablet) return "translateY(calc(1.3vh))"
               if (large) return "translateY(calc(1.1vh))"
               if (xlarge) return "translateY(calc(2vh))"
             },
-            [theme.breakpoints.down("sm")]: {
-              transform: "translateY(calc(0.1vh))"
-            }
-
           }}
         >
           <BannerStepper />
@@ -299,14 +303,10 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
             position: "relative",
             padding: 0,
             width: () => {
-              if (mobile) return "48px";
-              if (large) return "56px";
-              if (xlarge) return "64px";
+              return getNavArrowSize();
             },
             height: () => {
-              if (mobile) return "48px";
-              if (large) return "56px";
-              if (xlarge) return "64px";
+              return getNavArrowSize();
             },
             right: "1%"
           }}

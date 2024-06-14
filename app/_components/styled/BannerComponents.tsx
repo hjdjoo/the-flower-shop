@@ -17,9 +17,13 @@ export const BannerButton = styled(ButtonBase)(({ theme }) => ({
   marginBottom: "15px",
   position: "absolute",
   textTransform: "none",
-  [theme.breakpoints.between("xs", "md")]: {
+  [theme.breakpoints.between("xs", "sm")]: {
     height: "5%",
     fontSize: "0.6rem"
+  },
+  [theme.breakpoints.between("sm", "md")]: {
+    height: "6%",
+    fontSize: "0.8rem"
   },
   [theme.breakpoints.between("md", "lg")]: {
     height: "8%",

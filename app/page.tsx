@@ -21,9 +21,17 @@ import { BannerData } from "./types/client-types";
 
 export default function Main() {
 
-  const { mobile, large, xlarge } = useBreakpoints();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const [bannerData, setBannerData] = useState<BannerData[]>([])
+
+  const getGutterWidth = (): string => {
+    if (mobile) return "0%";
+    if (tablet) return "0%";
+    if (large) return "10%";
+    if (xlarge) return "15%";
+    else return "15%";
+  }
 
   useEffect(() => {
     (async () => {
@@ -59,9 +67,7 @@ export default function Main() {
         alignSelf={"flex-start"}
         height="100vh"
         width={() => {
-          if (mobile) return "0%";
-          if (large) return "10%";
-          if (xlarge) return "15%";
+          return getGutterWidth();
         }}
         zIndex={2}
         sx={{
@@ -76,9 +82,7 @@ export default function Main() {
         position="fixed"
         alignSelf={"flex-end"}
         width={() => {
-          if (mobile) return "0%";
-          if (large) return "10%";
-          if (xlarge) return "15%";
+          return getGutterWidth();
         }}
         height="100vh"
         zIndex={2}

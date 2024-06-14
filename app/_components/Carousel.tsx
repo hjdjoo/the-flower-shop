@@ -33,25 +33,24 @@ export function Carousel(props: CarouselProps) {
 
   const router = useRouter();
   const theme = useTheme();
-  const { mobile, large, xlarge } = useBreakpoints();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
-
-  const CardTextStyles = {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: 'white',
-    padding: '8px',
-    boxSizing: 'border-box',
-    textAlign: 'center',
-  };
+  // const CardTextStyles = {
+  //   position: 'absolute',
+  //   bottom: 0,
+  //   left: 0,
+  //   width: '100%',
+  //   backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  //   color: 'white',
+  //   padding: '8px',
+  //   boxSizing: 'border-box',
+  //   textAlign: 'center',
+  // };
 
 
   const { name, id } = props.category;
   const [productData, setProductData] = useState<ProductData[]>([])
-  const [showButton, setShowButton] = useState<string>("");
+  // const [showButton, setShowButton] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -79,6 +78,34 @@ export function Carousel(props: CarouselProps) {
     })
   };
 
+  const carouselNavButtonStyle = () => {
+
+  }
+
+  const getCarouselSpacerHeight = () => {
+
+    if (mobile) return "250px";
+    if (tablet) return "270px";
+    if (large) return "310px";
+    if (xlarge) return "380px";
+    else return "0px";
+
+  }
+
+  const getCarouselSpacerPosition = () => {
+    if (mobile || tablet) return "0%"
+    if (large) return "10%";
+    if (xlarge) return "15%";
+  }
+
+  const getCarouselButtonPosition = () => {
+    if (mobile || tablet) return "1%";
+    if (large) return "11%";
+    if (xlarge) return "16%";
+    else return "1%";
+
+  }
+
   const products = productData.map((data, idx) => {
     return (
       <CarouselComp.CarItem
@@ -96,13 +123,15 @@ export function Carousel(props: CarouselProps) {
           onClick={() => router.push(`products/${data.id}`)}
           sx={{
             minWidth: () => {
-              if (mobile) return "130px";
-              else if (large) return "175px";
+              if (mobile) return "150px";
+              if (tablet) return "175px";
+              else if (large) return "200px";
               else if (xlarge) return "250px";
             },
             maxWidth: () => {
-              if (mobile) return "130px";
-              else if (large) return "175px";
+              if (mobile) return "150px";
+              if (tablet) return "175px";
+              else if (large) return "200px";
               else if (xlarge) return "250px";
             },
           }}
@@ -162,11 +191,11 @@ export function Carousel(props: CarouselProps) {
       sx={{
         backgroundColor: "white",
         marginBottom: name === "Bestsellers" ? "0px" : "5px",
-        width: () => {
-          if (mobile) return "100%";
+        maxWidth: () => {
+          return "100%"
         },
         marginX: () => {
-          if (mobile) return "0%";
+          if (mobile || tablet) return "0%";
           if (large) return "10%";
           if (xlarge) return "15%";
         }
@@ -228,14 +257,10 @@ export function Carousel(props: CarouselProps) {
             className="carousel-spacer-start"
             sx={{
               height: () => {
-                if (mobile) return "220px";
-                if (large) return "290px";
-                if (xlarge) return "380px";
+                return getCarouselSpacerHeight();
               },
               left: () => {
-                if (mobile) return "0%"
-                if (large) return "10%";
-                if (xlarge) return "15%";
+                return getCarouselSpacerPosition();
               }
             }}
           />
@@ -245,9 +270,7 @@ export function Carousel(props: CarouselProps) {
             disableRipple
             sx={{
               left: () => {
-                if (mobile) return "1%"
-                if (large) return "11%";
-                if (xlarge) return "16%";
+                return getCarouselButtonPosition();
               }
             }}
           >
@@ -269,9 +292,7 @@ export function Carousel(props: CarouselProps) {
             disableRipple
             sx={{
               right: () => {
-                if (mobile) return "1%"
-                if (large) return "11%";
-                if (xlarge) return "16%";
+                return getCarouselButtonPosition();
               }
             }}
           >
@@ -288,14 +309,10 @@ export function Carousel(props: CarouselProps) {
             className="carousel-spacer-end"
             sx={{
               height: () => {
-                if (mobile) return "220px";
-                if (large) return "290px";
-                if (xlarge) return "380px";
+                return getCarouselSpacerHeight();
               },
               right: () => {
-                if (mobile) return "0%"
-                if (large) return "10%";
-                if (xlarge) return "15%";
+                return getCarouselSpacerPosition();
               }
             }}
           />

@@ -1,13 +1,13 @@
 import useMediaQuery from "@mui/material/useMediaQuery"
-import { useTheme } from "@mui/material";
+import { type Theme } from "@mui/material";
 
 export default function useBreakpoints() {
 
-  const theme = useTheme();
-  const mobile = useMediaQuery(theme.breakpoints.between("xs", "md"));
-  const large = useMediaQuery(theme.breakpoints.between("md", "lg"));
-  const xlarge = useMediaQuery(theme.breakpoints.up("lg"));
+  const mobile = useMediaQuery((theme: Theme) => theme.breakpoints.between("xs", "sm"));
+  const tablet = useMediaQuery((theme: Theme) => theme.breakpoints.between("sm", "md"))
+  const large = useMediaQuery((theme: Theme) => theme.breakpoints.between("md", "lg"));
+  const xlarge = useMediaQuery((theme: Theme) => theme.breakpoints.up("lg"));
 
-  return { mobile: mobile, large: large, xlarge: xlarge }
+  return { mobile: mobile, tablet: tablet, large: large, xlarge: xlarge }
 
 }

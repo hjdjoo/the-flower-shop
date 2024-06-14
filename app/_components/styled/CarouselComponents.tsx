@@ -1,6 +1,7 @@
 "use client"
 
 import { styled } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -60,18 +61,18 @@ export const CarSpacer = styled(Box, {
 export const CarButton = styled(IconButton, {
   name: "Carousel",
   slot: "button"
-})({
+})(({ theme }) => ({
   position: 'absolute',
   color: 'grey',
   borderRadius: 100,
   height: "auto",
   zIndex: 2,
-  backgroundColor: "white",
+  backgroundColor: alpha("#FFFFFF", 0.7),
   '&:hover': {
     backgroundColor: "#e8e8e8",
     color: 'black'
   }
-})
+}))
 
 export const CarPrevIcon = styled(ArrowBackIosOutlinedIcon, {
   name: "Carousel",
