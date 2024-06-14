@@ -26,3 +26,36 @@ export interface OrderFormData {
   }>,
 
 }
+
+export type Dates = string[];
+
+export interface Address {
+  streetAddress1: string,
+  streetAddress2: string,
+  townCity: string,
+  state: string,
+  zip: string,
+}
+
+export type Addresses =  Address[];
+
+export interface OrderItem {
+  productID: number,
+  price: number,
+  cardMessage: string,
+  recipFirst: string,
+  recipLast: string,
+  recipAddress: Address,
+  recipPhone: number,
+  deliveryFee: number,
+  deliveryInstructions: string,
+}
+
+export type Order = OrderItem[][];
+
+export interface SenderInfo {
+  senderFirst: string,
+  senderLast: string,
+  phoneNumber: number,
+  email: string
+}
