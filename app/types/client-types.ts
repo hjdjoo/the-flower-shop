@@ -32,3 +32,10 @@ export interface BannerData {
   name: string,
   url: string
 }
+
+export interface Breakpoints {
+  mobile: boolean,
+  tablet: boolean,
+  large: boolean,
+  xlarge: boolean,
+}

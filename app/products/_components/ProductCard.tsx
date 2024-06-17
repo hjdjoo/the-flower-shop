@@ -20,6 +20,7 @@ import CustomerOrderForm from "./CustomerOrderForm";
 import PricePicker from "@/app/_components/PricePicker";
 import { OrderForm as defaultOrderForm } from "@/app/_components/lib/OrderForm";
 
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
 
@@ -34,6 +35,7 @@ interface ProductCardProps {
 export default function ProductCard(props: ProductCardProps) {
 
   const theme = useTheme();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const { productId } = props
   const { name, categories, description, standardPrice, premiumPrice, deluxePrice, imageUrl } = props.productInfo
@@ -94,12 +96,20 @@ export default function ProductCard(props: ProductCardProps) {
   return (
     <Box
       id="product-container"
+      maxWidth={() => {
+        if (mobile || tablet) return "100%";
+        if (large) return "80%";
+        if (xlarge) return "70%";
+      }}
       sx={{
-        marginTop: "50px"
+        marginTop: "65px",
       }}
     >
       <Grid
-        container>
+        container
+        sx={{
+          paddingX: "25px"
+        }}>
         <Grid xs={12} sm={6} id="product-display-grid-area" >
           <Box
             id="product-display-box"
@@ -211,6 +221,7 @@ export default function ProductCard(props: ProductCardProps) {
           <Box
             id="category-suggestion-box"
             marginTop="30px"
+            paddingX="15px"
           >
             <Typography
               fontSize={"1.2rem"}

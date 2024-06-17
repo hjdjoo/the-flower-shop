@@ -2,9 +2,7 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { ThemeProvider } from '@mui/material/styles';
-import Box from "@mui/material/Box";
 
 import '@/styles/global.css';
 import theme from '../styles/theme';
@@ -20,6 +18,8 @@ export const metadata: Metadata = {
   title: 'The Flower Shop',
   description: 'The Flower Shop',
 }
+
+
 
 export default async function RootLayout(
   {
