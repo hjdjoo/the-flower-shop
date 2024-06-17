@@ -258,11 +258,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 <Typography>Estimated Delivery Fee:</Typography>
                 <Typography>(Insert Fee Calculation Here)</Typography>
               </Box>
-              {deliveryZipAlert.severity === "success" &&
-                <p>
-                  Zip code is valid! What is the rest of the info?
-                </p>
-              }
+              <Box>
+                {deliveryZipAlert.severity === "success" &&
+                  <p>
+                    Zip code is valid! What is the rest of the info?
+                  </p>
+                }
+              </Box>
             </Box>
           </Collapse>
         </Box>
