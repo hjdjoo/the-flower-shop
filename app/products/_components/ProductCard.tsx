@@ -68,7 +68,7 @@ export default function ProductCard(props: ProductCardProps) {
             display="flex"
             justifyContent="space-between"
             sx={{
-              backgroundColor: theme.palette.primary.light,
+              backgroundColor: theme.palette.secondary.main,
               boxShadow: "2px 2px 4px lightgrey",
               "&:hover": {
                 backgroundColor: "lightgrey",
@@ -92,7 +92,7 @@ export default function ProductCard(props: ProductCardProps) {
   })
 
   return (
-    <Container
+    <Box
       id="product-container"
       sx={{
         marginTop: "50px"
@@ -220,6 +220,6 @@ export default function ProductCard(props: ProductCardProps) {
           </Box>
         </Grid>
       </Grid>
-    </Container >
+    </Box >
   )
 }

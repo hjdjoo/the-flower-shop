@@ -4,6 +4,7 @@ import SenderInfo from "@/app/_components/SenderInfo";
 import RecipientInfo from "@/app/_components/RecipientInfo";
 import { useState, useRef, Dispatch, SetStateAction, MouseEvent, ChangeEvent } from "react";
 
+import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
@@ -31,6 +32,8 @@ interface CustomerOrderFormProps {
 // this form should always take in the order form and its setter function as a prop.
 
 export default function CustomerOrderForm(props: CustomerOrderFormProps) {
+
+  const theme = useTheme();
 
   const { orderInfo, setOrderInfo } = props;
 
@@ -149,10 +152,11 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         display="flex"
         alignItems="center"
         sx={{
-          backgroundColor: "lightgrey",
+          backgroundColor: theme.palette.primary.main,
+          color: "white",
           "&:hover": {
-            backgroundColor: "grey",
-            color: "white"
+            backgroundColor: theme.palette.primary.light,
+            color: "black"
           }
         }}
         onClick={handleActiveField}
