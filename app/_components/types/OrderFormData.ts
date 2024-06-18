@@ -12,7 +12,7 @@ export interface OrderFormData {
   recipStreetAddress2: string,
   recipTownCity: string,
   recipZip: number | undefined,
-  recipPhone: number | undefined,
+  recipPhone: number | string,
   cardMessage: string,
   deliveryDate: string,
   deliveryFee: number | undefined,
@@ -37,7 +37,7 @@ export interface Address {
   zip: string,
 }
 
-export type Addresses =  Address[];
+export type Addresses = Address[];
 
 export interface OrderItem {
   productID: number,

@@ -15,29 +15,38 @@ export default function RecipientInfo(props: RecipientInfoProps) {
 
   const { formData, handleFormData } = props;
 
+  const parsePhone = (phoneNumber: number): string => {
+
+    const zip = phoneNumber.toString().slice(0, 2);
+
+    return `(${zip})`
+
+  }
+
   return (
-    <>
+    <Box id="recipient-address-form"
+      marginBottom="15px"
+    >
       <Typography
         sx={{
-          fontSize: "1.2rem"
+          fontSize: "1.1rem"
         }}
       >
         Recipient Information:
       </Typography>
-      <Box
+      <Box id="recipient-name-box"
         sx={{
           display: "flex",
           justifyContent: "space-between"
         }}>
-        <InputField
-          id="recipient-first-name"
+        <InputField id="recipient-first-name"
           name="recipFirst"
           label="First Name"
           onChange={handleFormData}
           value={formData.recipFirst}
           size="small"
           sx={{
-            width: "48%"
+            flexGrow: 1
           }}
         />
         <InputField
@@ -48,49 +57,72 @@ export default function RecipientInfo(props: RecipientInfoProps) {
           value={formData.recipLast}
           size="small"
           sx={{
-            width: "48%"
+            flexGrow: 1
           }}
         />
       </Box>
-      <InputField
-        id="recipient-street-1"
-        name="recipStreetAddress1"
-        label="Street Address Line 1"
-        onChange={handleFormData}
-        value={formData.recipStreetAddress1}
-        size="small"
-      />
-      <InputField
-        id="recipient-street-2"
-        name="recipStreetAddress2"
-        label="Street Address Line 2"
-        onChange={handleFormData}
-        value={formData.recipStreetAddress2}
-        size="small"
-      />
-      <InputField
-        id="recipient-town-city"
-        name="recipTownCity"
-        label="Town/City"
-        onChange={handleFormData}
-        value={formData.recipTownCity}
-        size="small"
-      />
-      <InputField
-        id="recipient-zip"
-        name="recipZip"
-        label="Zip Code"
-        onChange={handleFormData}
-        value={formData.recipZip}
-        size="small"
-      />
-      <InputField
-        id="recipient-phone"
-        name="recipPhone"
-        label="Phone Number"
-        onChange={handleFormData}
-        value={formData.recipPhone}
-        size="small"
-      />
-    </>)
+      <Box id="recipient-address-box"
+        display="flex"
+        flexDirection="column"
+      >
+        <InputField
+          id="recipient-street-1"
+          name="recipStreetAddress1"
+          label="Street Address Line 1"
+          onChange={handleFormData}
+          value={formData.recipStreetAddress1}
+          size="small"
+          sx={{
+            flexGrow: 1
+          }}
+        />
+        <InputField
+          id="recipient-street-2"
+          name="recipStreetAddress2"
+          label="Street Address Line 2"
+          onChange={handleFormData}
+          value={formData.recipStreetAddress2}
+          size="small"
+
+          sx={{
+            flexGrow: 1
+          }}
+        />
+        <Box id="town-city-zip-box"
+          display="flex"
+        >
+          <InputField
+            id="recipient-town-city"
+            name="recipTownCity"
+            label="Town/City"
+            onChange={handleFormData}
+            value={formData.recipTownCity}
+            size="small"
+            sx={{
+              flexGrow: 1
+            }}
+          />
+          <InputField
+            id="recipient-zip"
+            name="recipZip"
+            label="Zip Code"
+            onChange={handleFormData}
+            value={formData.recipZip}
+            size="small"
+            sx={{
+              flexGrow: 1
+            }}
+          />
+        </Box>
+        <InputField
+          id="recipient-phone"
+          name="recipPhone"
+          label="Phone Number"
+          onChange={handleFormData}
+          value={formData.recipPhone}
+          size="small"
+        />
+      </Box>
+    </Box>
+  )
 }

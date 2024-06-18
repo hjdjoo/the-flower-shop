@@ -14,11 +14,13 @@ const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 interface ZipCheckerProps {
   zipCode: number | undefined
   setDeliveryZipAlert: Dispatch<SetStateAction<ErrorMessage>>
+  setDeliveryFee: Dispatch<SetStateAction<number>>
+  setReadyToSubmit: Dispatch<SetStateAction<boolean>>
 }
 
 export default function ZipCheckerButton(props: ZipCheckerProps) {
 
-  const { zipCode, setDeliveryZipAlert } = props;
+  const { zipCode, setDeliveryZipAlert, setDeliveryFee, setReadyToSubmit } = props;
 
   const routesLib = useMapsLibrary("routes");
 
@@ -30,7 +32,6 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
 
       const transitMode = TravelMode.DRIVING
       const trafficModel = TrafficModel.PESSIMISTIC
-
 
       const directions = new DirectionsService();
 
@@ -55,32 +56,61 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         drivingDistance += leg.distance ? leg.distance.value : 0;
       })
 
-      if (drivingDistance / 1609 > 12 || drivingTime / (1000 * 60) > 20) {
-        setDeliveryZipAlert({
-          severity: "error",
-          message: "This may be outside of our delivery zone."
-        })
-      } else {
+      const miles = drivingDistance / 1609;
+      const time = drivingTime / (60);
+
+      if (miles > 12 || time > 18) {
+        throw new Error("This may be outside of our delivery zone.")
+      }
+
+      console.log(miles, time);
+
+      if (zipCode?.toString() === "07450") {
         setDeliveryZipAlert({
           severity: "success",
           message: "Looks good!",
         })
       }
+      if (miles > 2 || time > 4) {
+        setDeliveryFee(9.95);
+      };
+      if (miles > 4 || time > 7) {
+        setDeliveryFee(10.95);
+      };
+      if (miles > 6 || time > 10) {
+        setDeliveryFee(11.95);
+      };
+      if (miles > 8 || time > 13) {
+        setDeliveryFee(12.95)
+      };
+      if (miles > 10 || time > 16) {
+        setDeliveryFee(13.95)
+      };
+      setDeliveryZipAlert({
+        severity: "success",
+        message: "Looks good!",
+      });
+      setReadyToSubmit(true);
     }
     catch (error) {
       console.error(error);
       setDeliveryZipAlert({
         severity: "error",
-        message: `Couldn't check route: ${error}`
-      })
+        message: `${error}`
+      });
+      setReadyToSubmit(false);
     }
   }
 
   return (
     <Button
+      id="order-zip-checker-button"
       variant="outlined"
       sx={{
-        marginX: "15px"
+        marginX: "15px",
+        alignSelf: "flex-start",
+        marginTop: "15px",
+        flexGrow: 1,
       }}
       onClick={async () => {
         if (!zipCode) {
@@ -88,6 +118,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
             severity: "error",
             message: "Please input a zip code!"
           })
+          setReadyToSubmit(false);
         } else {
           await checkDeliveryArea(zipCode.toString());
         }
