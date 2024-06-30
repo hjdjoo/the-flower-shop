@@ -9,6 +9,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as OrderTypes from '../../_components/types/OrderFormData'
 import CartItem from "./_components/CartItem";
+import Button from '@mui/material/Button';
 
 export default function Checkout() {
 
@@ -110,6 +111,24 @@ export default function Checkout() {
           </AccordionDetails>
         </Accordion>
       )}
+      <Button
+        onClick={() => {
+          console.log('demoAddress', demoAddress);
+          console.log('demoOrder', demoOrder);
+          console.log('demoDates', demoDates);
+        }}
+        sx={{
+          border: "1px solid",
+          borderColor: "primary.main",
+          mt: 1,
+          ml: 3.5,
+          '&:hover': {
+            backgroundColor: "#dfe6df",
+          }
+        }}
+      >
+              Check
+      </Button>
     </Container>
   )
 }

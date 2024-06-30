@@ -32,11 +32,11 @@ const CartItem = (props: any) => {
   const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
   const [changeAdddress, setChangeAddress] = useState<boolean>(false);
-  const [streetAddress1, setStreetAddress1] = useState<string>(product.recipAddress.streetAddress1);
-  const [streetAddress2, setStreetAddress2] = useState<string>(product.recipAddress.streetAddress2);
-  const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
-  const [state, setState] = useState<string>(product.recipAddress.state);
-  const [zip, setZip] = useState<string>(product.recipAddress.zip);
+  const [streetAddress1, setStreetAddress1] = useState<string>(demoAddress[product.recipAddress].streetAddress1);
+  const [streetAddress2, setStreetAddress2] = useState<string>(demoAddress[product.recipAddress].streetAddress2);
+  const [townCity, setTownCity] = useState<string>(demoAddress[product.recipAddress].townCity);
+  const [state, setState] = useState<string>(demoAddress[product.recipAddress].state);
+  const [zip, setZip] = useState<string>(demoAddress[product.recipAddress].zip);
 
   const updateAddresses = () => {
     //demoAddress[product.address.orders]
@@ -116,20 +116,29 @@ const CartItem = (props: any) => {
   }
 
   const deleteItem = () => {
+    let updateAddresses = structuredClone(demoAddress);
     let updateOrder = structuredClone(demoOrder);
     let updateItems = updateOrder[dateIndex];
-    updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
 
-    // delete Accordion for coresponding date if all items for one date are deleted
-    // otherwise, keep the date Accordion and other items
-    if (updateItems.length == 0) {
+    if (updateAddresses[updateItems[orderIndex].recipAddress].orders <= 0) {
+      throw new Error('Error in deleteItem: address with negative orders');
+    } else {
+      updateAddresses[updateItems[orderIndex].recipAddress].orders--;
+      setDemoAddress(updateAddresses);
+    }
+
+    if (updateItems.length > 1) {
+      updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
+      updateOrder[dateIndex] = updateItems;
+      setDemoOrder(updateOrder);
+    } else {
+      updateOrder = updateOrder.slice(0, dateIndex).concat(updateOrder.slice(dateIndex + 1));
+      setDemoOrder(updateOrder);
+      
       let updateDates = structuredClone(demoDates);
       updateDates = updateDates.slice(0, dateIndex).concat(updateDates.slice(dateIndex + 1));
       setDemoDates(updateDates);
-    } else {
-      updateOrder[dateIndex] = updateItems;
     }
-    setDemoOrder(updateOrder);
   }
 
   return (
@@ -293,7 +302,7 @@ const CartItem = (props: any) => {
                 {`Phone Number: ${product.recipPhone}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
+                {`Address: ${demoAddress[product.recipAddress].streetAddress1} ${demoAddress[product.recipAddress].streetAddress2} ${demoAddress[product.recipAddress].townCity} ${demoAddress[product.recipAddress].state} ${demoAddress[product.recipAddress].zip}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
                 {`Note: 
@@ -352,6 +361,7 @@ const CartItem = (props: any) => {
           Delete
         </Button>
       </Container>
+      
     </Container>
   )
 }
