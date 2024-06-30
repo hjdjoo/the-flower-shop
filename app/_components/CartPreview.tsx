@@ -57,9 +57,11 @@ const CartItem = (props: CartItemProps) => {
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const tax = Math.floor((parseFloat(price) + parseFloat(deliveryFee)) * .0625).toFixed(2)
+  const tax100 = Math.floor((parseFloat(price) + parseFloat(deliveryFee)) * .0625 * 100).toFixed(2)
 
-  const total = (parseFloat(price) + parseFloat(deliveryFee) + parseFloat(tax)).toString();
+  const tax = parseInt(tax100) / 100
+
+  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toString();
 
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}
@@ -77,6 +79,7 @@ const CartItem = (props: CartItemProps) => {
       </Box>
       <Box id={`${deliveryDate}-order-${idx + 1}-information`}
         textAlign="left"
+        paddingX="5px"
       >
         <Typography sx={{ fontSize: "0.8rem", marginBottom: "5px" }}>
           Delivery to:
