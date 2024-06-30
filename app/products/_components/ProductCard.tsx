@@ -1,5 +1,5 @@
 "use client";
-import { Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -15,17 +15,22 @@ import ShoppingCart from "@mui/icons-material/ShoppingCart";
 
 import { useTheme } from "@mui/material";
 
+import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+
 import CartPreview from "@/app/_components/CartPreview";
 import CustomerOrderForm from "./CustomerOrderForm";
 import PricePicker from "@/app/_components/PricePicker";
-import { OrderForm as defaultOrderForm } from "@/app/_components/lib/OrderForm";
+import { OrderItemForm as defaultOrderForm } from "@/app/_components/lib/OrderForm";
 
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
 
 import { ProductData } from "@/app/types/client-types";
-import { OrderFormData } from "@/app/_components/types/OrderFormData";
+import { OrderFormData, OrderItem, Address } from "@/app/_components/types/OrderFormData";
+
+
+// import { useCart } from "@/lib/contexts/CartContext";
 
 interface ProductCardProps {
   productInfo: ProductData,
@@ -34,12 +39,21 @@ interface ProductCardProps {
 
 export default function ProductCard(props: ProductCardProps) {
 
+  /* hooks */
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
+  const { cart, updateCart } = useCart() as CartContextType;
 
+  /* prop destructuring */
   const { productId } = props
   const { name, categories, description, standardPrice, premiumPrice, deluxePrice, imageUrl } = props.productInfo
-  const [orderInfo, setOrderInfo] = useState<OrderFormData>({ ...defaultOrderForm })
+
+  /* Other necessary component states */
+  const [deliveryDate, setDeliveryDate] = useState<string>("");
+
+  const orderForm = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId.toString(), deliveryDate: deliveryDate, imageUrl: imageUrl, name: name })
+
+  const [orderItem, setOrderItem] = useState<OrderItem>(orderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
   const [readyToSubmit, setReadyToSubmit] = useState<boolean>(true);
 
@@ -54,10 +68,27 @@ export default function ProductCard(props: ProductCardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+
   const handleAddToCart = async () => {
-    console.log("Order Info: ", orderInfo)
-    console.log("Add Cart Logic...")
+    console.log("Order Info: ", orderItem);
+    if (!deliveryDate) {
+      console.log("You gotta pick a delivery date");
+      return;
+    }
+    if (!orderItem.price) {
+      // have customer select a price first
+      // insert logic here....
+      console.log("You gotta pick a price")
+      return;
+    }
+    const currCart = cart;
+
+    currCart.deliveryDates.push(deliveryDate);
+    currCart.cartItems.push(orderItem);
+
+    updateCart({ ...currCart })
   }
+
 
   const relatedCategoriesLinks = relatedCategories?.map((category, idx) => {
     return (
@@ -71,6 +102,7 @@ export default function ProductCard(props: ProductCardProps) {
             width="100%"
             display="flex"
             justifyContent="space-between"
+            borderRadius={"5px"}
             sx={{
               backgroundColor: theme.palette.secondary.main,
               boxShadow: "2px 2px 4px lightgrey",
@@ -116,7 +148,7 @@ export default function ProductCard(props: ProductCardProps) {
           <Box
             id="product-display-box"
             paddingX="15px"
-            marginBottom="15px"
+            marginBottom="25px"
             sx={{
               display: "flex",
               flexDirection: "column"
@@ -162,10 +194,18 @@ export default function ProductCard(props: ProductCardProps) {
             </Box>
             <Typography
               id="product-description"
-              marginTop="15px"
+              marginTop="5px"
               marginBottom="15px"
             >
               {description}
+            </Typography>
+            <Typography
+              id="product-description"
+              marginTop="5px"
+              marginBottom="10px"
+
+            >
+              {"Select a price tier:"}
             </Typography>
             <PricePicker
               productInfo={{
@@ -173,8 +213,8 @@ export default function ProductCard(props: ProductCardProps) {
                 description: description,
                 prices: [standardPrice, premiumPrice, deluxePrice]
               }}
-              orderInfo={orderInfo}
-              setOrderInfo={setOrderInfo} />
+              orderItem={orderItem}
+              setOrderItem={setOrderItem} />
           </Box>
         </Grid>
         <Grid xs={12} sm={6} id="order-form-grid-area">
@@ -186,9 +226,12 @@ export default function ProductCard(props: ProductCardProps) {
             justifyContent="center"
           >
             <CustomerOrderForm
-              orderInfo={orderInfo}
-              setOrderInfo={setOrderInfo}
-              setReadyToSubmit={setReadyToSubmit} />
+              deliveryDate={deliveryDate}
+              setDeliveryDate={setDeliveryDate}
+              orderItem={orderItem}
+              setOrderItem={setOrderItem}
+              setReadyToSubmit={setReadyToSubmit}
+            />
             <Box
               id="cart-button-box"
               aria-label="Add to cart"
@@ -214,6 +257,21 @@ export default function ProductCard(props: ProductCardProps) {
                 marginTop="3px"
               >You can update your order at any time.</Typography>
             </Box>
+            {!!cart.deliveryDates.length &&
+              <>
+                <Box id="cart-preview-box"
+                  marginTop="25px"
+                  marginBottom="35px"
+                  textAlign="center"
+                >
+                  <Typography paddingX="10px" fontWeight={600}>Cart Preview:</Typography>
+                  <CartPreview />
+                </Box>
+                <Button variant="contained">
+                  Checkout
+                </Button>
+              </>
+            }
           </Box>
         </Grid>
         <Grid xs={12} sm={6} id="related-categories-grid-area"
@@ -230,12 +288,6 @@ export default function ProductCard(props: ProductCardProps) {
           </Box>
         </Grid>
         <Grid xs={12} sm={6}>
-          <Box id="cart-preview-box"
-            marginBottom="15px"
-          >
-            <Typography>Cart Preview:</Typography>
-            <CartPreview />
-          </Box>
         </Grid>
       </Grid>
     </Box >

@@ -4,20 +4,20 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 
-import { OrderFormData } from "./types/OrderFormData";
+import { OrderFormData, OrderItem, CartItem } from "./types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {
   // prices: Array<number | string | undefined>
   productInfo: { id: number, description: string, prices: Array<number | undefined> }
-  orderInfo: OrderFormData
-  setOrderInfo: Dispatch<SetStateAction<OrderFormData>>
+  orderItem: OrderItem
+  setOrderItem: Dispatch<SetStateAction<OrderItem>>
 }
 
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { productInfo, orderInfo, setOrderInfo } = props;
+  const { productInfo, orderItem, setOrderItem } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
@@ -26,25 +26,11 @@ export default function PricePicker(props: PricePickerProps) {
   const handlePrice = (price: number, idx: number) => {
     setSelectedPrice(idx);
 
-    const updatedOrderInfo = { ...orderInfo };
+    const updatedOrderInfo = { ...orderItem };
 
-    if (!updatedOrderInfo.products.length) {
-      updatedOrderInfo.products.push({
-        productId: productInfo.id,
-        description: productInfo.description,
-        productType: undefined,
-        value: price
-      })
-    }
-    else {
-      for (let product of updatedOrderInfo.products) {
-        if (product?.productId === productInfo.id) {
-          product!.value = price
-        }
-      }
-    }
+    updatedOrderInfo.price = price.toString();
 
-    setOrderInfo(updatedOrderInfo)
+    setOrderItem({ ...updatedOrderInfo })
   }
 
 

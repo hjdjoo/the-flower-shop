@@ -29,6 +29,8 @@ import { NavIcons } from "./NavIcons";
 // import MainIcon from "./Icon";
 
 import { useUser } from "@/lib/contexts/UserContext";
+import { useCart } from "@/lib/contexts/CartContext";
+import { CartContextType } from "@/lib/contexts/CartContext";
 
 import { createClient } from "@/utils/supabase/client";
 
@@ -40,6 +42,7 @@ export function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useUser();
+  const { cart } = useCart() as CartContextType;
   const router = useRouter();
 
   useEffect(() => {
@@ -53,6 +56,7 @@ export function Navbar() {
 
     return () => { authListener.unsubscribe() };
   }, [router]);
+
 
   return (
     <>

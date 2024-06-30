@@ -17,27 +17,28 @@ import RecipientInfo from "@/app/_components/RecipientInfo";
 import ZipCheckerButton from "@/app/_components/ZipChecker";
 import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
-import { OrderFormData } from "@/app/_components/types/OrderFormData";
+import { OrderItem, Address } from "@/app/_components/types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
-import verifyDeliveryDate from "@/utils/actions/types/verifyDeliveryDate";
+import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
 
 
 interface CustomerOrderFormProps {
-  orderInfo: OrderFormData
-  setOrderInfo: Dispatch<SetStateAction<OrderFormData>>
+  deliveryDate: string
+  orderItem: OrderItem
+  setDeliveryDate: Dispatch<SetStateAction<string>>
+  setOrderItem: Dispatch<SetStateAction<OrderItem>>
   setReadyToSubmit: Dispatch<SetStateAction<boolean>>
 }
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
 
-// this form should always take in the order form and its setter function as a prop.
-
+/* this form should always take in the order item and its setter function as a prop. */
 export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   const theme = useTheme();
 
-  const { orderInfo, setOrderInfo, setReadyToSubmit } = props;
+  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setReadyToSubmit } = props;
 
   /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
@@ -51,10 +52,10 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   })
   const [cardMessageAlert, setCardMessageAlert] = useState<ErrorMessage>({
     severity: undefined,
-    message: `${orderInfo.cardMessage.length}/200`
+    message: `${orderItem.cardMessage.length}/200`
   })
 
-  const [deliveryFee, setDeliveryFee] = useState<number>(8.95);
+  const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
 
 
   /* Handler Functions */
@@ -69,9 +70,21 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   }
 
   // handle order info update
-  const handleOrderInfo = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setOrderInfo({ ...orderInfo, [name]: value })
+
+    setOrderItem({ ...orderItem, [name]: value })
+  }
+
+  const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+
+    const updatedOrder = orderItem;
+    const updatedAddress = { ...orderItem.recipAddress, [name]: value };
+    updatedOrder.recipAddress = updatedAddress;
+
+    setOrderItem({ ...updatedOrder });
   }
 
   /* Other utility functions and handlers */
@@ -79,12 +92,12 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   const checkDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
-    const validDate = verifyDeliveryDate(value)
+    const { valid, message } = verifyDeliveryDate(value)
 
-    if (!validDate) {
+    if (!valid) {
       setDeliveryDateAlert({
         severity: "error",
-        message: "We cannot halt the inexorable forward march of time!"
+        message: `${message}`
       })
     }
     else {
@@ -149,6 +162,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         paddingLeft="15px"
         display="flex"
         alignItems="center"
+        borderRadius={"5px"}
         sx={{
           backgroundColor: activeField === "deliveryDate" ? theme.palette.info.main : "lightgrey",
           color: activeField === "deliveryDate" ? "white" : "black",
@@ -177,12 +191,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
             id="delivery-date-input"
             type="date"
             name="deliveryDate"
-            value={orderInfo.deliveryDate}
+            value={deliveryDate}
             error={!!deliveryDateAlert.severity}
             helperText={deliveryDateAlert.message}
             onChange={(e) => {
               checkDeliveryDate(e)
-              handleOrderInfo(e)
+              setDeliveryDate(e.target.value);
+              handleOrderItem(e);
             }}
             sx={{
               marginTop: "5px",
@@ -196,6 +211,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         paddingLeft="15px"
         display="flex"
         alignItems="center"
+        borderRadius={"5px"}
         sx={{
           backgroundColor: activeField === "deliveryAddr" ? theme.palette.info.main : "lightgrey",
           color: activeField === "deliveryAddr" ? "white" : "black",
@@ -227,13 +243,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
               <TextField
                 id="delivery-zip-input"
                 label="Enter Zip Code"
-                name="recipZip"
-                value={orderInfo.recipZip ? orderInfo.recipZip : ""}
+                name="zip"
+                value={orderItem.recipAddress.zip ? orderItem.recipAddress.zip : ""}
                 error={deliveryZipAlert.severity === "error"}
                 helperText={deliveryZipAlert.message}
                 onChange={(e) => {
                   verifyZip(e);
-                  handleOrderInfo(e);
+                  handleAddress(e);
                 }}
                 sx={{
                   flexGrow: 2,
@@ -242,7 +258,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 }}
               />
               <ZipCheckerButton
-                zipCode={orderInfo.recipZip}
+                zipCode={orderItem.recipAddress.zip}
                 setDeliveryZipAlert={setDeliveryZipAlert}
                 setDeliveryFee={setDeliveryFee}
                 setReadyToSubmit={setReadyToSubmit}
@@ -273,10 +289,9 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
             {deliveryZipAlert.severity === "success" &&
               <Box
                 sx={{
-
                 }}
               >
-                <RecipientInfo formData={orderInfo} handleFormData={handleOrderInfo} />
+                <RecipientInfo orderItem={orderItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
               </Box>
             }
           </Collapse>
@@ -287,6 +302,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         paddingLeft="15px"
         display="flex"
         alignItems={"center"}
+        borderRadius={"5px"}
         sx={{
           backgroundColor: activeField === "cardMessage" ? theme.palette.info.main : "lightgrey",
           color: activeField === "cardMessage" ? "white" : "black",
@@ -312,14 +328,14 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
           <TextField
             id="card-message-input"
             name="cardMessage"
-            value={orderInfo.cardMessage}
+            value={orderItem.cardMessage}
             error={!!cardMessageAlert.severity}
             helperText={cardMessageAlert.message}
             onKeyDown={(k) => {
               if (cardMessageAlert.severity === "error" && k.code !== "Backspace") k.preventDefault();
             }}
             onChange={(e) => {
-              handleOrderInfo(e);
+              handleOrderItem(e);
               checkMessageLength(e);
             }}
             fullWidth
