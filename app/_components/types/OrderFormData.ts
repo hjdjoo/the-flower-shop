@@ -35,6 +35,7 @@ export interface Address {
   townCity: string,
   state: string,
   zip: string,
+  orders: number
 }
 
 export type Addresses =  Address[];
@@ -45,7 +46,7 @@ export interface OrderItem {
   cardMessage: string,
   recipFirst: string,
   recipLast: string,
-  recipAddress: Address,
+  recipAddress: number,
   recipPhone: number,
   deliveryFee: number,
   deliveryInstructions: string,

@@ -10,21 +10,88 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { InputField } from "@/app/_components/styled/InputField";
+import { Address } from "@/app/_components/types/OrderFormData";
+import e from "cors";
 
 const CartItem = (props: any) => {
-  const { product, demoOrder, setDemoOrder, orderIndex, dateIndex, demoDates, setDemoDates } = props;
+  const { 
+    product, 
+    demoOrder, 
+    setDemoOrder, 
+    orderIndex, dateIndex, 
+    demoDates, 
+    setDemoDates,
+    demoAddress,
+    setDemoAddress 
+  } = props;
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(product.price);
-  const [recipFirst, setRecipFirst] = useState<string>( product.recipFirst);
-  const [recipLast, setRecipLast] = useState<string>( product.recipLast);
-  const [recipPhone, setRecipPhone] = useState<string>( product.recipPhone);
-  const [cardMessage, setCardMessage] = useState<string>( product.cardMessage);
+  const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
+  const [recipLast, setRecipLast] = useState<string>(product.recipLast);
+  const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
+  const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
+  const [changeAdddress, setChangeAddress] = useState<boolean>(false);
   const [streetAddress1, setStreetAddress1] = useState<string>(product.recipAddress.streetAddress1);
   const [streetAddress2, setStreetAddress2] = useState<string>(product.recipAddress.streetAddress2);
   const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
   const [state, setState] = useState<string>(product.recipAddress.state);
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
+
+  const updateAddresses = () => {
+    //demoAddress[product.address.orders]
+    let addressesCopy = structuredClone(demoAddress);
+    const newAddress: Address = {
+      streetAddress1,
+      streetAddress2,
+      townCity,
+      state,
+      zip,
+      orders: 1
+    };
+
+    if (addressesCopy[product.address.orders] == 1) {
+      addressesCopy[product.recipAddress] = newAddress;
+      setDemoAddress(addressesCopy);
+      return null;
+    } else {
+      addressesCopy[product.address.orders]--;
+      addressesCopy.concat(newAddress);
+      setDemoAddress(addressesCopy);
+      return 
+    }
+  }
+
+  const validateAddress = async () => {
+    let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+    fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`, 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          address: {
+            addressLines: [streetAddress1, formatApt, townCity, state, zip]
+          } 
+        })
+    })
+    .then(data => data.json())
+    .then(res => {
+      console.log(res);
+      if (res.result.address.addressComponents.length > 7) {
+        setStreetAddress1(res.results.address.postalAddress.addressLines[0]);
+      } else {
+        setStreetAddress2(res.results.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+      }
+      setTownCity(res.results.address.postalAddress.locality);
+      setState(res.results.address.postalAddress.administrativeArea);
+      setZip(res.results.address.postalAddress.postalCode);
+    })
+    .then(() => {
+      updateAddresses();
+      setChangeAddress(false);
+    })
+    .catch(err => console.log('Error validating new address: ', err))
+  }
 
   const confirmChanges = () => {
     if (toggleEdit) {
@@ -36,15 +103,9 @@ const CartItem = (props: any) => {
         recipLast,
         recipPhone,
         cardMessage,
-        //this is implemented incorrectly, the demoAddresse array has to be updated instead
-        recipAddress: {
-          streetAddress1,
-          streetAddress2,
-          townCity,
-          state,
-          zip
-        }
       }
+      
+      if (changeAdddress) validateAddress();
 
       setDemoOrder(updateOrder);
       setToggleEdit(false);
@@ -137,17 +198,23 @@ const CartItem = (props: any) => {
                   width: '97.5%'
                 }}
                 value={streetAddress1}
-                onChange={(event) => setStreetAddress1(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress1(event.target.value);
+                }}
               />
               <InputField
                 id="address-line-2"
                 name="StreetAddress2"
-                label="Address Line 2"
+                label="APT/Suite/Unit #"
                 sx={{
                   width: '97.5%'
                 }}
                 value={streetAddress2}
-                onChange={(event) => setStreetAddress2(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress2(event.target.value);
+                }}
               />
               <InputField
                 id="town"
@@ -157,7 +224,10 @@ const CartItem = (props: any) => {
                   width: '33%'
                 }}
                 value={townCity}
-                onChange={(event) => setTownCity(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setTownCity(event.target.value);
+                }}
               />
               <InputField
                 id="State"
@@ -167,7 +237,10 @@ const CartItem = (props: any) => {
                   width: '31%'
                 }}
                 value={state}
-                onChange={(event) => setState(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setState(event.target.value);
+                }}
               />
               <InputField
                 id="zip"
@@ -177,8 +250,25 @@ const CartItem = (props: any) => {
                   width: '31%'
                 }}
                 value={zip}
-                onChange={(event) => setZip(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setZip(event.target.value);
+                }}
               />
+              <Button
+              onClick={() => validateAddress()}
+              sx={{
+                border: "1px solid",
+                borderColor: "primary.main",
+                mt: 1,
+                ml: 3.5,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
+              }}
+            >
+              Check Address
+            </Button>
               <InputField
                 id="card-message"
                 name="cardMessage"
@@ -215,7 +305,9 @@ const CartItem = (props: any) => {
 
         { toggleEdit
           ? <Button
-              onClick={() => confirmChanges()}
+              onClick={() => {
+                confirmChanges();
+              }}
               sx={{
                 border: "1px solid",
                 borderColor: "primary.main",

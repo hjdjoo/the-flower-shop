@@ -15,18 +15,20 @@ export default function Checkout() {
   const [demoDates, setDemoDates] = useState<OrderTypes.Dates>(["9/16/2024","12/25/2024"]);
   const [demoAddress, setDemoAddress] = useState<OrderTypes.Addresses>([
     {
-      streetAddress1: '71 Tennyson Drive',
+      streetAddress1: '71 Tennyson Dr',
       streetAddress2: '',
       townCity: 'Nanuet',
       state: 'NY',
-      zip: '10954',
+      zip: '10954-1039',
+      orders: 2
     },
     {
-      streetAddress1: '624 Cambridge Street',
+      streetAddress1: '624 Cambridge St',
       streetAddress2: '',
       townCity: 'Allston',
       state: 'MA',
-      zip: '02134',
+      zip: '02134-2433',
+      orders: 1
     }
   ]);
 
@@ -38,7 +40,7 @@ export default function Checkout() {
         cardMessage: "Happy Birthday Mom",
         recipFirst: "Jenny",
         recipLast: "Cho",
-        recipAddress: demoAddress[0],
+        recipAddress: 0,
         recipPhone: 8452834700,
         deliveryFee: 25.00,
         deliveryInstructions: '',
@@ -49,7 +51,7 @@ export default function Checkout() {
         cardMessage: '',
         recipFirst: "Jenny",
         recipLast: "Cho",
-        recipAddress: demoAddress[0],
+        recipAddress: 0,
         recipPhone: 8452834700,
         deliveryFee: 0.00,
         deliveryInstructions: '',
@@ -62,7 +64,7 @@ export default function Checkout() {
         cardMessage: "Merry Christmas",
         recipFirst: "Edwyn",
         recipLast: "Song",
-        recipAddress: demoAddress[1],
+        recipAddress: 1,
         recipPhone: 1234567890,
         deliveryFee: 25.00,
         deliveryInstructions: '',
@@ -91,7 +93,17 @@ export default function Checkout() {
             <Container className="Description-Root">
               {demoOrder[dateIndex].map((product, orderIndex) => 
               <Container className="CartItem-Root" key={orderIndex}>
-                <CartItem product={product} demoOrder={demoOrder} setDemoOrder={setDemoOrder} orderIndex={orderIndex} dateIndex={dateIndex} setDemoDates={setDemoDates} demoDates={demoDates}></CartItem>
+                <CartItem 
+                  product={product} 
+                  demoOrder={demoOrder} 
+                  setDemoOrder={setDemoOrder} 
+                  orderIndex={orderIndex} 
+                  dateIndex={dateIndex} 
+                  setDemoDates={setDemoDates} 
+                  demoDates={demoDates} 
+                  demoAddress={demoAddress} 
+                  setDemoAddress={setDemoAddress}
+                />
               </Container>
               )}
             </Container>
