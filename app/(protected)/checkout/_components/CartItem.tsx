@@ -29,6 +29,7 @@ const CartItem = (props: any) => {
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
   const [recipLast, setRecipLast] = useState<string>(product.recipLast);
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
+  const [recipAddress, setRecipAddress] = useState<number>(product.recipAddress);
   const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
   const [changeAdddress, setChangeAddress] = useState<boolean>(false);
@@ -38,9 +39,12 @@ const CartItem = (props: any) => {
   const [state, setState] = useState<string>(demoAddress[product.recipAddress].state);
   const [zip, setZip] = useState<string>(demoAddress[product.recipAddress].zip);
 
+
+  //currently, this logic is double implemented in confirmChanges, read comments there for more
   const updateAddresses = () => {
     //demoAddress[product.address.orders]
-    let addressesCopy = structuredClone(demoAddress);
+    
+    let updateAddresses = structuredClone(demoAddress);
     const newAddress: Address = {
       streetAddress1,
       streetAddress2,
@@ -50,16 +54,11 @@ const CartItem = (props: any) => {
       orders: 1
     };
 
-    if (addressesCopy[product.address.orders] == 1) {
-      addressesCopy[product.recipAddress] = newAddress;
-      setDemoAddress(addressesCopy);
-      return null;
-    } else {
-      addressesCopy[product.address.orders]--;
-      addressesCopy.concat(newAddress);
-      setDemoAddress(addressesCopy);
-      return 
-    }
+    updateAddresses[product.recipAddress].orders--;
+    updateAddresses.push(newAddress);
+    setRecipAddress(updateAddresses.length - 1);
+    console.log(updateAddresses.length - 1);
+    setDemoAddress(updateAddresses);
   }
 
   const validateAddress = async () => {
@@ -96,16 +95,49 @@ const CartItem = (props: any) => {
   const confirmChanges = () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(demoOrder);
-      updateOrder[dateIndex][orderIndex] = {
-        ...product,
-        price,
-        recipFirst,
-        recipLast,
-        recipPhone,
-        cardMessage,
+
+      // updateAddresses logic has been placed here for now
+      // the logic has been tested inside confirmChanges separately from validateAddress
+      // so the combine logic is disconnected, untested, and probably not functional together yet
+      // currently, updateAddresses does not check for duplicate addresses in state
+      // the address autocomplete feature should minimize instances of duplicate address objects
+      // however, this function should still be able to remove duplicate addresses and increment the orders property on the address objects
+
+      // if (changeAdddress) validateAddress();
+      if (changeAdddress) {
+        let updateAddresses = structuredClone(demoAddress);
+        const newAddress: Address = {
+          streetAddress1,
+          streetAddress2,
+          townCity,
+          state,
+          zip,
+          orders: 1
+        };
+
+        updateAddresses[product.recipAddress].orders--;
+        updateAddresses.push(newAddress);
+        setDemoAddress(updateAddresses);
+
+        updateOrder[dateIndex][orderIndex] = {
+          ...product,
+          price,
+          recipFirst,
+          recipLast,
+          recipPhone,
+          cardMessage,
+          recipAddress: updateAddresses.length - 1
+        }
+      } else {
+        updateOrder[dateIndex][orderIndex] = {
+          ...product,
+          price,
+          recipFirst,
+          recipLast,
+          recipPhone,
+          cardMessage,
+        }
       }
-      
-      if (changeAdddress) validateAddress();
 
       setDemoOrder(updateOrder);
       setToggleEdit(false);
