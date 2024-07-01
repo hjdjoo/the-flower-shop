@@ -46,17 +46,17 @@ export default function OrderInfo(props: OrderInfoProps) {
 
   const { formData, setFormData, handleFormData } = props;
 
-  const [products, setProducts] = useState(formData.products);
+  const [products, setProducts] = useState(formData.orderItems);
 
   const addNewItem = () => {
-    products.push({
-      productId: undefined,
-      productType: "",
-      description: "",
-      value: 0
-    })
+    // products.push({
+    //   productId: "",
+    //   productType: "",
+    //   description: "",
+    //   value: 0
+    // })
 
-    setFormData({ ...formData, products })
+    // setFormData({ ...formData, orderItems })
   }
 
   const handleProducts = (e: SyntheticEvent<Element, Event> | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -131,9 +131,9 @@ export default function OrderInfo(props: OrderInfoProps) {
         name="cardMessage"
         multiline={true}
         label="Enter Your Card Message"
-        helperText={`${formData.cardMessage.length}/300`}
+        // helperText={`${formData.cardMessage.length}/300`}
         onChange={handleFormData}
-        value={formData.cardMessage}
+        // value={formData.cardMessage}
         sx={{
         }} />
       {orderItems}

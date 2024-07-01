@@ -7,6 +7,8 @@ import { Gutter } from "./_components/Gutters";
 
 import { getBanners } from "@/utils/supabase/clientActions/getBanners";
 import { getUrls } from "@/utils/supabase/clientActions/getUrls";
+
+import CartContext from "@/lib/contexts/CartContext";
 // import { BannerData } from "./types/client-types";
 
 export default async function Main() {

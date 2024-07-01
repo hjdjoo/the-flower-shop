@@ -12,9 +12,9 @@ import { ErrorMessage } from "../types/client-types";
 const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 
 interface ZipCheckerProps {
-  zipCode: number | undefined
+  zipCode: string
   setDeliveryZipAlert: Dispatch<SetStateAction<ErrorMessage>>
-  setDeliveryFee: Dispatch<SetStateAction<number>>
+  setDeliveryFee: Dispatch<SetStateAction<string>>
   setReadyToSubmit: Dispatch<SetStateAction<boolean>>
 }
 
@@ -72,19 +72,19 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         })
       }
       if (miles > 2 || time > 4) {
-        setDeliveryFee(9.95);
+        setDeliveryFee("9.95");
       };
       if (miles > 4 || time > 7) {
-        setDeliveryFee(10.95);
+        setDeliveryFee("10.95");
       };
       if (miles > 6 || time > 10) {
-        setDeliveryFee(11.95);
+        setDeliveryFee("11.95");
       };
       if (miles > 8 || time > 13) {
-        setDeliveryFee(12.95)
+        setDeliveryFee("12.95")
       };
       if (miles > 10 || time > 16) {
-        setDeliveryFee(13.95)
+        setDeliveryFee("13.95")
       };
       setDeliveryZipAlert({
         severity: "success",
