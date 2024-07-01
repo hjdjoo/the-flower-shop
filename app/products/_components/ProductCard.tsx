@@ -20,6 +20,7 @@ import CustomerOrderForm from "./CustomerOrderForm";
 import PricePicker from "@/app/_components/PricePicker";
 import { OrderForm as defaultOrderForm } from "@/app/_components/lib/OrderForm";
 
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
 
@@ -34,17 +35,18 @@ interface ProductCardProps {
 export default function ProductCard(props: ProductCardProps) {
 
   const theme = useTheme();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const { productId } = props
   const { name, categories, description, standardPrice, premiumPrice, deluxePrice, imageUrl } = props.productInfo
   const [orderInfo, setOrderInfo] = useState<OrderFormData>({ ...defaultOrderForm })
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
+  const [readyToSubmit, setReadyToSubmit] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
 
       const { data } = await getCategoryNames(categories);
-      // console.log(data);
 
       setRelatedCategories(data)
 
@@ -60,7 +62,9 @@ export default function ProductCard(props: ProductCardProps) {
   const relatedCategoriesLinks = relatedCategories?.map((category, idx) => {
     return (
       <Box
-        key={`related-categories-box-${idx + 1}`}>
+        key={`related-categories-box-${idx + 1}`}
+        paddingRight="25px"
+      >
         <Link href={`/category/${category.id}`}>
           <Box
             marginY="15px"
@@ -94,16 +98,25 @@ export default function ProductCard(props: ProductCardProps) {
   return (
     <Box
       id="product-container"
+      maxWidth={() => {
+        if (mobile || tablet) return "100%";
+        if (large) return "80%";
+        if (xlarge) return "70%";
+      }}
       sx={{
-        marginTop: "50px"
+        marginTop: "65px",
       }}
     >
       <Grid
-        container>
+        container
+        sx={{
+          paddingX: "25px"
+        }}>
         <Grid xs={12} sm={6} id="product-display-grid-area" >
           <Box
             id="product-display-box"
             paddingX="15px"
+            marginBottom="15px"
             sx={{
               display: "flex",
               flexDirection: "column"
@@ -174,7 +187,8 @@ export default function ProductCard(props: ProductCardProps) {
           >
             <CustomerOrderForm
               orderInfo={orderInfo}
-              setOrderInfo={setOrderInfo} />
+              setOrderInfo={setOrderInfo}
+              setReadyToSubmit={setReadyToSubmit} />
             <Box
               id="cart-button-box"
               aria-label="Add to cart"
@@ -184,6 +198,7 @@ export default function ProductCard(props: ProductCardProps) {
             >
               <Button
                 id="add-to-cart-button"
+                disabled={!readyToSubmit}
                 variant="contained"
                 sx={{
                   marginTop: "15px"
@@ -199,24 +214,27 @@ export default function ProductCard(props: ProductCardProps) {
                 marginTop="3px"
               >You can update your order at any time.</Typography>
             </Box>
-            <Box id="cart-preview-box"
-              marginTop="50px"
-            >
-              <Typography>Cart Preview:</Typography>
-              <CartPreview />
-            </Box>
           </Box>
         </Grid>
-        <Grid xs={12} sm={6} id="related-categories-grid-area">
+        <Grid xs={12} sm={6} id="related-categories-grid-area"
+          order={mobile ? 1 : 0}
+        >
           <Box
             id="category-suggestion-box"
-            marginTop="30px"
           >
             <Typography
               fontSize={"1.2rem"}
               fontStyle={"italic"}
             >Related Categories:</Typography>
             {relatedCategoriesLinks}
+          </Box>
+        </Grid>
+        <Grid xs={12} sm={6}>
+          <Box id="cart-preview-box"
+            marginBottom="15px"
+          >
+            <Typography>Cart Preview:</Typography>
+            <CartPreview />
           </Box>
         </Grid>
       </Grid>

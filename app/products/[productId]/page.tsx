@@ -31,7 +31,8 @@ export default async function ProductPage({ params }: { params: { productId: num
   return (
     <>
       <Suspense fallback={<p>Loading...</p>}>
-        <ProductCard productId={productId} productInfo={productInfo} />
+        <ProductCard productId={productId} productInfo={productInfo}
+        />
       </Suspense>
     </>
   )

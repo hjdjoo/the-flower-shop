@@ -1,6 +1,5 @@
 import type { OrderFormData } from "../types/OrderFormData"
 export const OrderForm = {
-
   senderId: undefined,
   senderFirst: "",
   senderLast: "",
@@ -12,7 +11,7 @@ export const OrderForm = {
   recipStreetAddress2: "",
   recipTownCity: "",
   recipZip: undefined,
-  recipPhone: undefined,
+  recipPhone: "",
   cardMessage: "",
   products: [],
   orderDate: "",
