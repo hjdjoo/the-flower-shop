@@ -2,7 +2,7 @@
 
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
 import Image from 'next/image';
 import FavIcon from "../../../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
@@ -29,7 +29,6 @@ const CartItem = (props: any) => {
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
   const [recipLast, setRecipLast] = useState<string>(product.recipLast);
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
-  const [recipAddress, setRecipAddress] = useState<number>(product.recipAddress);
   const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
   const [changeAdddress, setChangeAddress] = useState<boolean>(false);
@@ -38,28 +37,6 @@ const CartItem = (props: any) => {
   const [townCity, setTownCity] = useState<string>(demoAddress[product.recipAddress].townCity);
   const [state, setState] = useState<string>(demoAddress[product.recipAddress].state);
   const [zip, setZip] = useState<string>(demoAddress[product.recipAddress].zip);
-
-
-  //currently, this logic is double implemented in confirmChanges, read comments there for more
-  const updateAddresses = () => {
-    //demoAddress[product.address.orders]
-    
-    let updateAddresses = structuredClone(demoAddress);
-    const newAddress: Address = {
-      streetAddress1,
-      streetAddress2,
-      townCity,
-      state,
-      zip,
-      orders: 1
-    };
-
-    updateAddresses[product.recipAddress].orders--;
-    updateAddresses.push(newAddress);
-    setRecipAddress(updateAddresses.length - 1);
-    console.log(updateAddresses.length - 1);
-    setDemoAddress(updateAddresses);
-  }
 
   const validateAddress = async () => {
     let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
@@ -75,59 +52,88 @@ const CartItem = (props: any) => {
     })
     .then(data => data.json())
     .then(res => {
-      console.log(res);
       if (res.result.address.addressComponents.length > 7) {
-        setStreetAddress1(res.results.address.postalAddress.addressLines[0]);
+        setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+        setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
       } else {
-        setStreetAddress2(res.results.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+        setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
       }
-      setTownCity(res.results.address.postalAddress.locality);
-      setState(res.results.address.postalAddress.administrativeArea);
-      setZip(res.results.address.postalAddress.postalCode);
-    })
-    .then(() => {
-      updateAddresses();
-      setChangeAddress(false);
+      setTownCity(res.result.address.postalAddress.locality);
+      setState(res.result.address.postalAddress.administrativeArea);
+      setZip(res.result.address.postalAddress.postalCode);
+      console.log('Valid Address');
     })
     .catch(err => console.log('Error validating new address: ', err))
   }
 
-  const confirmChanges = () => {
+  const confirmChanges = async () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(demoOrder);
 
-      // updateAddresses logic has been placed here for now
-      // the logic has been tested inside confirmChanges separately from validateAddress
-      // so the combine logic is disconnected, untested, and probably not functional together yet
       // currently, updateAddresses does not check for duplicate addresses in state
       // the address autocomplete feature should minimize instances of duplicate address objects
       // however, this function should still be able to remove duplicate addresses and increment the orders property on the address objects
 
-      // if (changeAdddress) validateAddress();
       if (changeAdddress) {
-        let updateAddresses = structuredClone(demoAddress);
-        const newAddress: Address = {
-          streetAddress1,
-          streetAddress2,
-          townCity,
-          state,
-          zip,
-          orders: 1
-        };
+        let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+        fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`, 
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              address: {
+                addressLines: [streetAddress1, formatApt, townCity, state, zip]
+              } 
+            })
+        })
+        .then(data => data.json())
+        .then(res => {
+          let updateAddresses = structuredClone(demoAddress);
+          const newAddress: Address = {
+            streetAddress1,
+            streetAddress2,
+            townCity,
+            state,
+            zip,
+            orders: 1
+          };
 
-        updateAddresses[product.recipAddress].orders--;
-        updateAddresses.push(newAddress);
-        setDemoAddress(updateAddresses);
+          if (res.result.address.addressComponents.length > 7) {
+            setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+            setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
+            newAddress.streetAddress1 = res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, '');
+            newAddress.streetAddress2 = res.result.address.addressComponents[2].componentName.text;
+          } else {
+            setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
+            newAddress.streetAddress1 = res.result.address.postalAddress.addressLines[0];
+          }
+          setTownCity(res.result.address.postalAddress.locality);
+          setState(res.result.address.postalAddress.administrativeArea);
+          setZip(res.result.address.postalAddress.postalCode);
+          newAddress.townCity = res.result.address.postalAddress.locality;
+          newAddress.state = res.result.address.postalAddress.administrativeArea;
+          newAddress.zip = res.result.address.postalAddress.postalCode;
+          console.log('Valid Address');
 
-        updateOrder[dateIndex][orderIndex] = {
-          ...product,
-          price,
-          recipFirst,
-          recipLast,
-          recipPhone,
-          cardMessage,
-          recipAddress: updateAddresses.length - 1
-        }
+          updateAddresses[product.recipAddress].orders--;
+          if (updateAddresses[product.recipAddress].orders == 0) {
+            delete updateAddresses[product.recipAddress];
+          }
+          updateAddresses.push(newAddress);
+          setDemoAddress(updateAddresses);
+
+          updateOrder[dateIndex][orderIndex] = {
+            ...product,
+            price,
+            recipFirst,
+            recipLast,
+            recipPhone,
+            cardMessage,
+            recipAddress: updateAddresses.length - 1
+          }
+          setChangeAddress(false);
+        })
+        .catch(err => console.log('Error validating/updating new address: ', err))
       } else {
         updateOrder[dateIndex][orderIndex] = {
           ...product,
@@ -141,7 +147,7 @@ const CartItem = (props: any) => {
 
       setDemoOrder(updateOrder);
       setToggleEdit(false);
-    } 
+    }
     else { 
       setToggleEdit(true);
     }
