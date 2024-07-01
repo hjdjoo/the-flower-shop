@@ -21,7 +21,6 @@ export interface Address {
 
 export type Addresses = Address[];
 
-// I was going to extend OrderItem to CartItem to have the date and image URl available in the cart, but... I realized it was just complicating the typechecking process.
 
 export interface OrderItem {
   productId: string,
