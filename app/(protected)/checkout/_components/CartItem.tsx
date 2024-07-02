@@ -197,6 +197,9 @@ const CartItem = (props: any) => {
       throw new Error('Error in deleteItem: address with negative orders');
     } else {
       updateAddresses[updateItems[orderIndex].recipAddressIndex].orders--;
+      if (updateAddresses[product.recipAddressIndex].orders == 0) {
+        delete updateAddresses[product.recipAddressIndex];
+      }
       setDemoAddress(updateAddresses);
     }
 
