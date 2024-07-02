@@ -32,11 +32,11 @@ const CartItem = (props: any) => {
   const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
   const [changeAdddress, setChangeAddress] = useState<boolean>(false);
-  const [streetAddress1, setStreetAddress1] = useState<string>(demoAddress[product.recipAddress].streetAddress1);
-  const [streetAddress2, setStreetAddress2] = useState<string>(demoAddress[product.recipAddress].streetAddress2);
-  const [townCity, setTownCity] = useState<string>(demoAddress[product.recipAddress].townCity);
-  const [state, setState] = useState<string>(demoAddress[product.recipAddress].state);
-  const [zip, setZip] = useState<string>(demoAddress[product.recipAddress].zip);
+  const [streetAddress1, setStreetAddress1] = useState<string>(demoAddress[product.recipAddressIndex].streetAddress1);
+  const [streetAddress2, setStreetAddress2] = useState<string>(demoAddress[product.recipAddressIndex].streetAddress2);
+  const [townCity, setTownCity] = useState<string>(demoAddress[product.recipAddressIndex].townCity);
+  const [state, setState] = useState<string>(demoAddress[product.recipAddressIndex].state);
+  const [zip, setZip] = useState<string>(demoAddress[product.recipAddressIndex].zip);
 
   const validateAddress = async () => {
     let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
@@ -122,7 +122,7 @@ const CartItem = (props: any) => {
           console.log('Valid Address');
 
           //check if new address and the old address are the same, if yes, continue
-          if (compareAddress(newAddress, updateAddresses[product.recipAddress])) {
+          if (compareAddress(newAddress, updateAddresses[product.recipAddressIndex])) {
             //do nothing
           } else {
             let dupAddress = false;
@@ -136,22 +136,22 @@ const CartItem = (props: any) => {
                 updateAddresses[i].orders++;
                 updateOrder[dateIndex][orderIndex] = {
                   ...product,
-                  recipAddress: i
+                  recipAddressIndex: i
                 }
                 // -1 the order # from the old address and check if it needs to be deleted
-                updateAddresses[product.recipAddress].orders--;
-                if (updateAddresses[product.recipAddress].orders == 0) {
-                  delete updateAddresses[product.recipAddress];
+                updateAddresses[product.recipAddressIndex].orders--;
+                if (updateAddresses[product.recipAddressIndex].orders == 0) {
+                  delete updateAddresses[product.recipAddressIndex];
                 }
                 break;
               }
             }
             if (!dupAddress) {
               // if the new address is unique, -- the order # from the old address and check if it needs to be deleted
-              // this push the new address into the array and point the order recipAddress to this index
-              updateAddresses[product.recipAddress].orders--;
-              if (updateAddresses[product.recipAddress].orders == 0) {
-                delete updateAddresses[product.recipAddress];
+              // this push the new address into the array and point the order recipAddressIndex to this index
+              updateAddresses[product.recipAddressIndex].orders--;
+              if (updateAddresses[product.recipAddressIndex].orders == 0) {
+                delete updateAddresses[product.recipAddressIndex];
               }
               updateAddresses.push(newAddress);
               updateOrder[dateIndex][orderIndex] = {
@@ -161,7 +161,7 @@ const CartItem = (props: any) => {
                 recipLast,
                 recipPhone,
                 cardMessage,
-                recipAddress: updateAddresses.length - 1
+                recipAddressIndex: updateAddresses.length - 1
               }
             } 
             setDemoAddress(updateAddresses);
@@ -193,10 +193,10 @@ const CartItem = (props: any) => {
     let updateOrder = structuredClone(demoOrder);
     let updateItems = updateOrder[dateIndex];
 
-    if (updateAddresses[updateItems[orderIndex].recipAddress].orders <= 0) {
+    if (updateAddresses[updateItems[orderIndex].recipAddressIndex].orders <= 0) {
       throw new Error('Error in deleteItem: address with negative orders');
     } else {
-      updateAddresses[updateItems[orderIndex].recipAddress].orders--;
+      updateAddresses[updateItems[orderIndex].recipAddressIndex].orders--;
       setDemoAddress(updateAddresses);
     }
 
@@ -375,7 +375,7 @@ const CartItem = (props: any) => {
                 {`Phone Number: ${product.recipPhone}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Address: ${demoAddress[product.recipAddress].streetAddress1} ${demoAddress[product.recipAddress].streetAddress2} ${demoAddress[product.recipAddress].townCity} ${demoAddress[product.recipAddress].state} ${demoAddress[product.recipAddress].zip}`}
+                {`Address: ${demoAddress[product.recipAddressIndex].streetAddress1} ${demoAddress[product.recipAddressIndex].streetAddress2} ${demoAddress[product.recipAddressIndex].townCity} ${demoAddress[product.recipAddressIndex].state} ${demoAddress[product.recipAddressIndex].zip}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
                 {`Note: 
