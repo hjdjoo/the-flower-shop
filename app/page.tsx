@@ -1,13 +1,15 @@
-// "use client"
+import CssBaseline from "@mui/material/CssBaseline";
+
+
 import Products from "./products/page";
 import BackgroundBanner from "./_components/BackgroundBanner";
-import BannerSpacer from "./_components/BannerSpacer";
-import Head from "next/head";
+import { Gutter } from "./_components/Gutters";
 
-import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
 import { getBanners } from "@/utils/supabase/clientActions/getBanners";
 import { getUrls } from "@/utils/supabase/clientActions/getUrls";
 
+import CartContext from "@/lib/contexts/CartContext";
+// import { BannerData } from "./types/client-types";
 
 export default async function Main() {
 
@@ -16,7 +18,6 @@ export default async function Main() {
   if (!banners) {
     throw new Error("Couldn't get banners!")
   }
-
   let { data: bannerUrls } = await getUrls(banners, "banner_images");
 
   if (!bannerUrls) {
@@ -28,14 +29,24 @@ export default async function Main() {
       name: banner,
       url: bannerUrls[idx]
     }
-  })
-
+  });
 
   return (
-    <>
+    <CssBaseline>
+      <Gutter
+        className="gutter-spacer"
+        sx={{
+          alignSelf: "flex-start"
+        }}
+      />
       <BackgroundBanner bannerData={bannerData} />
-      <BannerSpacer />
       <Products />
-    </>
+      <Gutter
+        className="gutter-spacer"
+        sx={{
+          alignSelf: "flex-end"
+        }}
+      />
+    </CssBaseline>
   )
 }

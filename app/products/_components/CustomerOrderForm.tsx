@@ -1,45 +1,47 @@
 
-import SenderInfo from "@/app/_components/SenderInfo";
+import { useState, useEffect, useRef, Dispatch, SetStateAction, MouseEvent, ChangeEvent } from "react";
 
-import RecipientInfo from "@/app/_components/RecipientInfo";
-import { useState, useRef, Dispatch, SetStateAction, MouseEvent, ChangeEvent } from "react";
+import { useMapsLibrary, APIProvider, APIProviderContext } from "@vis.gl/react-google-maps";
 
+import { useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import ButtonBase from "@mui/material/ButtonBase";
-// import IconButton from "@mui/material/Button";
-// import Icon from "@mui/material/Icon";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 // import { TextField } from "@/app/_components/styled/TextField";
+import RecipientInfo from "@/app/_components/RecipientInfo";
+import ZipCheckerButton from "@/app/_components/ZipChecker";
 import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
-import { OrderFormData } from "@/app/_components/types/OrderFormData";
+import { OrderItem, Address } from "@/app/_components/types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
-import verifyDeliveryDate from "@/utils/actions/types/verifyDeliveryDate";
+import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
+
 
 interface CustomerOrderFormProps {
-  orderInfo: OrderFormData
-  setOrderInfo: Dispatch<SetStateAction<OrderFormData>>
+  deliveryDate: string
+  orderItem: OrderItem
+  setDeliveryDate: Dispatch<SetStateAction<string>>
+  setOrderItem: Dispatch<SetStateAction<OrderItem>>
+  setReadyToSubmit: Dispatch<SetStateAction<boolean>>
 }
 
-// this form should always take in the order form and its setter function as a prop.
+const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
 
+/* this form should always take in the order item and its setter function as a prop. */
 export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
-  const { orderInfo, setOrderInfo } = props;
+  const theme = useTheme();
 
-  // const orderFields = ["deliveryDate", "deliveryZip", "deliveryInstructions"];
+  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setReadyToSubmit } = props;
 
-  const activeRef = useRef(null);
-
+  /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
-
   const [deliveryDateAlert, setDeliveryDateAlert] = useState<ErrorMessage>({
     severity: undefined,
     message: ""
@@ -48,18 +50,19 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
     severity: undefined,
     message: ""
   })
-  const [deliveryInstructionsAlert, setDeliveryInstructionsAlert] = useState<ErrorMessage>({
+  const [cardMessageAlert, setCardMessageAlert] = useState<ErrorMessage>({
     severity: undefined,
-    message: `${orderInfo.deliveryInstructions.length}/200`
+    message: `${orderItem.cardMessage.length}/200`
   })
 
+  const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
+
+
   /* Handler Functions */
-  // handle open/close for delivery fields
+  // handle open/close for delivery fields and highlights active field
   const handleActiveField = (e: MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
 
-
     const currNode = e.currentTarget.lastChild as HTMLButtonElement
-    console.log(currNode.name);
     const fieldName = currNode?.name;
     if (activeField === fieldName) setActiveField(undefined);
     else setActiveField(fieldName);
@@ -67,9 +70,21 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   }
 
   // handle order info update
-  const handleOrderInfo = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setOrderInfo({ ...orderInfo, [name]: value })
+
+    setOrderItem({ ...orderItem, [name]: value })
+  }
+
+  const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+
+    const updatedOrder = orderItem;
+    const updatedAddress = { ...orderItem.recipAddress, [name]: value };
+    updatedOrder.recipAddress = updatedAddress;
+
+    setOrderItem({ ...updatedOrder });
   }
 
   /* Other utility functions and handlers */
@@ -77,12 +92,12 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   const checkDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
-    const validDate = verifyDeliveryDate(value)
+    const { valid, message } = verifyDeliveryDate(value)
 
-    if (!validDate) {
+    if (!valid) {
       setDeliveryDateAlert({
         severity: "error",
-        message: "We cannot halt the inexorable forward march of time!"
+        message: `${message}`
       })
     }
     else {
@@ -103,35 +118,34 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: "Please enter a valid ZIP"
       })
-    }
-    else setDeliveryZipAlert({
-      severity: undefined,
-      message: ""
-    })
+      setReadyToSubmit(false)
+    } else {
+      setDeliveryZipAlert({
+        severity: undefined,
+        message: ""
+      })
+      setReadyToSubmit(true)
+    };
   }
 
-  const checkInstructionLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
-    if (value.length <= 200) {
-      setDeliveryInstructionsAlert({
-        severity: undefined,
-        message: `${value.length}/200`
-      })
-    }
-    else {
-      setDeliveryInstructionsAlert({
+    if (value.length > 250) {
+      setCardMessageAlert({
         severity: "error",
-        message: `${value.length}/200 - too long!`
-      })
+        message: `${value.length}/250 - too long!`
+      });
+      setReadyToSubmit(false);
+      return;
     }
-  }
 
-  const checkDeliveryArea = async () => {
-    // Either: have a list of delivery zip codes in DB (not great)
-    // Or: utilize Google Maps API to check that the driving distance and time are within a preset limit.
-    // Either way -- if outside typical delivery zone, display message (maybe as a popup?) something like:
-    // "Oops! It looks like this is outside of our typical delivery area. Please call the shop for further assistance: 201 445 4111"
+    setCardMessageAlert({
+      severity: undefined,
+      message: `${value.length}/250`
+    })
+    setReadyToSubmit(true);
+
   }
 
   return (
@@ -148,8 +162,10 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         paddingLeft="15px"
         display="flex"
         alignItems="center"
+        borderRadius={"5px"}
         sx={{
-          backgroundColor: "lightgrey",
+          backgroundColor: activeField === "deliveryDate" ? theme.palette.info.main : "lightgrey",
+          color: activeField === "deliveryDate" ? "white" : "black",
           "&:hover": {
             backgroundColor: "grey",
             color: "white"
@@ -175,12 +191,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
             id="delivery-date-input"
             type="date"
             name="deliveryDate"
-            value={orderInfo.deliveryDate}
+            value={deliveryDate}
             error={!!deliveryDateAlert.severity}
             helperText={deliveryDateAlert.message}
             onChange={(e) => {
               checkDeliveryDate(e)
-              handleOrderInfo(e)
+              setDeliveryDate(e.target.value);
+              handleOrderItem(e);
             }}
             sx={{
               marginTop: "5px",
@@ -189,13 +206,15 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
           />
         </Collapse>
       </Box>
-      <Box id="delivery-zip-toggle-box"
+      <Box id="delivery-addr-toggle-box"
         marginBottom="5px"
         paddingLeft="15px"
         display="flex"
         alignItems="center"
+        borderRadius={"5px"}
         sx={{
-          backgroundColor: "lightgrey",
+          backgroundColor: activeField === "deliveryAddr" ? theme.palette.info.main : "lightgrey",
+          color: activeField === "deliveryAddr" ? "white" : "black",
           "&:hover": {
             backgroundColor: "grey",
             color: "white"
@@ -203,64 +222,90 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         }}
         onClick={handleActiveField}
       >
-        <Typography>Delivery Zip</Typography>
+        <Typography>Delivery Address</Typography>
         <ExpandMore
-          expand={activeField === "deliveryZip"}
-          name="deliveryZip"
+          expand={activeField === "deliveryAddr"}
+          name="deliveryAddr"
           aria-label="Toggle delivery zip input"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </Box>
-      <Box id="delivery-zip-box">
-        <Collapse in={activeField === "deliveryZip"}>
-          <Typography>{"Where's this going?"}</Typography>
-          <Box
-            display="flex"
-            alignItems="center">
-            <TextField
-              id="delivery-zip-input"
-              label="Enter Zip Code"
-              name="recipZip"
-              value={orderInfo.recipZip ? orderInfo.recipZip : ""}
-              error={!!deliveryZipAlert.severity}
-              helperText={deliveryZipAlert.message}
-              onChange={(e) => {
-                verifyZip(e);
-                handleOrderInfo(e);
-              }}
-              sx={{
-                marginTop: "5px",
-                marginBottom: "15px"
-              }}
-            />
-            <Button
-              variant="outlined"
-              sx={{
-                marginX: "15px"
-              }}
-              onClick={checkDeliveryArea}
-            >
-              Check Zip
-            </Button>
+      <APIProvider apiKey={`${GOOGLE_API_KEY}`} onLoad={() => { console.log("Maps API loaded") }}>
+        <Box id="delivery-add-box">
+          <Collapse in={activeField === "deliveryAddr"}>
+            <Typography>{"Where's this going?"}</Typography>
             <Box
-              height="100%"
               display="flex"
-              flexDirection="column"
-            >
-              <Typography>Estimated Delivery Fee:</Typography>
-              <Typography>(Insert Fee Calculation Here)</Typography>
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center">
+              <TextField
+                id="delivery-zip-input"
+                label="Enter Zip Code"
+                name="zip"
+                value={orderItem.recipAddress.zip ? orderItem.recipAddress.zip : ""}
+                error={deliveryZipAlert.severity === "error"}
+                helperText={deliveryZipAlert.message}
+                onChange={(e) => {
+                  verifyZip(e);
+                  handleAddress(e);
+                }}
+                sx={{
+                  flexGrow: 2,
+                  marginTop: "5px",
+                  marginBottom: "5px",
+                }}
+              />
+              <ZipCheckerButton
+                zipCode={orderItem.recipAddress.zip}
+                setDeliveryZipAlert={setDeliveryZipAlert}
+                setDeliveryFee={setDeliveryFee}
+                setReadyToSubmit={setReadyToSubmit}
+              />
             </Box>
-          </Box>
-        </Collapse>
-      </Box>
-      <Box id="delivery-instructions-toggle-box"
+            <Box
+              id="delivery-fee-display"
+              display="flex"
+              flexDirection="row"
+              justifyContent="flex-end"
+            >
+              <Typography
+                sx={{
+                  margin: "10px"
+                }}
+              >{`Estimated Delivery Fee:`}
+              </Typography>
+              <Typography
+                id="delivery-fee"
+                sx={{
+                  margin: "10px"
+                }}
+              >{deliveryZipAlert.severity === "success" &&
+                `$${deliveryFee}`
+                }
+              </Typography>
+            </Box>
+            {deliveryZipAlert.severity === "success" &&
+              <Box
+                sx={{
+                }}
+              >
+                <RecipientInfo orderItem={orderItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
+              </Box>
+            }
+          </Collapse>
+        </Box>
+      </APIProvider>
+      <Box id="card-message-toggle-box"
         marginBottom="5px"
         paddingLeft="15px"
         display="flex"
         alignItems={"center"}
+        borderRadius={"5px"}
         sx={{
-          backgroundColor: "lightgrey",
+          backgroundColor: activeField === "cardMessage" ? theme.palette.info.main : "lightgrey",
+          color: activeField === "cardMessage" ? "white" : "black",
           "&:hover": {
             backgroundColor: "grey",
             color: "white"
@@ -268,27 +313,30 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         }}
         onClick={handleActiveField}
       >
-        <Typography>Delivery Instructions</Typography>
+        <Typography>Card Message</Typography>
         <ExpandMore
-          expand={activeField === "deliveryInstructions"}
-          name="deliveryInstructions"
-          aria-label="Toggle delivery instructions input"
+          expand={activeField === "cardMessage"}
+          name="cardMessage"
+          aria-label="Toggle card message input"
         >
           <ExpandMoreIcon />
         </ExpandMore>
       </Box>
-      <Box id="delivery-instructions-box">
-        <Collapse in={activeField === "deliveryInstructions"}>
-          <Typography>{"Any specific instructions?"}</Typography>
+      <Box id="card-message-box">
+        <Collapse in={activeField === "cardMessage"}>
+          <Typography>What would you like to say?</Typography>
           <TextField
             id="card-message-input"
-            name="deliveryInstructions"
-            value={orderInfo.deliveryInstructions}
-            error={!!deliveryInstructionsAlert.severity}
-            helperText={deliveryInstructionsAlert.message}
+            name="cardMessage"
+            value={orderItem.cardMessage}
+            error={!!cardMessageAlert.severity}
+            helperText={cardMessageAlert.message}
+            onKeyDown={(k) => {
+              if (cardMessageAlert.severity === "error" && k.code !== "Backspace") k.preventDefault();
+            }}
             onChange={(e) => {
-              handleOrderInfo(e);
-              checkInstructionLength(e);
+              handleOrderItem(e);
+              checkMessageLength(e);
             }}
             fullWidth
             multiline
@@ -299,7 +347,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
           />
         </Collapse>
       </Box>
-    </Box>
+    </Box >
   )
 
 }

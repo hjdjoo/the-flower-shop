@@ -1,11 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { Carousel } from "@/app/_components/Carousel";
 import { Suspense } from "react";
-import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
+
+import { useTheme } from "@mui/material";
+import Box from "@mui/material/Box";
+
+import { Carousel } from "@/app/_components/Carousel";
 
 import { HomepageCategory } from "../types/client-types";
+
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
+
+import getHomepageCategories from "@/utils/supabase/clientActions/getHomepageCategories";
+import getWindowSize from "@/utils/actions/getWindowSize";
 
 // import { getImageUrls } from "@/utils/supabase/getImageUrls";
 
@@ -13,7 +21,15 @@ import { HomepageCategory } from "../types/client-types";
 
 export default function Products() {
 
+  const theme = useTheme();
   const [homepageCategories, setHomepageCategories] = useState<HomepageCategory[]>([]);
+
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
+
+  const [windowSize, setWindowSize] = useState({
+    width: 0,
+    height: 0,
+  })
 
   useEffect(() => {
     (async () => {
@@ -25,6 +41,9 @@ export default function Products() {
       // console.log("products/page/useEffect/data: ", data);
       setHomepageCategories([...data]);
     })()
+
+    const window = getWindowSize();
+    setWindowSize(window);
 
   }, [])
 
@@ -55,9 +74,20 @@ export default function Products() {
   })
 
   return (
-    <div>
+    <Box
+      id="product-box"
+      width="100%"
+      className="product-box"
+      marginTop={() => {
+        if (mobile) return "53%";
+        if (tablet) return "55%";
+        if (large) return "43%";
+        if (xlarge) return "39%";
+      }}
+      zIndex={2}
+    >
       {bestsellersCarousel(bestsellers)}
       {productCarousels}
-    </div>
+    </Box>
   )
 }

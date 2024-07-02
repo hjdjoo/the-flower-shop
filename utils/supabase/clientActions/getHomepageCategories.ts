@@ -1,6 +1,8 @@
 import { createClient } from "../client";
 import { HomepageCategory } from "@/app/types/client-types";
 
+export const revalidate = 3600;
+
 export default async function getHomepageCategories() {
 
   const supabase = createClient();

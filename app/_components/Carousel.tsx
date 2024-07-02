@@ -9,11 +9,16 @@ import { useRouter } from 'next/navigation';
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Collapse from "@mui/material/Collapse";
 
 import { useTheme } from '@mui/material';
 
+import { ExpandMore } from './styled/ExpandIcon';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import * as CarouselComp from './styled/CarouselComponents';
-import PricePicker from './PricePicker';
+
+import useBreakpoints from '@/utils/hooks/useBreakpoints';
+
 import { HomepageCategory } from '../types/client-types';
 import { ProductData } from '../types/db-types';
 import { getCategoryItems } from '@/utils/supabase/clientActions/getCategoryItems';
@@ -24,25 +29,28 @@ type CarouselProps = {
 
 export function Carousel(props: CarouselProps) {
 
-  const router = useRouter();
+  const [viewCategory, setViewCategory] = useState<boolean>(false)
 
+  const router = useRouter();
   const theme = useTheme();
-  const CardTextStyles = {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: 'white',
-    padding: '8px',
-    boxSizing: 'border-box',
-    textAlign: 'center',
-  };
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
+
+  // const CardTextStyles = {
+  //   position: 'absolute',
+  //   bottom: 0,
+  //   left: 0,
+  //   width: '100%',
+  //   backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  //   color: 'white',
+  //   padding: '8px',
+  //   boxSizing: 'border-box',
+  //   textAlign: 'center',
+  // };
 
 
   const { name, id } = props.category;
   const [productData, setProductData] = useState<ProductData[]>([])
-  const [showButton, setShowButton] = useState<string>("");
+  // const [showButton, setShowButton] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -70,35 +78,69 @@ export function Carousel(props: CarouselProps) {
     })
   };
 
+  const carouselNavButtonStyle = () => {
+
+  }
+
+  const getCarouselSpacerHeight = () => {
+
+    if (mobile) return "250px";
+    if (tablet) return "270px";
+    if (large) return "310px";
+    if (xlarge) return "380px";
+    else return "0px";
+
+  }
+
+  const getCarouselSpacerPosition = () => {
+    if (mobile || tablet) return "0%"
+    if (large) return "10%";
+    if (xlarge) return "15%";
+  }
+
+  const getCarouselButtonPosition = () => {
+    if (mobile || tablet) return "1%";
+    if (large) return "11%";
+    if (xlarge) return "16%";
+    else return "1%";
+
+  }
+
   const products = productData.map((data, idx) => {
     return (
       <CarouselComp.CarItem
         id={`${data.name}-product`}
+        className="product"
         key={`${name}-product-${idx + 1}`}
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}
-        onClick={() => router.push(`products/${data.id}`)}
       >
         <Box
           className="image-box"
+          onClick={() => router.push(`products/${data.id}`)}
           sx={{
-            [theme.breakpoints.between("xs", "sm")]: {
-              width: "150px",
+            minWidth: () => {
+              if (mobile) return "150px";
+              if (tablet) return "175px";
+              else if (large) return "200px";
+              else if (xlarge) return "250px";
             },
-            [theme.breakpoints.between("sm", "md")]: {
-              width: "175px",
-            },
-            [theme.breakpoints.up("md")]: {
-              width: "250px",
+            maxWidth: () => {
+              if (mobile) return "150px";
+              if (tablet) return "175px";
+              else if (large) return "200px";
+              else if (xlarge) return "250px";
             },
           }}
+          position="relative"
+          overflow={"hidden"}
         >
           <Image
             id={`${data.name}-image`}
-            className="responsive-image"
+            className="product-image"
             loader={({ src, width }: ImageLoaderProps): string => (`${src}?w=${width}`)}
             src={data.image_url}
             alt={`${name} product ${idx + 1}`}
@@ -106,6 +148,8 @@ export function Carousel(props: CarouselProps) {
             style={{
               objectFit: "contain"
             }}
+            sizes={"(max-width: 850) "}
+            priority={idx < 5}
           />
         </Box>
         <Typography component='p' sx={{
@@ -139,23 +183,37 @@ export function Carousel(props: CarouselProps) {
     )
   })
 
+
   return (
-    <Paper
+    <Box
       id={`${name}-carousel-container`}
+      className="carousel-container"
       sx={{
-        marginBottom: "25px",
+        backgroundColor: "white",
+        marginBottom: name === "Bestsellers" ? "0px" : "5px",
+        maxWidth: () => {
+          return "100%"
+        },
+        marginX: () => {
+          if (mobile || tablet) return "0%";
+          if (large) return "10%";
+          if (xlarge) return "15%";
+        }
       }}
     >
-      <Box
+      <Box id={`${name}-carousel-header-box`}
         className="carousel-header-box"
-        id={`${name}-carousel-header-box`}
-        marginBottom="10px"
         sx={{
-          backgroundColor: `${theme.palette.secondary.main}`,
           display: "flex",
           justifyContent: "flex-start",
+          alignItems: "center",
           paddingLeft: "15px",
+          paddingY: "5px",
+          "&:hover": name === "Bestsellers" ? null : {
+            cursor: "pointer"
+          }
         }}
+        onClick={() => { if (name !== "Bestsellers") setViewCategory(!viewCategory) }}
       >
         <Typography
           className="carousel-name"
@@ -174,42 +232,93 @@ export function Carousel(props: CarouselProps) {
         >
           {name}
         </Typography>
+        {name !== "Bestsellers" &&
+          <ExpandMore
+            expand={viewCategory}
+            sx={{
+              padding: "0px"
+            }}
+          >
+            <ExpandMoreIcon
+              sx={{
+                color: "white",
+              }}
+            />
+          </ExpandMore>}
       </Box>
-      <CarouselComp.CarBox id={`${name}-carousel`}
-        sx={{ display: "flex", alignItems: "flex-end" }}>
-        <CarouselComp.CarButton
-          onClick={() => { handleScroll(name, -500) }}
-          disableRipple
+      <Collapse in={name === "Bestsellers" ? true : viewCategory}
+      >
+        <CarouselComp.CarBox id={`${name}-carousel`}
           sx={{
-            left: 0,
-          }}
-        >
-          <CarouselComp.CarPrevIcon sx={{
-            [theme.breakpoints.between("xs", "sm")]: {
-              fontSize: "1.2rem"
-            },
-            [theme.breakpoints.between("sm", "md")]: {
-              fontSize: "1.5rem"
-            },
-          }} />
-        </CarouselComp.CarButton>
-        {products}
-        <CarouselComp.CarButton
-          onClick={() => { handleScroll(name, 500) }}
-          disableRipple
-          sx={{ right: 0 }}
-        >
-          <CarouselComp.CarNextIcon sx={{
-            [theme.breakpoints.between("xs", "sm")]: {
-              fontSize: "1.2rem"
-            },
-            [theme.breakpoints.between("sm", "md")]: {
-              fontSize: "1.5rem"
-            },
-          }} />
-        </CarouselComp.CarButton>
-      </CarouselComp.CarBox >
-    </Paper >
+            display: "flex",
+            alignItems: "flex-end",
+          }}>
+          <CarouselComp.CarSpacer
+            className="carousel-spacer-start"
+            sx={{
+              height: () => {
+                return getCarouselSpacerHeight();
+              },
+              left: () => {
+                return getCarouselSpacerPosition();
+              }
+            }}
+          />
+          <CarouselComp.CarButton
+            className="carousel-arrow"
+            onClick={() => { handleScroll(name, -500) }}
+            disableRipple
+            sx={{
+              left: () => {
+                return getCarouselButtonPosition();
+              }
+            }}
+          >
+            <CarouselComp.CarPrevIcon sx={{
+              [theme.breakpoints.between("xs", "sm")]: {
+                fontSize: "1.2rem"
+              },
+              [theme.breakpoints.between("sm", "md")]: {
+                fontSize: "1.5rem"
+              },
+            }} />
+          </CarouselComp.CarButton>
+
+          {products}
+
+          <CarouselComp.CarButton
+            className="carousel-arrow"
+            onClick={() => { handleScroll(name, 500) }}
+            disableRipple
+            sx={{
+              right: () => {
+                return getCarouselButtonPosition();
+              }
+            }}
+          >
+            <CarouselComp.CarNextIcon sx={{
+              [theme.breakpoints.between("xs", "sm")]: {
+                fontSize: "1.2rem"
+              },
+              [theme.breakpoints.between("sm", "md")]: {
+                fontSize: "1.5rem"
+              },
+            }} />
+          </CarouselComp.CarButton>
+          <CarouselComp.CarSpacer
+            className="carousel-spacer-end"
+            sx={{
+              height: () => {
+                return getCarouselSpacerHeight();
+              },
+              right: () => {
+                return getCarouselSpacerPosition();
+              }
+            }}
+          />
+        </CarouselComp.CarBox >
+      </Collapse>
+    </Box >
   )
 
 }
