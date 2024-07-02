@@ -33,42 +33,52 @@ export default function Checkout() {
     }
   ]);
 
+  //imageURL, name, and deliveryDate has been newly added and not accounted for
   const [demoOrder, setDemoOrder] = useState<OrderTypes.Order>([
     [
       {
-        productID: 1,
-        price: 115,
+        productId: '1',
+        imageUrl: 'FakeURL1',
+        name: 'Birthday Flowers',
+        price: '115',
         cardMessage: "Happy Birthday Mom",
         recipFirst: "Jenny",
         recipLast: "Cho",
         recipAddress: 0,
-        recipPhone: 8452834700,
-        deliveryFee: 25.00,
+        recipPhone: '8452834700',
+        deliveryFee: '25.00',
         deliveryInstructions: '',
+        deliveryDate: "9/16/2024"
       },
       {
-        productID: 2,
-        price: 100,
+        productId: '2',
+        imageUrl: 'FakeURL2',
+        name: 'Birthday Flowers 2',
+        price: '100',
         cardMessage: '',
         recipFirst: "Jenny",
         recipLast: "Cho",
         recipAddress: 0,
-        recipPhone: 8452834700,
-        deliveryFee: 0.00,
+        recipPhone: '8452834700',
+        deliveryFee: '0.00',
         deliveryInstructions: '',
+        deliveryDate: "12/25/2024"
       }
     ],
     [
       {
-        productID: 3,
-        price: 100,
+        productId: '3',
+        imageUrl: 'FakeURL3',
+        name: 'Christmas Flowers',
+        price: '100',
         cardMessage: "Merry Christmas",
         recipFirst: "Edwyn",
         recipLast: "Song",
         recipAddress: 1,
-        recipPhone: 1234567890,
-        deliveryFee: 25.00,
+        recipPhone: '1234567890',
+        deliveryFee: '25.00',
         deliveryInstructions: '',
+        deliveryDate: "9/16/2024"
       }
     ]
   ]);
