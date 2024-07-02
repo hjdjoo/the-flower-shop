@@ -66,6 +66,16 @@ const CartItem = (props: any) => {
     .catch(err => console.log('Error validating new address: ', err))
   }
 
+  const compareAddress = (newAddress: Address, currAddress: Address) => {
+    if (newAddress.streetAddress1 == currAddress.streetAddress1 &&
+        newAddress.streetAddress2 == currAddress.streetAddress2 &&
+        newAddress.townCity == currAddress.townCity &&
+        newAddress.state == currAddress.state &&
+        newAddress.zip == currAddress.zip
+    ) return true;
+    else return false;
+  }
+
   const confirmChanges = async () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(demoOrder);
@@ -115,21 +125,50 @@ const CartItem = (props: any) => {
           newAddress.zip = res.result.address.postalAddress.postalCode;
           console.log('Valid Address');
 
-          updateAddresses[product.recipAddress].orders--;
-          if (updateAddresses[product.recipAddress].orders == 0) {
-            delete updateAddresses[product.recipAddress];
-          }
-          updateAddresses.push(newAddress);
-          setDemoAddress(updateAddresses);
-
-          updateOrder[dateIndex][orderIndex] = {
-            ...product,
-            price,
-            recipFirst,
-            recipLast,
-            recipPhone,
-            cardMessage,
-            recipAddress: updateAddresses.length - 1
+          //check if new address and the old address are the same, if yes, continue
+          if (compareAddress(newAddress, updateAddresses[product.recipAddress])) {
+            //do nothing
+          } else {
+            let dupAddress = false;
+            // check if new address and other addresses are the same
+            for (let i = 0; i < updateAddresses.length; i++) {
+              if (updateAddresses[i] && compareAddress(newAddress, updateAddresses[i])) {
+                console.log('address already exists in state')
+                // if yes, increment the order of the address is state by 1 and
+                // update the recip address of the order to the index of this address.
+                dupAddress = true;
+                updateAddresses[i].orders++;
+                updateOrder[dateIndex][orderIndex] = {
+                  ...product,
+                  recipAddress: i
+                }
+                // -1 the order # from the old address and check if it needs to be deleted
+                updateAddresses[product.recipAddress].orders--;
+                if (updateAddresses[product.recipAddress].orders == 0) {
+                  delete updateAddresses[product.recipAddress];
+                }
+                break;
+              }
+            }
+            if (!dupAddress) {
+              // if the new address is unique, -- the order # from the old address and check if it needs to be deleted
+              // this push the new address into the array and point the order recipAddress to this index
+              updateAddresses[product.recipAddress].orders--;
+              if (updateAddresses[product.recipAddress].orders == 0) {
+                delete updateAddresses[product.recipAddress];
+              }
+              updateAddresses.push(newAddress);
+              updateOrder[dateIndex][orderIndex] = {
+                ...product,
+                price,
+                recipFirst,
+                recipLast,
+                recipPhone,
+                cardMessage,
+                recipAddress: updateAddresses.length - 1
+              }
+            } 
+            setDemoAddress(updateAddresses);
           }
           setChangeAddress(false);
         })
