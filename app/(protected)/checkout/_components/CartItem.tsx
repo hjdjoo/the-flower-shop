@@ -25,7 +25,7 @@ const CartItem = (props: any) => {
     setDemoAddress 
   } = props;
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-  const [price, setPrice] = useState<number>(product.price);
+  const [price, setPrice] = useState<string>(product.price);
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
   const [recipLast, setRecipLast] = useState<string>(product.recipLast);
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
@@ -79,10 +79,6 @@ const CartItem = (props: any) => {
   const confirmChanges = async () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(demoOrder);
-
-      // currently, updateAddresses does not check for duplicate addresses in state
-      // the address autocomplete feature should minimize instances of duplicate address objects
-      // however, this function should still be able to remove duplicate addresses and increment the orders property on the address objects
 
       if (changeAdddress) {
         let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
@@ -230,19 +226,19 @@ const CartItem = (props: any) => {
         {toggleEdit
           ? <FormControl>
             <Container className="Price-wrapper" sx={{ display: "flex", height: 23, ml: 1, mb: 1 }} >
-              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productID} | Price:`}</Typography>
+              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
               <Select
                 variant="standard"
                 sx={{ ml: 1 }}
                 value={price}
-                onChange={(event : SelectChangeEvent<number>) => {
-                  if (typeof event.target.value === "number") setPrice(event.target.value);
-                  else throw new Error("Price is not a number");
+                onChange={(event : SelectChangeEvent<string>) => {
+                  // should check if value has been tampered with here and on the backend
+                  setPrice(event.target.value);
                 }}
               >
-                <MenuItem value={100}>$100</MenuItem>
-                <MenuItem value={115}>$115</MenuItem>
-                <MenuItem value={130}>$130</MenuItem>
+                <MenuItem value={'100'}>$100</MenuItem>
+                <MenuItem value={'115'}>$115</MenuItem>
+                <MenuItem value={'130'}>$130</MenuItem>
               </Select>
             </Container>
             <Container className="Address-TextBox-Wrapper">
@@ -370,7 +366,7 @@ const CartItem = (props: any) => {
           </FormControl>
           : <Container>
               <Typography component="p" style={{ fontWeight: 500 }}>
-                {`ProductID: ${product.productID} | Price: ${product.price}`}
+                {`ProductID: ${product.productId} | Price: ${product.price}`}
                 </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
                 {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
