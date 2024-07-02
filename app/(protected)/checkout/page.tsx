@@ -16,19 +16,19 @@ export default function Checkout() {
   const [demoDates, setDemoDates] = useState<OrderTypes.Dates>(["9/16/2024","12/25/2024"]);
   const [demoAddress, setDemoAddress] = useState<OrderTypes.Addresses>([
     {
-      streetAddress1: '71 Tennyson Dr',
+      streetAddress1: '20 W 34th St',
       streetAddress2: '',
-      townCity: 'Nanuet',
+      townCity: 'New York',
       state: 'NY',
-      zip: '10954-1039',
+      zip: '10118-0114',
       orders: 2
     },
     {
-      streetAddress1: '624 Cambridge St',
+      streetAddress1: '1600 Pennsylvania Avenue',
       streetAddress2: '',
-      townCity: 'Allston',
-      state: 'MA',
-      zip: '02134-2433',
+      townCity: 'Washington',
+      state: 'DC',
+      zip: '20500',
       orders: 1
     }
   ]);
@@ -42,18 +42,18 @@ export default function Checkout() {
         name: 'Birthday Flowers',
         price: '115',
         cardMessage: "Happy Birthday Mom",
-        recipFirst: "Jenny",
-        recipLast: "Cho",
+        recipFirst: "Jane",
+        recipLast: "Doe",
         recipAddress: {
-          streetAddress1: '71 Tennyson Dr',
+          streetAddress1: '20 W 34th St',
           streetAddress2: '',
-          townCity: 'Nanuet',
+          townCity: 'New York',
           state: 'NY',
-          zip: '10954-1039',
+          zip: '10118-0114',
           orders: 2
         },
         recipAddressIndex: 0,
-        recipPhone: '8452834700',
+        recipPhone: '3333334444',
         deliveryFee: '25.00',
         deliveryInstructions: '',
         deliveryDate: "9/16/2024"
@@ -64,18 +64,18 @@ export default function Checkout() {
         name: 'Birthday Flowers 2',
         price: '100',
         cardMessage: '',
-        recipFirst: "Jenny",
-        recipLast: "Cho",
+        recipFirst: "Jane",
+        recipLast: "Doe",
         recipAddress: {
-          streetAddress1: '71 Tennyson Dr',
+          streetAddress1: '20 W 34th St',
           streetAddress2: '',
-          townCity: 'Nanuet',
+          townCity: 'New York',
           state: 'NY',
-          zip: '10954-1039',
+          zip: '10118-0114',
           orders: 2
         },
         recipAddressIndex: 0,
-        recipPhone: '8452834700',
+        recipPhone: '3333334444',
         deliveryFee: '0.00',
         deliveryInstructions: '',
         deliveryDate: "12/25/2024"
@@ -88,14 +88,14 @@ export default function Checkout() {
         name: 'Christmas Flowers',
         price: '100',
         cardMessage: "Merry Christmas",
-        recipFirst: "Edwyn",
-        recipLast: "Song",
+        recipFirst: "John",
+        recipLast: "Doe",
         recipAddress: {
-          streetAddress1: '624 Cambridge St',
+          streetAddress1: '1600 Pennsylvania Avenue',
           streetAddress2: '',
-          townCity: 'Allston',
-          state: 'MA',
-          zip: '02134-2433',
+          townCity: 'Washington',
+          state: 'DC',
+          zip: '20500',
           orders: 1
         },
         recipAddressIndex: 1,
