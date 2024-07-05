@@ -2,7 +2,7 @@
 
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
 import Image from 'next/image';
 import FavIcon from "../../../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
@@ -10,46 +10,210 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { InputField } from "@/app/_components/styled/InputField";
+import { Address } from "@/app/_components/types/OrderFormData";
+import e from "cors";
 
 const CartItem = (props: any) => {
-  const { product, demoOrder, setDemoOrder, orderIndex, dateIndex } = props;
+  const { 
+    product, 
+    demoOrder, 
+    setDemoOrder, 
+    orderIndex, dateIndex, 
+    demoDates, 
+    setDemoDates,
+    demoAddress,
+    setDemoAddress 
+  } = props;
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-  const [price, setPrice] = useState<number>(product.price);
-  const [recipFirst, setRecipFirst] = useState<string>( product.recipFirst);
-  const [recipLast, setRecipLast] = useState<string>( product.recipLast);
-  const [recipPhone, setRecipPhone] = useState<string>( product.recipPhone);
-  const [cardMessage, setCardMessage] = useState<string>( product.cardMessage);
+  const [price, setPrice] = useState<string>(product.price);
+  const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
+  const [recipLast, setRecipLast] = useState<string>(product.recipLast);
+  const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
+  const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
-  const [streetAddress1, setStreetAddress1] = useState<string>(product.recipAddress.streetAddress1);
-  const [streetAddress2, setStreetAddress2] = useState<string>(product.recipAddress.streetAddress2);
-  const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
-  const [state, setState] = useState<string>(product.recipAddress.state);
-  const [zip, setZip] = useState<string>(product.recipAddress.zip);
+  const [changeAdddress, setChangeAddress] = useState<boolean>(false);
+  const [streetAddress1, setStreetAddress1] = useState<string>(demoAddress[product.recipAddressIndex].streetAddress1);
+  const [streetAddress2, setStreetAddress2] = useState<string>(demoAddress[product.recipAddressIndex].streetAddress2);
+  const [townCity, setTownCity] = useState<string>(demoAddress[product.recipAddressIndex].townCity);
+  const [state, setState] = useState<string>(demoAddress[product.recipAddressIndex].state);
+  const [zip, setZip] = useState<string>(demoAddress[product.recipAddressIndex].zip);
 
-  const confirmChanges = () => {
+  const validateAddress = async () => {
+    let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+    fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`, 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          address: {
+            addressLines: [streetAddress1, formatApt, townCity, state, zip]
+          } 
+        })
+    })
+    .then(data => data.json())
+    .then(res => {
+      if (res.result.address.addressComponents.length > 7) {
+        setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+        setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
+      } else {
+        setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
+      }
+      setTownCity(res.result.address.postalAddress.locality);
+      setState(res.result.address.postalAddress.administrativeArea);
+      setZip(res.result.address.postalAddress.postalCode);
+      console.log('Valid Address');
+    })
+    .catch(err => console.log('Error validating new address: ', err))
+  }
+
+  const compareAddress = (newAddress: Address, currAddress: Address) => {
+    if (newAddress.streetAddress1 == currAddress.streetAddress1 &&
+        newAddress.streetAddress2 == currAddress.streetAddress2 &&
+        newAddress.townCity == currAddress.townCity &&
+        newAddress.state == currAddress.state &&
+        newAddress.zip == currAddress.zip
+    ) return true;
+    else return false;
+  }
+
+  const confirmChanges = async () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(demoOrder);
-      updateOrder[dateIndex][orderIndex] = {
-        ...product,
-        price,
-        recipFirst,
-        recipLast,
-        recipPhone,
-        cardMessage,
-        recipAddress: {
-          streetAddress1,
-          streetAddress2,
-          townCity,
-          state,
-          zip
+
+      if (changeAdddress) {
+        let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+        fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`, 
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              address: {
+                addressLines: [streetAddress1, formatApt, townCity, state, zip]
+              } 
+            })
+        })
+        .then(data => data.json())
+        .then(res => {
+          let updateAddresses = structuredClone(demoAddress);
+          const newAddress: Address = {
+            streetAddress1,
+            streetAddress2,
+            townCity,
+            state,
+            zip,
+            orders: 1
+          };
+
+          if (res.result.address.addressComponents.length > 7) {
+            setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+            setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
+            newAddress.streetAddress1 = res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, '');
+            newAddress.streetAddress2 = res.result.address.addressComponents[2].componentName.text;
+          } else {
+            setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
+            newAddress.streetAddress1 = res.result.address.postalAddress.addressLines[0];
+          }
+          setTownCity(res.result.address.postalAddress.locality);
+          setState(res.result.address.postalAddress.administrativeArea);
+          setZip(res.result.address.postalAddress.postalCode);
+          newAddress.townCity = res.result.address.postalAddress.locality;
+          newAddress.state = res.result.address.postalAddress.administrativeArea;
+          newAddress.zip = res.result.address.postalAddress.postalCode;
+          console.log('Valid Address');
+
+          //check if new address and the old address are the same, if yes, continue
+          if (compareAddress(newAddress, updateAddresses[product.recipAddressIndex])) {
+            //do nothing
+          } else {
+            let dupAddress = false;
+            // check if new address and other addresses are the same
+            for (let i = 0; i < updateAddresses.length; i++) {
+              if (updateAddresses[i] && compareAddress(newAddress, updateAddresses[i])) {
+                console.log('address already exists in state')
+                // if yes, increment the order of the address is state by 1 and
+                // update the recip address of the order to the index of this address.
+                dupAddress = true;
+                updateAddresses[i].orders++;
+                updateOrder[dateIndex][orderIndex] = {
+                  ...product,
+                  recipAddressIndex: i
+                }
+                // -1 the order # from the old address and check if it needs to be deleted
+                updateAddresses[product.recipAddressIndex].orders--;
+                if (updateAddresses[product.recipAddressIndex].orders == 0) {
+                  delete updateAddresses[product.recipAddressIndex];
+                }
+                break;
+              }
+            }
+            if (!dupAddress) {
+              // if the new address is unique, -- the order # from the old address and check if it needs to be deleted
+              // this push the new address into the array and point the order recipAddressIndex to this index
+              updateAddresses[product.recipAddressIndex].orders--;
+              if (updateAddresses[product.recipAddressIndex].orders == 0) {
+                delete updateAddresses[product.recipAddressIndex];
+              }
+              updateAddresses.push(newAddress);
+              updateOrder[dateIndex][orderIndex] = {
+                ...product,
+                price,
+                recipFirst,
+                recipLast,
+                recipPhone,
+                cardMessage,
+                recipAddressIndex: updateAddresses.length - 1
+              }
+            } 
+            setDemoAddress(updateAddresses);
+          }
+          setChangeAddress(false);
+        })
+        .catch(err => console.log('Error validating/updating new address: ', err))
+      } else {
+        updateOrder[dateIndex][orderIndex] = {
+          ...product,
+          price,
+          recipFirst,
+          recipLast,
+          recipPhone,
+          cardMessage,
         }
       }
 
       setDemoOrder(updateOrder);
       setToggleEdit(false);
-    } 
+    }
     else { 
       setToggleEdit(true);
+    }
+  }
+
+  const deleteItem = () => {
+    let updateAddresses = structuredClone(demoAddress);
+    let updateOrder = structuredClone(demoOrder);
+    let updateItems = updateOrder[dateIndex];
+
+    if (updateAddresses[updateItems[orderIndex].recipAddressIndex].orders <= 0) {
+      throw new Error('Error in deleteItem: address with negative orders');
+    } else {
+      updateAddresses[updateItems[orderIndex].recipAddressIndex].orders--;
+      if (updateAddresses[product.recipAddressIndex].orders == 0) {
+        delete updateAddresses[product.recipAddressIndex];
+      }
+      setDemoAddress(updateAddresses);
+    }
+
+    if (updateItems.length > 1) {
+      updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
+      updateOrder[dateIndex] = updateItems;
+      setDemoOrder(updateOrder);
+    } else {
+      updateOrder = updateOrder.slice(0, dateIndex).concat(updateOrder.slice(dateIndex + 1));
+      setDemoOrder(updateOrder);
+      
+      let updateDates = structuredClone(demoDates);
+      updateDates = updateDates.slice(0, dateIndex).concat(updateDates.slice(dateIndex + 1));
+      setDemoDates(updateDates);
     }
   }
 
@@ -65,19 +229,19 @@ const CartItem = (props: any) => {
         {toggleEdit
           ? <FormControl>
             <Container className="Price-wrapper" sx={{ display: "flex", height: 23, ml: 1, mb: 1 }} >
-              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productID} | Price:`}</Typography>
+              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
               <Select
                 variant="standard"
                 sx={{ ml: 1 }}
                 value={price}
-                onChange={(event : SelectChangeEvent<number>) => {
-                  if (typeof event.target.value === "number") setPrice(event.target.value);
-                  else throw new Error("Price is not a number");
+                onChange={(event : SelectChangeEvent<string>) => {
+                  // should check if value has been tampered with here and on the backend
+                  setPrice(event.target.value);
                 }}
               >
-                <MenuItem value={100}>$100</MenuItem>
-                <MenuItem value={115}>$115</MenuItem>
-                <MenuItem value={130}>$130</MenuItem>
+                <MenuItem value={'100'}>$100</MenuItem>
+                <MenuItem value={'115'}>$115</MenuItem>
+                <MenuItem value={'130'}>$130</MenuItem>
               </Select>
             </Container>
             <Container className="Address-TextBox-Wrapper">
@@ -119,17 +283,23 @@ const CartItem = (props: any) => {
                   width: '97.5%'
                 }}
                 value={streetAddress1}
-                onChange={(event) => setStreetAddress1(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress1(event.target.value);
+                }}
               />
               <InputField
                 id="address-line-2"
                 name="StreetAddress2"
-                label="Address Line 2"
+                label="APT/Suite/Unit #"
                 sx={{
                   width: '97.5%'
                 }}
                 value={streetAddress2}
-                onChange={(event) => setStreetAddress2(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress2(event.target.value);
+                }}
               />
               <InputField
                 id="town"
@@ -139,7 +309,10 @@ const CartItem = (props: any) => {
                   width: '33%'
                 }}
                 value={townCity}
-                onChange={(event) => setTownCity(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setTownCity(event.target.value);
+                }}
               />
               <InputField
                 id="State"
@@ -149,7 +322,10 @@ const CartItem = (props: any) => {
                   width: '31%'
                 }}
                 value={state}
-                onChange={(event) => setState(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setState(event.target.value);
+                }}
               />
               <InputField
                 id="zip"
@@ -159,8 +335,25 @@ const CartItem = (props: any) => {
                   width: '31%'
                 }}
                 value={zip}
-                onChange={(event) => setZip(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setZip(event.target.value);
+                }}
               />
+              <Button
+              onClick={() => validateAddress()}
+              sx={{
+                border: "1px solid",
+                borderColor: "primary.main",
+                mt: 1,
+                ml: 3.5,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
+              }}
+            >
+              Check Address
+            </Button>
               <InputField
                 id="card-message"
                 name="cardMessage"
@@ -176,7 +369,7 @@ const CartItem = (props: any) => {
           </FormControl>
           : <Container>
               <Typography component="p" style={{ fontWeight: 500 }}>
-                {`ProductID: ${product.productID} | Price: ${product.price}`}
+                {`ProductID: ${product.productId} | Price: ${product.price}`}
                 </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
                 {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
@@ -185,7 +378,7 @@ const CartItem = (props: any) => {
                 {`Phone Number: ${product.recipPhone}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
+                {`Address: ${demoAddress[product.recipAddressIndex].streetAddress1} ${demoAddress[product.recipAddressIndex].streetAddress2} ${demoAddress[product.recipAddressIndex].townCity} ${demoAddress[product.recipAddressIndex].state} ${demoAddress[product.recipAddressIndex].zip}`}
               </Typography>
               <Typography component="p" style={{ fontWeight: 500 }}>
                 {`Note: 
@@ -197,12 +390,17 @@ const CartItem = (props: any) => {
 
         { toggleEdit
           ? <Button
-              onClick={() => confirmChanges()}
+              onClick={() => {
+                confirmChanges();
+              }}
               sx={{
                 border: "1px solid",
                 borderColor: "primary.main",
                 mt: 1,
                 ml: 3.5,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
               }}
             >
               Confirm
@@ -211,17 +409,35 @@ const CartItem = (props: any) => {
               onClick={() => {
                 toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
               }}
+              variant="outlined"
               sx={{
-                border: "1px solid",
-                borderColor: "primary.main",
                 mt: 1,
-                ml: 3
+                ml: 3,
+                '&:hover': {
+                  backgroundColor: "#dfe6df",
+                }
               }}
             >
               Edit
             </Button>
-          }
+        }
+        <Button 
+          onClick={() => deleteItem()}
+          variant="outlined"
+          color="error"
+          sx={{
+            mt: 1,
+            ml: 2,
+            '&:hover': {
+              bgcolor: "#d32e2f",
+              color: "white"
+            }
+          }}
+        >
+          Delete
+        </Button>
       </Container>
+      
     </Container>
   )
 }
