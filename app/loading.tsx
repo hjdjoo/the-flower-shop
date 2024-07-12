@@ -9,7 +9,6 @@ export default function Loading({ error, reset, }:
   }) {
 
   useEffect(() => {
-
     console.error(error)
   }, [error]);
 

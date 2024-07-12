@@ -22,7 +22,7 @@ export interface Address {
 
 export type Addresses = Address[];
 
-
+// keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a string since that is what the DB is expecting and the value will always be nonzero.
 export interface OrderItem {
   productId: number,
   imageUrl: string,
@@ -38,7 +38,7 @@ export interface OrderItem {
   deliveryDate: string,
 }
 
-export type Order = OrderItem[][];
+export type SortedOrder = OrderItem[][];
 
 export interface SenderInfo {
   senderFirst: string,
@@ -49,5 +49,5 @@ export interface SenderInfo {
 
 export interface Cart {
   deliveryDates: string[]
-  cartItems: Array<OrderItem | undefined>
+  cartItems: Array<OrderItem>
 }

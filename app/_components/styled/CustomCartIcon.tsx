@@ -49,7 +49,7 @@ interface CustomCartIconProps {
   cart: Cart
 }
 
-const CustomCartIcon = React.forwardRef(function CustomCartIcon(props: CustomCartIconProps) {
+const CustomCartIcon = React.forwardRef(function CustomCartIcon(props: CustomCartIconProps, ref) {
 
   const { cart, ...other } = props;
 

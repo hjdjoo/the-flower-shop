@@ -10,8 +10,8 @@ export const address = {
 
 export const OrderItemForm = {
   name: "",
+  imageUrl: "",
   deliveryDate: "",
-  productId: "",
   price: "",
   cardMessage: "",
   recipFirst: "",

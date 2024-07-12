@@ -58,6 +58,9 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}
       display="flex"
+      sx={{
+        marginY: "5px"
+      }}
     >
       <Box
         id={`${deliveryDate}-image-container-${idx + 1}`}
@@ -125,7 +128,9 @@ export default function CartPreview() {
 
   // interesting note -- if you call "useTheme" in a parent component, MUI components in child components will not apply any theming unless specifically directed. Unless I'm missing something?
   const theme = useTheme();
-  const { cart } = useCart() as CartContextType;
+  const { cart, getSortedOrder } = useCart() as CartContextType;
+
+  const order = getSortedOrder();
 
   const { deliveryDates, cartItems } = cart;
 
@@ -148,43 +153,44 @@ export default function CartPreview() {
 
   }
 
-  const deliveryDivs = deliveryDates.map((date) => {
+  const deliveryDivs = deliveryDates.map((date, i) => {
 
     const displayDate = formatDate(date);
-
-    for (let i = 0; i < cartItems.length; i++) {
-
-      console.log("cartItems.deliveryDate", cartItems[i]?.deliveryDate, "date", date)
-
+    const previewItems = order[i].map((item, j) => {
       if (cartItems[i]?.deliveryDate === date) {
-
         return (
-          <Box key={`delivery-date-box-${i + 1}`} id={`delivery-date-box-${i + 1}`}
-            display="flex"
-            flexDirection="column"
-            paddingBottom="10px"
-          >
-            <Box
-              display="flex"
-              paddingY="10px"
-              paddingX="15px"
-              sx={{
-                background: theme.palette.info.main,
-                color: "white"
-              }}
-              borderRadius="10px"
-              marginY="10px"
-            >
-              <Typography>For Delivery On {displayDate}:</Typography>
-            </Box>
-            <CartPreviewItem idx={i} cartItem={cartItems[i]!}></CartPreviewItem>
-          </Box>
+          <>
+            <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
+          </>
         );
       };
-    };
+    })
+
+    return (
+      <Box key={`delivery-date-box-${i + 1}`} id={`delivery-date-box-${i + 1}`}
+        display="flex"
+        flexDirection="column"
+        paddingBottom="10px"
+      >
+        <Box
+          display="flex"
+          paddingY="10px"
+          paddingX="15px"
+          sx={{
+            background: theme.palette.info.main,
+            color: "white"
+          }}
+          borderRadius="10px"
+          marginY="10px"
+        >
+          <Typography>For Delivery On {displayDate}:</Typography>
+        </Box>
+        {previewItems}
+      </Box>
+    )
   });
 
-  console.log(deliveryDivs);
+
 
 
   return (

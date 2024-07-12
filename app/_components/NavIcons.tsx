@@ -33,7 +33,7 @@ export function NavIcons(props: NavIconsProps) {
 
   const { userRole } = props;
   const { cart } = useCart() as CartContextType
-  const [cartItemCount, setCartItemCount] = useState<number>(0)
+  const [_cartItemCount, setCartItemCount] = useState<number>(0)
 
 
   useEffect(() => {

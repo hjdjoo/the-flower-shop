@@ -17,8 +17,8 @@ export interface ProductData {
   name: string,
   categories: number[] | null
   description: string,
-  standard_price: number | string | undefined,
-  premium_price: number | string | undefined,
-  deluxe_price: number | string | undefined,
+  standard_price: string
+  premium_price: string
+  deluxe_price: string
   image_url: string,
 }

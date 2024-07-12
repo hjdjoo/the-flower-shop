@@ -19,12 +19,13 @@ export default async function ProductPage({ params }: { params: { productId: num
   const { name, categories, description, standard_price, premium_price, deluxe_price, image_url } = data[0] as DbData;
 
   const productInfo = {
+    productId: productId,
     name: name,
     categories: categories!,
     description: description,
-    standardPrice: Number(standard_price),
-    premiumPrice: Number(premium_price),
-    deluxePrice: Number(deluxe_price),
+    standardPrice: standard_price,
+    premiumPrice: premium_price,
+    deluxePrice: deluxe_price,
     imageUrl: image_url
   }
 

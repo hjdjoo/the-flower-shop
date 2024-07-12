@@ -42,7 +42,6 @@ export function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useUser();
-  const { cart } = useCart() as CartContextType;
   const router = useRouter();
 
   useEffect(() => {

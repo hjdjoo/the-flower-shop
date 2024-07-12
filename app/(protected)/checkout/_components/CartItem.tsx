@@ -11,14 +11,20 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { InputField } from "@/app/_components/styled/InputField";
 
+interface CartItem {
+
+}
+
 const CartItem = (props: any) => {
-  const { product, demoOrder, setDemoOrder, orderIndex, dateIndex } = props;
+
+  const { product, order, setOrder, orderIndex, dateIndex } = props;
+
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [price, setPrice] = useState<number>(product.price);
-  const [recipFirst, setRecipFirst] = useState<string>( product.recipFirst);
-  const [recipLast, setRecipLast] = useState<string>( product.recipLast);
-  const [recipPhone, setRecipPhone] = useState<string>( product.recipPhone);
-  const [cardMessage, setCardMessage] = useState<string>( product.cardMessage);
+  const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
+  const [recipLast, setRecipLast] = useState<string>(product.recipLast);
+  const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
+  const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
   const [streetAddress1, setStreetAddress1] = useState<string>(product.recipAddress.streetAddress1);
   const [streetAddress2, setStreetAddress2] = useState<string>(product.recipAddress.streetAddress2);
@@ -28,7 +34,7 @@ const CartItem = (props: any) => {
 
   const confirmChanges = () => {
     if (toggleEdit) {
-      let updateOrder = structuredClone(demoOrder);
+      let updateOrder = structuredClone(order);
       updateOrder[dateIndex][orderIndex] = {
         ...product,
         price,
@@ -45,10 +51,10 @@ const CartItem = (props: any) => {
         }
       }
 
-      setDemoOrder(updateOrder);
+      setOrder(updateOrder);
       setToggleEdit(false);
-    } 
-    else { 
+    }
+    else {
       setToggleEdit(true);
     }
   }
@@ -70,7 +76,7 @@ const CartItem = (props: any) => {
                 variant="standard"
                 sx={{ ml: 1 }}
                 value={price}
-                onChange={(event : SelectChangeEvent<number>) => {
+                onChange={(event: SelectChangeEvent<number>) => {
                   if (typeof event.target.value === "number") setPrice(event.target.value);
                   else throw new Error("Price is not a number");
                 }}
@@ -82,15 +88,15 @@ const CartItem = (props: any) => {
             </Container>
             <Container className="Address-TextBox-Wrapper">
               <InputField
-                  id="recipient-first-name"
-                  name="recipFirst"
-                  label="First Name"
-                  sx={{
-                    width: '37.5%'
-                  }}
-                  value={recipFirst}
-                  onChange={(event) => setRecipFirst(event.target.value)}
-                />
+                id="recipient-first-name"
+                name="recipFirst"
+                label="First Name"
+                sx={{
+                  width: '37.5%'
+                }}
+                value={recipFirst}
+                onChange={(event) => setRecipFirst(event.target.value)}
+              />
               <InputField
                 id="recipient-last-name"
                 name="recipLast"
@@ -175,52 +181,52 @@ const CartItem = (props: any) => {
             </Container>
           </FormControl>
           : <Container>
-              <Typography component="p" style={{ fontWeight: 500 }}>
-                {`ProductID: ${product.productID} | Price: ${product.price}`}
-                </Typography>
-              <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
-              </Typography>
-              <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Phone Number: ${product.recipPhone}`}
-              </Typography>
-              <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
-              </Typography>
-              <Typography component="p" style={{ fontWeight: 500 }}>
-                {`Note: 
+            <Typography component="p" style={{ fontWeight: 500 }}>
+              {`ProductID: ${product.productID} | Price: ${product.price}`}
+            </Typography>
+            <Typography component="p" style={{ fontWeight: 500 }}>
+              {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
+            </Typography>
+            <Typography component="p" style={{ fontWeight: 500 }}>
+              {`Phone Number: ${product.recipPhone}`}
+            </Typography>
+            <Typography component="p" style={{ fontWeight: 500 }}>
+              {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
+            </Typography>
+            <Typography component="p" style={{ fontWeight: 500 }}>
+              {`Note: 
                   ${product.cardMessage}`
-                }
-              </Typography>
+              }
+            </Typography>
           </Container>
         }
 
-        { toggleEdit
+        {toggleEdit
           ? <Button
-              onClick={() => confirmChanges()}
-              sx={{
-                border: "1px solid",
-                borderColor: "primary.main",
-                mt: 1,
-                ml: 3.5,
-              }}
-            >
-              Confirm
-            </Button>
+            onClick={() => confirmChanges()}
+            sx={{
+              border: "1px solid",
+              borderColor: "primary.main",
+              mt: 1,
+              ml: 3.5,
+            }}
+          >
+            Confirm
+          </Button>
           : <Button
-              onClick={() => {
-                toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
-              }}
-              sx={{
-                border: "1px solid",
-                borderColor: "primary.main",
-                mt: 1,
-                ml: 3
-              }}
-            >
-              Edit
-            </Button>
-          }
+            onClick={() => {
+              toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
+            }}
+            sx={{
+              border: "1px solid",
+              borderColor: "primary.main",
+              mt: 1,
+              ml: 3
+            }}
+          >
+            Edit
+          </Button>
+        }
       </Container>
     </Container>
   )

@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import { TextField } from "@mui/material";
 
 import { ErrorMessage } from "../types/client-types";
+import { SubmitStatus } from "../products/_components/ProductCard";
 
 const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 
@@ -15,12 +16,12 @@ interface ZipCheckerProps {
   zipCode: string
   setDeliveryZipAlert: Dispatch<SetStateAction<ErrorMessage>>
   setDeliveryFee: Dispatch<SetStateAction<string>>
-  setReadyToSubmit: Dispatch<SetStateAction<boolean>>
+  setSubmitStatus: Dispatch<SetStateAction<SubmitStatus>>
 }
 
 export default function ZipCheckerButton(props: ZipCheckerProps) {
 
-  const { zipCode, setDeliveryZipAlert, setDeliveryFee, setReadyToSubmit } = props;
+  const { zipCode, setDeliveryZipAlert, setDeliveryFee, setSubmitStatus } = props;
 
   const routesLib = useMapsLibrary("routes");
 
@@ -48,7 +49,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
 
       const { routes } = await directions.route(routeRequest)
 
-      console.log("checkDeliveryArea/routes: ", routes)
+      // console.log("checkDeliveryArea/routes: ", routes)
       if (!routes.length) { throw new Error("Couldn't compute routes") }
 
       routes[0].legs.forEach(leg => {
@@ -63,7 +64,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         throw new Error("This may be outside of our delivery zone.")
       }
 
-      console.log(miles, time);
+      // console.log(miles, time);
 
       if (zipCode?.toString() === "07450") {
         setDeliveryZipAlert({
@@ -90,7 +91,6 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         severity: "success",
         message: "Looks good!",
       });
-      setReadyToSubmit(true);
     }
     catch (error) {
       console.error(error);
@@ -98,7 +98,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         severity: "error",
         message: `${error}`
       });
-      setReadyToSubmit(false);
+      setSubmitStatus("error");
     }
   }
 
@@ -118,7 +118,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
             severity: "error",
             message: "Please input a zip code!"
           })
-          setReadyToSubmit(false);
+          setSubmitStatus("incomplete");
         } else {
           await checkDeliveryArea(zipCode.toString());
         }

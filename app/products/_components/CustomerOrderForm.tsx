@@ -22,13 +22,15 @@ import { ErrorMessage } from "@/app/types/client-types";
 
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
 
+import { SubmitStatus } from "./ProductCard";
+
 
 interface CustomerOrderFormProps {
   deliveryDate: string
   orderItem: OrderItem
   setDeliveryDate: Dispatch<SetStateAction<string>>
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
-  setReadyToSubmit: Dispatch<SetStateAction<boolean>>
+  setSubmitStatus: Dispatch<SetStateAction<SubmitStatus>>
 }
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
@@ -38,7 +40,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   const theme = useTheme();
 
-  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setReadyToSubmit } = props;
+  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setSubmitStatus } = props;
 
   /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
@@ -79,7 +81,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-
     const updatedOrder = orderItem;
     const updatedAddress = { ...orderItem.recipAddress, [name]: value };
     updatedOrder.recipAddress = updatedAddress;
@@ -118,13 +119,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: "Please enter a valid ZIP"
       })
-      setReadyToSubmit(false)
+      setSubmitStatus("error")
     } else {
       setDeliveryZipAlert({
         severity: undefined,
         message: ""
       })
-      setReadyToSubmit(true)
+      setSubmitStatus("incomplete")
     };
   }
 
@@ -136,7 +137,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: `${value.length}/250 - too long!`
       });
-      setReadyToSubmit(false);
+      setSubmitStatus("error");
       return;
     }
 
@@ -144,7 +145,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
       severity: undefined,
       message: `${value.length}/250`
     })
-    setReadyToSubmit(true);
+    setSubmitStatus("error");
 
   }
 
@@ -261,7 +262,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 zipCode={orderItem.recipAddress.zip}
                 setDeliveryZipAlert={setDeliveryZipAlert}
                 setDeliveryFee={setDeliveryFee}
-                setReadyToSubmit={setReadyToSubmit}
+                setSubmitStatus={setSubmitStatus}
               />
             </Box>
             <Box

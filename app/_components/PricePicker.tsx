@@ -1,34 +1,44 @@
-import { useState, Dispatch, SetStateAction, ChangeEvent } from "react";
+import { useState, useEffect, Dispatch, SetStateAction, ChangeEvent } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 
-import { OrderFormData, OrderItem, CartItem } from "../types/component-types/OrderFormData";
+import { OrderFormData, OrderItem } from "../types/component-types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {
   // prices: Array<number | string | undefined>
-  productInfo: { id: number, description: string, prices: Array<number | undefined> }
+  productInfo: { id: number, description: string, prices: Array<string> }
   orderItem: OrderItem
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
+  submitStatus: string | undefined
 }
 
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { productInfo, orderItem, setOrderItem } = props;
+  const { productInfo, orderItem, setOrderItem, submitStatus } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
   const priceTiers = ["Standard", "Premium", "Deluxe"]
 
-  const handlePrice = (price: number, idx: number) => {
+  useEffect(() => {
+
+    if (submitStatus === "submitted") {
+      setSelectedPrice(undefined);
+    }
+
+  }, [submitStatus])
+
+
+  const handlePrice = (price: string, idx: number) => {
     setSelectedPrice(idx);
 
     const updatedOrderInfo = { ...orderItem };
 
-    updatedOrderInfo.price = price.toString();
+    updatedOrderInfo.price = price;
 
     setOrderItem({ ...updatedOrderInfo })
   }
@@ -40,7 +50,7 @@ export default function PricePicker(props: PricePickerProps) {
         variant={selectedPrice === idx ? "contained" : "outlined"}
         key={`price-button-${idx + 1}`}
         id={`price-button-`}
-        onClick={() => handlePrice(price!, idx)}
+        onClick={() => handlePrice(price, idx)}
         aria-label={`Select ${priceTiers[idx]}`}
         sx={{
           width: "25%"

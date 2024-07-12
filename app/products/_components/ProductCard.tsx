@@ -22,6 +22,7 @@ import CustomerOrderForm from "./CustomerOrderForm";
 import PricePicker from "@/app/_components/PricePicker";
 import { OrderItemForm as defaultOrderForm } from "@/app/_components/lib/OrderForm";
 
+
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
@@ -37,12 +38,14 @@ interface ProductCardProps {
   productId: number
 }
 
+export type SubmitStatus = "incomplete" | "error" | "ready" | "submitting" | "submitted" | undefined
+
 export default function ProductCard(props: ProductCardProps) {
 
   /* hooks */
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-  const { cart, updateCart } = useCart() as CartContextType;
+  const { cart, addToCart } = useCart() as CartContextType;
 
   /* prop destructuring */
   const { productId } = props
@@ -51,11 +54,12 @@ export default function ProductCard(props: ProductCardProps) {
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
-  const orderForm = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId.toString(), deliveryDate: deliveryDate, imageUrl: imageUrl, name: name })
+  /* Object reassignment to get default order for page;  */
+  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name })
 
-  const [orderItem, setOrderItem] = useState<OrderItem>(orderForm)
+  const [orderItem, setOrderItem] = useState<OrderItem>(baseOrderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
-  const [readyToSubmit, setReadyToSubmit] = useState<boolean>(true);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("incomplete");
 
   useEffect(() => {
     (async () => {
@@ -68,25 +72,29 @@ export default function ProductCard(props: ProductCardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // useEffect(() => {
+
+  // }, [orderItem])
+
 
   const handleAddToCart = async () => {
     console.log("Order Info: ", orderItem);
     if (!deliveryDate) {
+      // have customer select a delivery date
+      // insert error logic here...
       console.log("You gotta pick a delivery date");
       return;
     }
     if (!orderItem.price) {
       // have customer select a price first
-      // insert logic here....
+      // insert error logic here...
       console.log("You gotta pick a price")
       return;
     }
-    const currCart = cart;
-
-    currCart.deliveryDates.push(deliveryDate);
-    currCart.cartItems.push(orderItem);
-
-    updateCart({ ...currCart })
+    else {
+      addToCart(deliveryDate, orderItem);
+      setOrderItem({ ...baseOrderForm });
+    }
   }
 
 
@@ -145,8 +153,7 @@ export default function ProductCard(props: ProductCardProps) {
           paddingX: "25px"
         }}>
         <Grid xs={12} sm={6} id="product-display-grid-area" >
-          <Box
-            id="product-display-box"
+          <Box id="product-display-box"
             paddingX="15px"
             marginBottom="25px"
             sx={{
@@ -154,8 +161,7 @@ export default function ProductCard(props: ProductCardProps) {
               flexDirection: "column"
             }}
           >
-            <Box
-              id="product-name-box"
+            <Box id="product-name-box"
               height={"75px"}
               sx={{
                 display: "flex",
@@ -164,13 +170,11 @@ export default function ProductCard(props: ProductCardProps) {
                 marginBottom: "15px"
               }}
             >
-              <Typography
-                id="product-name"
+              <Typography id="product-name"
                 fontSize="1.2rem"
               >{name}</Typography>
             </Box>
-            <Box
-              id="product-image-box"
+            <Box id="product-image-box"
               width={"100%"}
               height={"500px"}
               position={"relative"}
@@ -180,8 +184,7 @@ export default function ProductCard(props: ProductCardProps) {
                 marginBottom: "5px"
               }}
             >
-              <Image
-                id="product-image"
+              <Image id="product-image"
                 loader={imageLoader}
                 src={imageUrl}
                 alt="Product-image"
@@ -192,15 +195,13 @@ export default function ProductCard(props: ProductCardProps) {
                 priority
               />
             </Box>
-            <Typography
-              id="product-description"
+            <Typography id="product-description"
               marginTop="5px"
               marginBottom="15px"
             >
               {description}
             </Typography>
-            <Typography
-              id="product-description"
+            <Typography id="product-price-header"
               marginTop="5px"
               marginBottom="10px"
 
@@ -214,6 +215,7 @@ export default function ProductCard(props: ProductCardProps) {
                 prices: [standardPrice, premiumPrice, deluxePrice]
               }}
               orderItem={orderItem}
+              submitStatus={submitStatus}
               setOrderItem={setOrderItem} />
           </Box>
         </Grid>
@@ -230,7 +232,7 @@ export default function ProductCard(props: ProductCardProps) {
               setDeliveryDate={setDeliveryDate}
               orderItem={orderItem}
               setOrderItem={setOrderItem}
-              setReadyToSubmit={setReadyToSubmit}
+              setSubmitStatus={setSubmitStatus}
             />
             <Box
               id="cart-button-box"
@@ -241,7 +243,7 @@ export default function ProductCard(props: ProductCardProps) {
             >
               <Button
                 id="add-to-cart-button"
-                disabled={!readyToSubmit}
+                disabled={submitStatus === "incomplete" || submitStatus === "error"}
                 variant="contained"
                 sx={{
                   marginTop: "15px"
@@ -255,7 +257,34 @@ export default function ProductCard(props: ProductCardProps) {
               <Typography
                 fontSize={"0.8rem"}
                 marginTop="3px"
-              >You can update your order at any time.</Typography>
+              >You can update your order during checkout.</Typography>
+            </Box>
+            <Box id="add-to-cart-checklist"
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-end"
+            >
+              <Typography id="delivery-date-check"
+                sx={{
+                  marginY: "5px"
+                }}
+              >
+                Delivery date selected { }
+              </Typography>
+              <Typography id="valid-zip-check"
+                sx={{
+                  marginY: "5px"
+                }}
+              >
+                Zip code valid
+              </Typography>
+              <Typography id="price-tier-check"
+                sx={{
+                  marginY: "5px"
+                }}
+              >
+                Price tier selected
+              </Typography>
             </Box>
             {!!cart.deliveryDates.length &&
               <>

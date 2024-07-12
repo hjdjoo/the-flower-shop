@@ -7,7 +7,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Dates, Addresses, Order } from '../../types/component-types/OrderFormData'
+import { Dates, Addresses, SortedOrder } from '../../types/component-types/OrderFormData'
 import CartItem from "./_components/CartItem";
 import { CartContextType } from "@/lib/contexts/CartContext";
 
@@ -16,21 +16,17 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 export default function Checkout() {
 
-  const { cart, updateCart } = useCart() as CartContextType;
+  const { cart, setCart, getSortedOrder } = useCart() as CartContextType;
 
   // const datesFromCart = cart.deliveryDates;
-  const cartItems = cart.cartItems;
+  // const cartItems = cart.cartItems;
 
   const [deliveryDates, setDeliveryDates] = useState<Dates>(cart.deliveryDates);
 
+  const order = getSortedOrder();
+  const setOrder = (newOrder: SortedOrder) => {
 
-  const addresses = cartItems.map((item, idx) => {
-
-
-
-  })
-
-
+  }
   // const [demoAddress, setDemoAddress] = useState<Addresses>([
   //   {
   //     streetAddress1: '71 Tennyson Drive',
@@ -107,9 +103,9 @@ export default function Checkout() {
           </AccordionSummary>
           <AccordionDetails>
             <Container className="Description-Root">
-              {demoOrder[dateIndex].map((product, orderIndex) =>
+              {order[dateIndex].map((product, orderIndex) =>
                 <Container className="CartItem-Root" key={orderIndex}>
-                  <CartItem product={product} demoOrder={demoOrder} setDemoOrder={setDemoOrder} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
+                  <CartItem product={product} order={order} setorder={setOrder} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
                 </Container>
               )}
             </Container>
