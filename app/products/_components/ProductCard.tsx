@@ -27,7 +27,7 @@ import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
 
 import { ProductData } from "@/app/types/client-types";
-import { OrderFormData, OrderItem, Address } from "@/app/_components/types/OrderFormData";
+import { OrderFormData, OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 
 
 // import { useCart } from "@/lib/contexts/CartContext";

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
-import { Cart } from "../../app/_components/types/OrderFormData"
+import { Cart } from "../../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 
 interface CartProviderProps {

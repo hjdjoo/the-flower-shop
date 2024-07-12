@@ -17,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { InputField } from "./styled/InputField";
 
 /***** types *****/
-import { OrderFormData } from "./types/OrderFormData";
+import { OrderFormData } from "../types/component-types/OrderFormData";
 import type { ChangeEvent, ChangeEventHandler, SetStateAction, SyntheticEvent } from "react";
 import type { Dispatch } from "react";
 

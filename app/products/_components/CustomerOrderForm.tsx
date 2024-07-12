@@ -17,7 +17,7 @@ import RecipientInfo from "@/app/_components/RecipientInfo";
 import ZipCheckerButton from "@/app/_components/ZipChecker";
 import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
-import { OrderItem, Address } from "@/app/_components/types/OrderFormData";
+import { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";

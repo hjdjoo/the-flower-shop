@@ -12,19 +12,11 @@ import { imageLoader } from "@/lib/imageLoader";
 
 import { useCart, CartContextType } from "@/lib/contexts/CartContext";
 
-import { OrderItem } from "./types/OrderFormData";
+import { OrderItem } from "../types/component-types/OrderFormData";
 
 
 /** Expected cart shape:
- * [
- *  
- * ]
- * 
- * Create a hashmap of dates.
- * {date: idx};
- * 
- * Create a hashmap of addresses at the idx of the date.
- * [..., {address: idx}];
+ * OrderItems[][];
  * 
  * Create a nested array "orderItems" representing the date idx and the address idx for each date to hold orderItem. OrderItem contains productId, price, etc.
  * [[orderItem], [orderItem2, orderItem3]]
@@ -45,12 +37,12 @@ import { OrderItem } from "./types/OrderFormData";
  * 
  */
 
-interface CartItemProps {
+interface CartPreviewItemProps {
   idx: number,
   cartItem: OrderItem
 }
 
-const CartItem = (props: CartItemProps) => {
+const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const { name, imageUrl, price, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
   const { idx } = props;
@@ -150,6 +142,7 @@ export default function CartPreview() {
     // [mm, dd, yyyy]
 
     const normalDate = splitDate.join("/");
+    // mm/dd/yyyy
 
     return `${days[day]} ${normalDate}`
 
@@ -184,7 +177,7 @@ export default function CartPreview() {
             >
               <Typography>For Delivery On {displayDate}:</Typography>
             </Box>
-            <CartItem idx={i} cartItem={cartItems[i]!}></CartItem>
+            <CartPreviewItem idx={i} cartItem={cartItems[i]!}></CartPreviewItem>
           </Box>
         );
       };

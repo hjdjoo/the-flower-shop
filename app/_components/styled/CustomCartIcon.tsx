@@ -4,7 +4,7 @@ import { SxProps } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { Cart } from '../types/OrderFormData';
+import { Cart } from '../../types/component-types/OrderFormData';
 
 const CustomCartIconRoot = styled(Box, {
   name: "CustomCartIcon",

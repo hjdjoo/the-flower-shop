@@ -12,7 +12,7 @@ import FavIcon from "../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
 import { Roboto } from "next/font/google";
 import { Alert, FormControl } from "@mui/material";
 
-import { AuthFormData } from "./types/AuthFormData";
+import { AuthFormData } from "../types/component-types/AuthFormData";
 import { ErrorMessage } from "../types/client-types";
 
 const roboto = Roboto({
@@ -60,9 +60,10 @@ export default function AuthForm() {
   return (
 
     <FormControl
-      sx={{ p: 2, 
+      sx={{
+        p: 2,
         border: '1px solid grey.800',
-        borderRadius: "15px", 
+        borderRadius: "15px",
         boxShadow: 4,
         display: "flex",
         flexDirection: "column",
@@ -72,37 +73,38 @@ export default function AuthForm() {
         alignItems: "center"
       }}
     >
-      <Image alt="Logo" src={FavIcon} width="128" height="128"  style={{paddingBottom: 25}}/>
+      <Image alt="Logo" src={FavIcon} width="128" height="128" style={{ paddingBottom: 25 }} />
       <InputField
-          id="email"
-          label="Email"
-          name="email"
-          onChange={handleFormData}
-          value={formData.email}
-          size="small"
-          sx={{
-            width: "80%"
-          }}
-        />
-        <InputField
-          id="password"
-          label="Password"
-          name="password"
-          type="password"
-          onChange={handleFormData}
-          value={formData.password}
-          size="small"
-          sx={{
-            width: "80%"
-          }}
-        />
+        id="email"
+        label="Email"
+        name="email"
+        onChange={handleFormData}
+        value={formData.email}
+        size="small"
+        sx={{
+          width: "80%"
+        }}
+      />
+      <InputField
+        id="password"
+        label="Password"
+        name="password"
+        type="password"
+        onChange={handleFormData}
+        value={formData.password}
+        size="small"
+        sx={{
+          width: "80%"
+        }}
+      />
 
       <Box
-      sx={{ p: 1,
-        display: "flex",
-        width: "80%",
-        justifyContent: "space-between",
-      }}
+        sx={{
+          p: 1,
+          display: "flex",
+          width: "80%",
+          justifyContent: "space-between",
+        }}
       >
         <Button onClick={() => handleClick(true)}
           sx={{
@@ -116,7 +118,7 @@ export default function AuthForm() {
         >
           Log in
         </Button>
-        
+
         <Button onClick={() => handleClick(false)}
           sx={{
             border: "1px solid",
@@ -129,16 +131,16 @@ export default function AuthForm() {
       </Box>
 
       {LoginError.severity && <Alert
-          severity={LoginError.severity}
-          sx={{
-            marginY: "10px",
-          }}
-        >
-          {LoginError.message}
-        </Alert>}
+        severity={LoginError.severity}
+        sx={{
+          marginY: "10px",
+        }}
+      >
+        {LoginError.message}
+      </Alert>}
 
       <div className={roboto.className}
-      style={{padding: 3}}
+        style={{ padding: 3 }}
       >
         <button className="gsi-material-button" onClick={() => supabase.auth.signInWithOAuth({
           provider: "google",

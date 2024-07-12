@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 /***** custom components *****/
 import { InputField } from "./styled/InputField";
 /***** types *****/
-import { OrderItem } from "./types/OrderFormData";
+import { OrderItem } from "../types/component-types/OrderFormData";
 import { ChangeEvent } from "react";
 import type { ChangeEventHandler } from "react";
 

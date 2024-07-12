@@ -16,6 +16,7 @@ export interface Address {
   streetAddress1: string,
   streetAddress2: string,
   townCity: string,
+  state: string,
   zip: string,
 }
 
@@ -23,7 +24,7 @@ export type Addresses = Address[];
 
 
 export interface OrderItem {
-  productId: string,
+  productId: number,
   imageUrl: string,
   name: string,
   price: string,

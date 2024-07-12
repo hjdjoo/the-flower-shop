@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 
-import { OrderFormData, OrderItem, CartItem } from "./types/OrderFormData";
+import { OrderFormData, OrderItem, CartItem } from "../types/component-types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {

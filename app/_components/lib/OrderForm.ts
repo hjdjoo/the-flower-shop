@@ -1,4 +1,4 @@
-import type { OrderFormData, OrderItem, Address } from "../types/OrderFormData"
+import type { OrderFormData, OrderItem, Address } from "../../types/component-types/OrderFormData"
 
 
 export const address = {
