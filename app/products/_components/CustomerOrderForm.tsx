@@ -61,7 +61,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
 
   useEffect(() => {
-    console.log("CustOrderForm/useEffect/deliveryDate: ", orderItem.deliveryDate);
+    // console.log("CustOrderForm/useEffect/deliveryDate: ", orderItem.deliveryDate);
     if (!deliveryDate.length) {
       setDeliveryDateValid(false);
     }

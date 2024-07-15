@@ -16,77 +16,18 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 export default function Checkout() {
 
-  const { cart, setCart, getSortedOrder } = useCart() as CartContextType;
-
-  // const datesFromCart = cart.deliveryDates;
-  // const cartItems = cart.cartItems;
+  const { cart, getSortedOrder } = useCart() as CartContextType;
 
   const [deliveryDates, setDeliveryDates] = useState<Dates>(cart.deliveryDates);
 
   const order = getSortedOrder();
 
-  // const [demoAddress, setDemoAddress] = useState<Addresses>([
-  //   {
-  //     streetAddress1: '71 Tennyson Drive',
-  //     streetAddress2: '',
-  //     townCity: 'Nanuet',
-  //     state: 'NY',
-  //     zip: '10954',
-  //   },
-  //   {
-  //     streetAddress1: '624 Cambridge Street',
-  //     streetAddress2: '',
-  //     townCity: 'Allston',
-  //     state: 'MA',
-  //     zip: '02134',
-  //   }
-  // ]);
 
-  // const [demoOrder, setDemoOrder] = useState<Order>([
-  //   [
-  //     {
-  //       productId: 1,
-  //       price: "115",
-  //       cardMessage: "Happy Birthday Mom",
-  //       recipFirst: "Jenny",
-  //       recipLast: "Cho",
-  //       recipAddress: demoAddress[0],
-  //       recipPhone: "8452834700",
-  //       deliveryFee: "25.00",
-  //       deliveryInstructions: '',
-  //     },
-  //     {
-  //       productId: 2,
-  //       price: "100",
-  //       cardMessage: '',
-  //       recipFirst: "Jenny",
-  //       recipLast: "Cho",
-  //       recipAddress: demoAddress[0],
-  //       recipPhone: "8452834700",
-  //       deliveryFee: "0.00",
-  //       deliveryInstructions: '',
-  //     }
-  //   ],
-  //   [
-  //     {
-  //       productId: 3,
-  //       price: "100",
-  //       cardMessage: "Merry Christmas",
-  //       recipFirst: "Edwyn",
-  //       recipLast: "Song",
-  //       recipAddress: demoAddress[1],
-  //       recipPhone: "1234567890",
-  //       deliveryFee: "25.00",
-  //       deliveryInstructions: '',
-  //     }
-  //   ]
-  // ]);
 
   return (
     <Container
       sx={{
         marginTop: "80px",
-        // border: "solid blue 1px"
       }}
     >
       <Typography component='h1' sx={{ fontSize: 32, fontWeight: 500 }}>Cart</Typography>

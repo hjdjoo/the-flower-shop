@@ -28,9 +28,13 @@ interface CartProviderProps {
  * 
  */
 
+interface LocalCart extends Cart {
+  updatedAt: number
+}
+
 export interface CartContextType {
   cart: Cart
-  setCart: (cart: Cart) => void // 
+  updateCart: (cart: Cart) => void // 
   addToCart: (deliveryDate: string, item: OrderItem) => void
   getSortedOrder: () => SortedOrder
 }
@@ -48,32 +52,26 @@ export const useCart = () => {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
   const storedCartJSON = localStorage.getItem("cart");
-  const storedCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
+  const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
-  console.log("CartContext/CartProvider/storedCart: ", storedCart);
+  const storedCartAge = storedCart ? (Date.now() - storedCart.updatedAt) / 3600 : null;
+
+  console.log(storedCartAge);
+
   const [cart, setCart] = useState<Cart>(storedCart ? storedCart : defaultCart);
 
-  /**
-   * 
-   * @param item OrderItem - whatever the customer is ordering at that moment.
-   * For marginal efficiency improvements, add items to cart in sorted order.
-   */
   const addToCart = (deliveryDate: string, item: OrderItem) => {
-    // take current cart;
+
     const { deliveryDates, cartItems } = cart;
-    // take the delivery date from the item being added;
 
     const newDeliveryDates: Dates = [...deliveryDates];
     const newCartItems: Array<OrderItem> = [...cartItems];
 
-    // see if this delivery date exists in the deliveryDates array;
-    // if not, add item to cartItems and add deliveryDate to deliveryDate;
     if (!deliveryDates.includes(deliveryDate)) {
       newDeliveryDates.push(deliveryDate);
       newDeliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
     }
 
-    // otherwise, add to cartItems array without adding delivery date;
     newCartItems.push(item);
     newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
 
@@ -82,7 +80,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       cartItems: newCartItems
     }
 
-    setCart({ ...newCart });
+    setCart({ ...newCart })
+
+    const localCart = { ...newCart } as LocalCart;
+    localCart.updatedAt = Date.now()
     localStorage.setItem("cart", JSON.stringify(newCart))
 
   }
@@ -111,9 +112,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     return order;
   }
 
+  const updateCart = (newCart: Cart) => {
+
+    localStorage.setItem("cart", JSON.stringify(newCart));
+    setCart({ ...newCart })
+
+  }
+
 
   return (
-    <CartContext.Provider value={{ cart, setCart, addToCart, getSortedOrder }}>{children}</CartContext.Provider>
+    <CartContext.Provider value={{ cart, updateCart, addToCart, getSortedOrder }}>{children}</CartContext.Provider>
   )
 
 }

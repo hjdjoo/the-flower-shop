@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
 import { imageLoader } from "@/lib/imageLoader";
 
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -26,11 +25,10 @@ import { OrderItemForm as defaultOrderForm } from "@/app/_components/lib/OrderFo
 
 
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
-import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 import { getCategoryNames } from "@/utils/supabase/clientActions/getCategoryNames";
 
 import { ProductData } from "@/app/types/client-types";
-import { OrderFormData, OrderItem, Address } from "@/app/types/component-types/OrderFormData";
+import { OrderItem } from "@/app/types/component-types/OrderFormData";
 
 
 

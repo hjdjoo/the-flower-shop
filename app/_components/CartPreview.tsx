@@ -12,15 +12,17 @@ import { imageLoader } from "@/lib/imageLoader";
 
 import { useCart, CartContextType } from "@/lib/contexts/CartContext";
 
-import { OrderItem } from "../types/component-types/OrderFormData";
+import calculateTax from "@/utils/actions/calculateTax";
+import formatDate from "@/utils/actions/formatDate";
+import getDayOfWeek from "@/utils/actions/getDayOfWeek";
+
+import type { OrderItem } from "../types/component-types/OrderFormData";
+
 
 
 /** Current cart shape:
  * 
- * impo
- * 
- * Cart.getSortedOrder() returns an array of arrays.
- * 
+ * Cart.getSortedOrder() returns orders sorted into nested array by delivery date.
  * 
  */
 
@@ -36,11 +38,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const tax100 = Math.floor((parseFloat(price) + parseFloat(deliveryFee)) * .0625 * 100).toFixed(2)
-
-  const tax = parseInt(tax100) / 100
-
-  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toString();
+  const { tax, total } = calculateTax(price, deliveryFee)
 
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}
@@ -119,36 +117,18 @@ export default function CartPreview() {
 
   const order = getSortedOrder();
 
-  const { deliveryDates, cartItems } = cart;
+  const { deliveryDates } = cart;
 
-  const formatDate = (date: string): string => {
-    // date: yyyy-mm-dd
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
-    const day = new Date(date).getDay();
-
-    const splitDate = date.split("-");
-    // [yyyy, mm, dd]
-
-    [splitDate[0], splitDate[1], splitDate[2]] = [splitDate[1], splitDate[2], splitDate[0]];
-    // [mm, dd, yyyy]
-
-    const normalDate = splitDate.join("/");
-    // mm/dd/yyyy
-
-    return `${days[day]} ${normalDate}`
-
-  }
   // go thru delivery dates;
   const deliveryDivs = deliveryDates.map((date, i) => {
-    console.log("deliveryDates.map/date, i: ", date, i)
+
+    const displayDay = getDayOfWeek(date);
     const displayDate = formatDate(date);
 
     const previewItems = order[i].map((item, j) => {
 
-      console.log("orders[i].map/items/", cartItems[i].deliveryDate, date)
       if (item.deliveryDate === date) {
-        console.log(item.deliveryDate, date)
+
         return (
           <div key={`${date}-item-${j + 1}`}>
             <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
@@ -174,7 +154,7 @@ export default function CartPreview() {
           borderRadius="10px"
           marginY="10px"
         >
-          <Typography>For Delivery On {displayDate}:</Typography>
+          <Typography>For Delivery On {`${displayDay} ${displayDate}`}:</Typography>
         </Box>
         {previewItems}
       </Box>

@@ -9,6 +9,8 @@ import { TextField } from "@mui/material";
 
 import { ErrorMessage } from "../types/client-types";
 
+import calculateDelivery from "@/utils/actions/calculateDelivery";
+
 const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 
 interface ZipCheckerProps {
@@ -56,12 +58,16 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         drivingDistance += leg.distance ? leg.distance.value : 0;
       })
 
+      const deliveryFee = calculateDelivery(drivingDistance, drivingTime)
+
+      console.log("deliveryFee from check: ", deliveryFee)
+
       const miles = drivingDistance / 1609;
-      const time = drivingTime / (60);
+      const time = drivingTime / 60;
 
       if (miles > 12 || time > 18) {
         setZipValid(false);
-        throw new Error("This may be outside of our delivery zone. Please call the shop for assistance.");
+        throw new Error("This may be outside of our typical delivery zone. Please call the shop for assistance.");
       }
 
       if (zipCode?.toString() === "07450") {
@@ -70,21 +76,9 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
           message: "Looks good!",
         })
       }
-      if (miles > 2 || time > 4) {
-        setDeliveryFee("9.95");
-      };
-      if (miles > 4 || time > 7) {
-        setDeliveryFee("10.95");
-      };
-      if (miles > 6 || time > 10) {
-        setDeliveryFee("11.95");
-      };
-      if (miles > 8 || time > 13) {
-        setDeliveryFee("12.95")
-      };
-      if (miles > 10 || time > 16) {
-        setDeliveryFee("13.95")
-      };
+
+      setDeliveryFee(deliveryFee);
+
       setDeliveryZipAlert({
         severity: "success",
         message: "Looks good!",

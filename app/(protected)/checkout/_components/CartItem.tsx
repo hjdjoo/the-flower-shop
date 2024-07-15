@@ -1,19 +1,24 @@
 "use client"
 
+import { useState } from "react";
+import Image from 'next/image';
+
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
-import Button from '@mui/material/Button';
-import Image from 'next/image';
-import FavIcon from "../../../../assets/TheFlowerShop_Icons/TheFlowerShop512x512.ico"
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
+import Button from '@mui/material/Button';
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+
 import { InputField } from "@/app/_components/styled/InputField";
 
-import { OrderItem } from "@/app/types/component-types/OrderFormData";
 import { useCart } from "@/lib/contexts/CartContext";
-import { CartContextType } from "@/lib/contexts/CartContext";
+import { imageLoader } from "@/lib/imageLoader";
+
+import type { CartContextType } from "@/lib/contexts/CartContext";
+import type { OrderItem } from "@/app/types/component-types/OrderFormData";
+
+
 
 interface CartItem {
   product: OrderItem,
@@ -25,8 +30,7 @@ const CartItem = (props: CartItem) => {
 
   const { product, orderIndex, dateIndex } = props;
 
-  const { cart, setCart, getSortedOrder } = useCart() as CartContextType;
-
+  const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
   const order = getSortedOrder();
 
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
@@ -43,7 +47,7 @@ const CartItem = (props: CartItem) => {
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
 
   const confirmChanges = () => {
-    // simply update item in cart; let cart algorithm take care of sorting.
+
     if (toggleEdit) {
 
       let updateOrder = structuredClone(order);
@@ -63,20 +67,35 @@ const CartItem = (props: CartItem) => {
         }
       }
 
+      // to update the cart, just flatten out the order into a 1-D array and use generic set.
       const newCartItems = updateOrder.flat();
 
-      setCart({ ...cart, cartItems: newCartItems });
+      updateCart({ ...cart, cartItems: newCartItems });
+      setToggleEdit(false);
 
-      // setOrder(updateOrder);
-      // setToggleEdit(false);
     }
     else {
       setToggleEdit(true);
     }
   }
 
-  const prices = product
+  // Wrote this without testing... Should work but haven't hooked it up.
+  const removeItem = () => {
 
+    let updateOrder = structuredClone(order);
+    // remove item from array;
+    updateOrder[dateIndex].splice(orderIndex, 1);
+    // flatten;
+    const newCartItems = updateOrder.flat();
+
+    updateCart({ ...cart, cartItems: newCartItems });
+
+  }
+
+  const prices = product.priceTiers;
+
+
+  // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
     <Container
       className="mapped"
@@ -84,7 +103,7 @@ const CartItem = (props: CartItem) => {
         display: 'flex',
       }}
     >
-      <Image alt="Logo" src={FavIcon} width="128" height="128" style={{ paddingBottom: 25 }} />
+      <Image alt="Logo" src={product.imageUrl} loader={imageLoader} width="128" height="128" style={{ paddingBottom: 25 }} />
       <Container>
         {toggleEdit
           ? <FormControl>
@@ -99,9 +118,9 @@ const CartItem = (props: CartItem) => {
                   // throw new Error("Price is not a number");
                 }}
               >
-                <MenuItem value={100}>$100</MenuItem>
-                <MenuItem value={115}>$115</MenuItem>
-                <MenuItem value={130}>$130</MenuItem>
+                <MenuItem value={prices.standardPrice}>{`$${prices.standardPrice}`}</MenuItem>
+                <MenuItem value={prices.premiumPrice}>{`$${prices.premiumPrice}`}</MenuItem>
+                <MenuItem value={prices.deluxePrice}>{`$${prices.deluxePrice}`}</MenuItem>
               </Select>
             </Container>
             <Container className="Address-TextBox-Wrapper">
@@ -209,7 +228,7 @@ const CartItem = (props: CartItem) => {
               {`Phone Number: ${product.recipPhone}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
-              {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
+              {`Address: ${product.recipAddress.streetAddress1 ? `${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state}` : ""} ${product.recipAddress.zip}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
               {`Note: 
