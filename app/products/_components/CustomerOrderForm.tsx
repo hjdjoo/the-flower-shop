@@ -12,17 +12,16 @@ import Button from "@mui/material/Button";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-// import { TextField } from "@/app/_components/styled/TextField";
 import RecipientInfo from "@/app/_components/RecipientInfo";
 import ZipCheckerButton from "@/app/_components/ZipChecker";
 import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
-import { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
 
-import { SubmitStatus } from "./ProductCard";
+import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
+import type { SubmitStatus } from "./ProductCard";
 
 
 interface CustomerOrderFormProps {

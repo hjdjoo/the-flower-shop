@@ -1,7 +1,7 @@
 
 import Image from "next/image";
 
-import { useContext } from "react";
+// import { useContext } from "react";
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
@@ -15,25 +15,12 @@ import { useCart, CartContextType } from "@/lib/contexts/CartContext";
 import { OrderItem } from "../types/component-types/OrderFormData";
 
 
-/** Expected cart shape:
- * OrderItems[][];
+/** Current cart shape:
  * 
- * Create a nested array "orderItems" representing the date idx and the address idx for each date to hold orderItem. OrderItem contains productId, price, etc.
- * [[orderItem], [orderItem2, orderItem3]]
- * orderItems[0][0] should refer to item to be delivered on the first-inputted date to the first address that was inputted.
- * in this case, orderItem3 refers to the 2nd item that was ordered to be delivered on a different date to a particular address.
+ * impo
  * 
- * Adding a delivery date would add a new index.
+ * Cart.getSortedOrder() returns an array of arrays.
  * 
- * This should initialize a new kv pair for the addresses hash map
- * 
- * And the orderItem would be added to the array at [1][0].
- * 
- * 
- * Adding an order item that has the same delivery date and delivery address:
- * Finds idx of date;
- * uses date idx to check if address exists;
- * if so, add order to orderItems[dIdx][aIdx]
  * 
  */
 
@@ -152,17 +139,16 @@ export default function CartPreview() {
     return `${days[day]} ${normalDate}`
 
   }
-
+  // go thru delivery dates;
   const deliveryDivs = deliveryDates.map((date, i) => {
-
+    console.log("deliveryDates.map/date, i: ", date, i)
     const displayDate = formatDate(date);
 
     const previewItems = order[i].map((item, j) => {
 
-      console.log(cartItems[i].deliveryDate, date)
-      if (cartItems[i]?.deliveryDate === date) {
-
-        console.log(cartItems[i].deliveryDate, date)
+      console.log("orders[i].map/items/", cartItems[i].deliveryDate, date)
+      if (item.deliveryDate === date) {
+        console.log(item.deliveryDate, date)
         return (
           <div key={`${date}-item-${j + 1}`}>
             <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>

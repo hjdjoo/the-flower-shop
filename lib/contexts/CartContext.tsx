@@ -8,10 +8,24 @@ interface CartProviderProps {
   children: React.ReactNode
 }
 
+
 /**
- * In order to make the Cart more organized/performant:
- * deliveryDates is a sorted array in ascending order.
- * cartItems are also inserted into the array in ascending order.
+ * 
+ * To access cart, import useCart and CartContextType into module, then typecast as CartContextType, like so:
+ * 
+ * const cart = useCart() as CartContextType
+ * 
+ * Cart {
+ *  deliveryDates: []
+ *  cartItems: OrderItem[]
+ * }
+ * 
+ * Cart.getSortedOrder() returns an array of arrays where the order items are organized by deliveryDate.
+ * 
+ * addToCart() adds item to carItems and then sorts the cart by delivery date.
+ * 
+ * removing from cart can be done by creating a copy of the cart with the item removed and using the generic setCart state dispatch.
+ * 
  */
 
 export interface CartContextType {
@@ -97,10 +111,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     return order;
   }
 
-  const removeFromCart = () => {
-
-
-  }
 
   return (
     <CartContext.Provider value={{ cart, setCart, addToCart, getSortedOrder }}>{children}</CartContext.Provider>
