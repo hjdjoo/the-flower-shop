@@ -8,7 +8,6 @@ import Typography from "@mui/material/Typography";
 import { TextField } from "@mui/material";
 
 import { ErrorMessage } from "../types/client-types";
-import { SubmitStatus } from "../products/_components/ProductCard";
 
 const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 
@@ -16,12 +15,12 @@ interface ZipCheckerProps {
   zipCode: string
   setDeliveryZipAlert: Dispatch<SetStateAction<ErrorMessage>>
   setDeliveryFee: Dispatch<SetStateAction<string>>
-  setSubmitStatus: Dispatch<SetStateAction<SubmitStatus>>
+  setZipValid: Dispatch<SetStateAction<boolean>>
 }
 
 export default function ZipCheckerButton(props: ZipCheckerProps) {
 
-  const { zipCode, setDeliveryZipAlert, setDeliveryFee, setSubmitStatus } = props;
+  const { zipCode, setDeliveryZipAlert, setDeliveryFee, setZipValid } = props;
 
   const routesLib = useMapsLibrary("routes");
 
@@ -61,10 +60,9 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
       const time = drivingTime / (60);
 
       if (miles > 12 || time > 18) {
-        throw new Error("This may be outside of our delivery zone.")
+        setZipValid(false);
+        throw new Error("This may be outside of our delivery zone. Please call the shop for assistance.");
       }
-
-      // console.log(miles, time);
 
       if (zipCode?.toString() === "07450") {
         setDeliveryZipAlert({
@@ -91,6 +89,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         severity: "success",
         message: "Looks good!",
       });
+      setZipValid(true);
     }
     catch (error) {
       console.error(error);
@@ -98,7 +97,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         severity: "error",
         message: `${error}`
       });
-      setSubmitStatus("error");
+      setZipValid(false);
     }
   }
 
@@ -118,7 +117,7 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
             severity: "error",
             message: "Please input a zip code!"
           })
-          setSubmitStatus("incomplete");
+          setZipValid(false);
         } else {
           await checkDeliveryArea(zipCode.toString());
         }

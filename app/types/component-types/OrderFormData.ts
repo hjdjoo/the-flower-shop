@@ -6,7 +6,7 @@ export interface OrderFormData {
   senderPhone: number | undefined,
   senderEmail: string | undefined,
 
-  orderItems: Array<OrderItem | undefined>
+  orderItems: Array<OrderItem>
 
 }
 
@@ -22,9 +22,16 @@ export interface Address {
 
 export type Addresses = Address[];
 
-// keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a string since that is what the DB is expecting and the value will always be nonzero.
+// keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a number since that is what the DB is expecting and the value will always be nonzero.
+export interface PriceTiers {
+  standardPrice: string,
+  premiumPrice: string,
+  deluxePrice: string
+}
+
 export interface OrderItem {
   productId: number,
+  priceTiers: PriceTiers,
   imageUrl: string,
   name: string,
   price: string,

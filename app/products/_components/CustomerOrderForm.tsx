@@ -31,6 +31,8 @@ interface CustomerOrderFormProps {
   setDeliveryDate: Dispatch<SetStateAction<string>>
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
   setSubmitStatus: Dispatch<SetStateAction<SubmitStatus>>
+  setZipValid: Dispatch<SetStateAction<boolean>>
+  setDeliveryDateValid: Dispatch<SetStateAction<boolean>>
 }
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
@@ -40,7 +42,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   const theme = useTheme();
 
-  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setSubmitStatus } = props;
+  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setSubmitStatus, setZipValid, setDeliveryDateValid } = props;
 
   /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
@@ -58,6 +60,16 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   })
 
   const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
+
+  useEffect(() => {
+    console.log("CustOrderForm/useEffect/deliveryDate: ", orderItem.deliveryDate);
+    if (!deliveryDate.length) {
+      setDeliveryDateValid(false);
+    }
+    if (!orderItem.recipAddress.zip) {
+      setZipValid(false)
+    }
+  }, [orderItem, deliveryDate, setDeliveryDateValid, setZipValid])
 
 
   /* Handler Functions */
@@ -100,12 +112,14 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: `${message}`
       })
+      setDeliveryDateValid(false);
     }
     else {
       setDeliveryDateAlert({
         severity: undefined,
         message: ""
       })
+      setDeliveryDateValid(true);
     }
   }
   // simple check with zip code regexp
@@ -119,13 +133,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: "Please enter a valid ZIP"
       })
-      setSubmitStatus("error")
+      setSubmitStatus("incomplete")
+      setZipValid(false);
     } else {
       setDeliveryZipAlert({
         severity: undefined,
         message: ""
       })
-      setSubmitStatus("incomplete")
     };
   }
 
@@ -137,7 +151,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: `${value.length}/250 - too long!`
       });
-      setSubmitStatus("error");
+      setSubmitStatus("incomplete");
       return;
     }
 
@@ -145,7 +159,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
       severity: undefined,
       message: `${value.length}/250`
     })
-    setSubmitStatus("error");
 
   }
 
@@ -262,7 +275,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 zipCode={orderItem.recipAddress.zip}
                 setDeliveryZipAlert={setDeliveryZipAlert}
                 setDeliveryFee={setDeliveryFee}
-                setSubmitStatus={setSubmitStatus}
+                setZipValid={setZipValid}
               />
             </Box>
             <Box

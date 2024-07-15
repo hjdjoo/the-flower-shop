@@ -11,16 +11,26 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import { InputField } from "@/app/_components/styled/InputField";
 
-interface CartItem {
+import { OrderItem } from "@/app/types/component-types/OrderFormData";
+import { useCart } from "@/lib/contexts/CartContext";
+import { CartContextType } from "@/lib/contexts/CartContext";
 
+interface CartItem {
+  product: OrderItem,
+  orderIndex: number,
+  dateIndex: number
 }
 
-const CartItem = (props: any) => {
+const CartItem = (props: CartItem) => {
 
-  const { product, order, setOrder, orderIndex, dateIndex } = props;
+  const { product, orderIndex, dateIndex } = props;
+
+  const { cart, setCart, getSortedOrder } = useCart() as CartContextType;
+
+  const order = getSortedOrder();
 
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-  const [price, setPrice] = useState<number>(product.price);
+  const [price, setPrice] = useState<string>(product.price);
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
   const [recipLast, setRecipLast] = useState<string>(product.recipLast);
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
@@ -33,7 +43,9 @@ const CartItem = (props: any) => {
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
 
   const confirmChanges = () => {
+    // simply update item in cart; let cart algorithm take care of sorting.
     if (toggleEdit) {
+
       let updateOrder = structuredClone(order);
       updateOrder[dateIndex][orderIndex] = {
         ...product,
@@ -51,13 +63,19 @@ const CartItem = (props: any) => {
         }
       }
 
-      setOrder(updateOrder);
-      setToggleEdit(false);
+      const newCartItems = updateOrder.flat();
+
+      setCart({ ...cart, cartItems: newCartItems });
+
+      // setOrder(updateOrder);
+      // setToggleEdit(false);
     }
     else {
       setToggleEdit(true);
     }
   }
+
+  const prices = product
 
   return (
     <Container
@@ -71,14 +89,14 @@ const CartItem = (props: any) => {
         {toggleEdit
           ? <FormControl>
             <Container className="Price-wrapper" sx={{ display: "flex", height: 23, ml: 1, mb: 1 }} >
-              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productID} | Price:`}</Typography>
+              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
               <Select
                 variant="standard"
                 sx={{ ml: 1 }}
                 value={price}
-                onChange={(event: SelectChangeEvent<number>) => {
-                  if (typeof event.target.value === "number") setPrice(event.target.value);
-                  else throw new Error("Price is not a number");
+                onChange={(event: SelectChangeEvent<string>) => {
+                  setPrice(event.target.value);
+                  // throw new Error("Price is not a number");
                 }}
               >
                 <MenuItem value={100}>$100</MenuItem>
@@ -182,7 +200,7 @@ const CartItem = (props: any) => {
           </FormControl>
           : <Container>
             <Typography component="p" style={{ fontWeight: 500 }}>
-              {`ProductID: ${product.productID} | Price: ${product.price}`}
+              {`ProductID: ${product.productId} | Price: ${product.price}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
               {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}

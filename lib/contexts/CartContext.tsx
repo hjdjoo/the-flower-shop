@@ -69,7 +69,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     }
 
     setCart({ ...newCart });
-    localStorage.setItem("cart", JSON.stringify(cart))
+    localStorage.setItem("cart", JSON.stringify(newCart))
 
   }
 
@@ -77,22 +77,29 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
     const { deliveryDates, cartItems } = cart;
 
-    // init an empty array set to length of deliveryDates and fill with empty arrays.
-    const order = Array(deliveryDates.length).fill([]);
-    // for each delivery date, go through the cartItems and add items with corresponding delivery dates to the order array.
+    // Fun fact: Array.fill([]) won't work for this algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
+    const order = Array(deliveryDates.length);
+
     deliveryDates.forEach((date, idx) => {
+
       for (let item of cartItems) {
-        console.log(item.deliveryDate, date)
         if (item?.deliveryDate === date) {
-          order[idx].push(item);
+          if (!order[idx]) {
+            order[idx] = [item];
+          }
+          else {
+            order[idx].push(item);
+          }
         }
       }
     })
 
-    console.log("getSortedOrder/order: ", order);
-
-    // return the order;
     return order;
+  }
+
+  const removeFromCart = () => {
+
+
   }
 
   return (

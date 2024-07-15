@@ -1,4 +1,4 @@
-import type { OrderFormData, OrderItem, Address } from "../../types/component-types/OrderFormData"
+import type { OrderFormData, OrderItem, Address, PriceTiers } from "../../types/component-types/OrderFormData"
 
 
 export const address = {
@@ -11,6 +11,11 @@ export const address = {
 export const OrderItemForm = {
   name: "",
   imageUrl: "",
+  priceTiers: {
+    standardPrice: "",
+    premiumPrice: "",
+    deluxePrice: ""
+  },
   deliveryDate: "",
   price: "",
   cardMessage: "",

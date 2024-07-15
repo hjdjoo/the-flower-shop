@@ -156,12 +156,17 @@ export default function CartPreview() {
   const deliveryDivs = deliveryDates.map((date, i) => {
 
     const displayDate = formatDate(date);
+
     const previewItems = order[i].map((item, j) => {
+
+      console.log(cartItems[i].deliveryDate, date)
       if (cartItems[i]?.deliveryDate === date) {
+
+        console.log(cartItems[i].deliveryDate, date)
         return (
-          <>
+          <div key={`${date}-item-${j + 1}`}>
             <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
-          </>
+          </div >
         );
       };
     })

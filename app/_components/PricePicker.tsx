@@ -13,12 +13,13 @@ interface PricePickerProps {
   orderItem: OrderItem
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
   submitStatus: string | undefined
+  setPriceSelected: Dispatch<SetStateAction<boolean>>
 }
 
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { productInfo, orderItem, setOrderItem, submitStatus } = props;
+  const { productInfo, orderItem, setOrderItem, submitStatus, setPriceSelected } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
@@ -28,9 +29,10 @@ export default function PricePicker(props: PricePickerProps) {
 
     if (submitStatus === "submitted") {
       setSelectedPrice(undefined);
+      setPriceSelected(false);
     }
 
-  }, [submitStatus])
+  }, [submitStatus, setPriceSelected])
 
 
   const handlePrice = (price: string, idx: number) => {
@@ -40,7 +42,8 @@ export default function PricePicker(props: PricePickerProps) {
 
     updatedOrderInfo.price = price;
 
-    setOrderItem({ ...updatedOrderInfo })
+    setOrderItem({ ...updatedOrderInfo });
+    setPriceSelected(true);
   }
 
 

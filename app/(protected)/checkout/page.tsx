@@ -24,9 +24,7 @@ export default function Checkout() {
   const [deliveryDates, setDeliveryDates] = useState<Dates>(cart.deliveryDates);
 
   const order = getSortedOrder();
-  const setOrder = (newOrder: SortedOrder) => {
 
-  }
   // const [demoAddress, setDemoAddress] = useState<Addresses>([
   //   {
   //     streetAddress1: '71 Tennyson Drive',
@@ -105,7 +103,7 @@ export default function Checkout() {
             <Container className="Description-Root">
               {order[dateIndex].map((product, orderIndex) =>
                 <Container className="CartItem-Root" key={orderIndex}>
-                  <CartItem product={product} order={order} setorder={setOrder} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
+                  <CartItem product={product} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
                 </Container>
               )}
             </Container>

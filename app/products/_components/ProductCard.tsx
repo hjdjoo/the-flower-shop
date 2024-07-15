@@ -12,6 +12,8 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
+import CheckIcon from '@mui/icons-material/Check';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import { useTheme } from "@mui/material";
 
@@ -31,6 +33,7 @@ import { ProductData } from "@/app/types/client-types";
 import { OrderFormData, OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 
 
+
 // import { useCart } from "@/lib/contexts/CartContext";
 
 interface ProductCardProps {
@@ -38,7 +41,7 @@ interface ProductCardProps {
   productId: number
 }
 
-export type SubmitStatus = "incomplete" | "error" | "ready" | "submitting" | "submitted" | undefined
+export type SubmitStatus = "incomplete" | "ready" | "submitting" | "submitted" | undefined
 
 export default function ProductCard(props: ProductCardProps) {
 
@@ -51,15 +54,28 @@ export default function ProductCard(props: ProductCardProps) {
   const { productId } = props
   const { name, categories, description, standardPrice, premiumPrice, deluxePrice, imageUrl } = props.productInfo
 
+  // construct priceTiers to pass into cart.
+  const priceTiers = {
+    standardPrice: standardPrice,
+    premiumPrice: premiumPrice,
+    deluxePrice: deluxePrice
+  };
+
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
   /* Object reassignment to get default order for page;  */
-  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name })
+  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, priceTiers: priceTiers, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
 
   const [orderItem, setOrderItem] = useState<OrderItem>(baseOrderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("incomplete");
+
+  /* State checks for adding to cart */
+  const [zipValid, setZipValid] = useState<boolean>(false);
+  const [deliveryDateValid, setDeliveryDateValid] = useState<boolean>(false);
+  const [priceSelected, setPriceSelected] = useState<boolean>(false);
+
 
   useEffect(() => {
     (async () => {
@@ -72,9 +88,14 @@ export default function ProductCard(props: ProductCardProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // useEffect(() => {
-
-  // }, [orderItem])
+  useEffect(() => {
+    if (!orderItem.deliveryDate || !priceSelected || !zipValid) {
+      setSubmitStatus("incomplete");
+    }
+    else if (orderItem.deliveryDate && priceSelected && zipValid) {
+      setSubmitStatus("ready");
+    }
+  }, [orderItem, priceSelected, zipValid])
 
 
   const handleAddToCart = async () => {
@@ -92,7 +113,10 @@ export default function ProductCard(props: ProductCardProps) {
       return;
     }
     else {
+      setSubmitStatus("submitting");
       addToCart(deliveryDate, orderItem);
+      setSubmitStatus("submitted");
+      setDeliveryDate("");
       setOrderItem({ ...baseOrderForm });
     }
   }
@@ -216,7 +240,9 @@ export default function ProductCard(props: ProductCardProps) {
               }}
               orderItem={orderItem}
               submitStatus={submitStatus}
-              setOrderItem={setOrderItem} />
+              setOrderItem={setOrderItem}
+              setPriceSelected={setPriceSelected}
+            />
           </Box>
         </Grid>
         <Grid xs={12} sm={6} id="order-form-grid-area">
@@ -233,6 +259,8 @@ export default function ProductCard(props: ProductCardProps) {
               orderItem={orderItem}
               setOrderItem={setOrderItem}
               setSubmitStatus={setSubmitStatus}
+              setZipValid={setZipValid}
+              setDeliveryDateValid={setDeliveryDateValid}
             />
             <Box
               id="cart-button-box"
@@ -243,7 +271,7 @@ export default function ProductCard(props: ProductCardProps) {
             >
               <Button
                 id="add-to-cart-button"
-                disabled={submitStatus === "incomplete" || submitStatus === "error"}
+                disabled={submitStatus === "incomplete"}
                 variant="contained"
                 sx={{
                   marginTop: "15px"
@@ -266,24 +294,26 @@ export default function ProductCard(props: ProductCardProps) {
             >
               <Typography id="delivery-date-check"
                 sx={{
-                  marginY: "5px"
+                  marginY: "5px",
+                  diplay: "flex",
+                  alignItems: "center"
                 }}
               >
-                Delivery date selected { }
+                Delivery date selected {deliveryDateValid ? <CheckIcon /> : <ClearIcon />}
               </Typography>
               <Typography id="valid-zip-check"
                 sx={{
                   marginY: "5px"
                 }}
               >
-                Zip code valid
+                Zip code valid {zipValid ? <CheckIcon /> : <ClearIcon />}
               </Typography>
               <Typography id="price-tier-check"
                 sx={{
                   marginY: "5px"
                 }}
               >
-                Price tier selected
+                Price tier selected {priceSelected ? <CheckIcon /> : <ClearIcon />}
               </Typography>
             </Box>
             {!!cart.deliveryDates.length &&
