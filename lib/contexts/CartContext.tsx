@@ -54,11 +54,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   const storedCartJSON = localStorage.getItem("cart");
   const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
+  console.log(storedCart);
+
   const storedCartAge = storedCart ? (Date.now() - storedCart.updatedAt) / 3600 : null;
 
-  console.log(storedCartAge);
-
-  const [cart, setCart] = useState<Cart>(storedCart ? storedCart : defaultCart);
+  const [cart, setCart] = useState<Cart>((storedCartAge && storedCartAge <= 48) ? storedCart : defaultCart);
 
   const addToCart = (deliveryDate: string, item: OrderItem) => {
 
@@ -83,8 +83,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     setCart({ ...newCart })
 
     const localCart = { ...newCart } as LocalCart;
-    localCart.updatedAt = Date.now()
-    localStorage.setItem("cart", JSON.stringify(newCart))
+
+    localCart.updatedAt = Date.now();
+
+    localStorage.setItem("cart", JSON.stringify(localCart));
 
   }
 
