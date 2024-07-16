@@ -58,26 +58,13 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
         drivingDistance += leg.distance ? leg.distance.value : 0;
       })
 
-      const deliveryFee = calculateDelivery(drivingDistance, drivingTime)
-
-      console.log("deliveryFee from check: ", deliveryFee)
-
-      const miles = drivingDistance / 1609;
-      const time = drivingTime / 60;
-
-      if (miles > 12 || time > 18) {
-        setZipValid(false);
-        throw new Error("This may be outside of our typical delivery zone. Please call the shop for assistance.");
-      }
-
       if (zipCode?.toString() === "07450") {
-        setDeliveryZipAlert({
-          severity: "success",
-          message: "Looks good!",
-        })
+        setDeliveryFee("8.95")
+      } else {
+        const deliveryFee = JSON.stringify(calculateDelivery(drivingDistance, drivingTime))
+        console.log("deliveryFee from check: ", deliveryFee)
+        setDeliveryFee(deliveryFee);
       }
-
-      setDeliveryFee(deliveryFee);
 
       setDeliveryZipAlert({
         severity: "success",

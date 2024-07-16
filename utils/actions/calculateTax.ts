@@ -14,7 +14,7 @@ export default function calculateTax(price: string, deliveryFee: string) {
 
   const tax = parseInt(tax100) / 100
 
-  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toString();
+  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toFixed(2).toString();
 
   return { tax: tax, total: total };
 

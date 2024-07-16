@@ -11,6 +11,7 @@ import { useTheme } from "@mui/material";
 import { imageLoader } from "@/lib/imageLoader";
 
 import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import calculateTax from "@/utils/actions/calculateTax";
 import formatDate from "@/utils/actions/formatDate";
@@ -20,9 +21,14 @@ import type { OrderItem } from "../types/component-types/OrderFormData";
 
 
 
-/** Current cart shape:
+/** Current cart methods:
  * 
  * Cart.getSortedOrder() returns orders sorted into nested array by delivery date.
+ * 
+ * Removing an item can be done by passing in an updated cart to updateCart().
+ * If a SortedCart needs to be used to update (for example, removing SortedCart[i][j]), simply remove item as desired then pass in SortedCart.flat() into updateCart.
+ * 
+ * Will keep CartPreviewItem within this file unless file grows otherwise too large.
  * 
  */
 
@@ -35,6 +41,8 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const { name, imageUrl, price, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
   const { idx } = props;
+
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const addressStr = Object.values(recipAddress).join(" ");
 
@@ -60,9 +68,25 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
       <Box id={`${deliveryDate}-order-${idx + 1}-information`}
         textAlign="left"
         paddingX="5px"
+        sx={{
+          fontSize: () => {
+            if (mobile) return "0.5rem"
+            if (tablet) return "0.6rem"
+            if (large) return "0.7rem"
+            else return "0.8rem"
+          },
+        }}
       >
-        <Typography sx={{ fontSize: "0.8rem", marginBottom: "5px" }}>
-          Delivery to:
+        <Typography sx={{
+          fontSize: () => {
+            if (mobile) return "0.6rem"
+            if (tablet) return "0.7rem"
+            if (large) return "0.8rem"
+            else return "0.9rem"
+          },
+          marginBottom: "5px"
+        }}>
+          Delivery:
         </Typography>
         <Typography>
           {`${recipFirst} ${recipLast}`}
@@ -73,33 +97,38 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
       </Box>
       <Grid id={`${deliveryDate}-${name}-price`} container
         sx={{
-          fontSize: "0.8rem",
+          fontSize: () => {
+            if (mobile) return "0.5rem"
+            if (tablet) return "0.6rem"
+            if (large) return "0.7rem"
+            else return "0.8rem"
+          },
           textAlign: "right",
           width: "60%"
         }}
       >
-        <Grid xs={6}>
-          <Typography>Item value:</Typography>
+        <Grid xs={8}>
+          <Typography>Item Value:</Typography>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Typography>{`$${price}`}</Typography>
         </Grid>
-        <Grid xs={6}>
-          <Typography>Delivery Fee:</Typography>
+        <Grid xs={8}>
+          <Typography>Del. Fee:</Typography>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Typography>{`$${deliveryFee}`}</Typography>
         </Grid>
-        <Grid xs={6}>
-          <Typography>Estimated Tax:</Typography>
+        <Grid xs={8}>
+          <Typography>Est. Tax:</Typography>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Typography>{`$${tax}`}</Typography>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={8}>
           <Typography>Total:</Typography>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={4}>
           <Typography>{`$${total}`}</Typography>
         </Grid>
       </Grid>
@@ -113,6 +142,7 @@ export default function CartPreview() {
 
   // interesting note -- if you call "useTheme" in a parent component, MUI components in child components will not apply any theming unless specifically directed. Unless I'm missing something?
   const theme = useTheme();
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
   const { cart, getSortedOrder } = useCart() as CartContextType;
 
   const order = getSortedOrder();
@@ -147,12 +177,18 @@ export default function CartPreview() {
           display="flex"
           paddingY="10px"
           paddingX="15px"
-          sx={{
-            background: theme.palette.info.main,
-            color: "white"
-          }}
           borderRadius="10px"
           marginY="10px"
+          sx={{
+            background: theme.palette.info.main,
+            color: "white",
+            fontSize: () => {
+              if (mobile) return "0.8rem"
+              if (tablet) return "0.9rem"
+              if (large) return "1rem"
+              return "1rem"
+            },
+          }}
         >
           <Typography>For Delivery On {`${displayDay} ${displayDate}`}:</Typography>
         </Box>
@@ -160,8 +196,6 @@ export default function CartPreview() {
       </Box>
     )
   });
-
-
 
 
   return (

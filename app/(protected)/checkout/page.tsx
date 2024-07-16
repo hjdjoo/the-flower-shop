@@ -23,7 +23,6 @@ export default function Checkout() {
   const order = getSortedOrder();
 
 
-
   return (
     <Container
       sx={{

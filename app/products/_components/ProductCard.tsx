@@ -245,8 +245,8 @@ export default function ProductCard(props: ProductCardProps) {
         </Grid>
         <Grid xs={12} sm={6} id="order-form-grid-area">
           <Box
-            width="100%"
             id="order-form-box"
+            width="100%"
             display="flex"
             flexDirection="column"
             justifyContent="center"
@@ -324,9 +324,16 @@ export default function ProductCard(props: ProductCardProps) {
                   <Typography paddingX="10px" fontWeight={600}>Cart Preview:</Typography>
                   <CartPreview />
                 </Box>
-                <Button variant="contained">
-                  Checkout
-                </Button>
+                <Link href="/checkout"
+                  style={{
+                    width: "100%"
+                  }}>
+                  <Button id="checkout-button"
+                    fullWidth
+                    variant="contained">
+                    Checkout
+                  </Button>
+                </Link>
               </>
             }
           </Box>

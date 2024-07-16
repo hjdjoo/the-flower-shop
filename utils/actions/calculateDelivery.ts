@@ -2,9 +2,13 @@
  * 
  * @param distance Distance in meters
  * @param time Time in seconds
- * @returns delivery fee as a string
+ * @returns delivery fee as a num
  */
 export default function calculateDelivery(distance: number, time: number) {
+
+  if (typeof distance !== "number" || typeof time !== "number") {
+    throw new Error("distance and time must be number types")
+  }
 
   const baseFee = 8.95
 
@@ -25,7 +29,7 @@ export default function calculateDelivery(distance: number, time: number) {
 
   const deliveryFee = baseFee + Math.min(addFeeMiles, addFeeMins);
 
-  return JSON.stringify(deliveryFee);
+  return deliveryFee
 
 
 }

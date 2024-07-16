@@ -1,6 +1,5 @@
 import CssBaseline from "@mui/material/CssBaseline";
 
-
 import Products from "./products/page";
 import BackgroundBanner from "./_components/BackgroundBanner";
 import { Gutter } from "./_components/Gutters";
@@ -8,8 +7,7 @@ import { Gutter } from "./_components/Gutters";
 import { getBanners } from "@/utils/supabase/clientActions/getBanners";
 import { getUrls } from "@/utils/supabase/clientActions/getUrls";
 
-import CartContext from "@/lib/contexts/CartContext";
-// import { BannerData } from "./types/client-types";
+
 
 export default async function Main() {
 

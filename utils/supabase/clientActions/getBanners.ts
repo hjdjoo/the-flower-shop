@@ -1,11 +1,7 @@
-import { cache } from "react";
-
 import { createClient } from "../client";
 import { SupabaseResponse } from "@/app/types/db-types";
 
-export const revalidate = 3600
-
-export const getBanners = cache(async (): Promise<SupabaseResponse<string[]>> => {
+export const getBanners = async (): Promise<SupabaseResponse<string[]>> => {
   try {
     const supabase = createClient();
 
@@ -35,4 +31,4 @@ export const getBanners = cache(async (): Promise<SupabaseResponse<string[]>> =>
       error: error
     }
   }
-})
+}
