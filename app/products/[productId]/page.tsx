@@ -16,16 +16,16 @@ export default async function ProductPage({ params }: { params: { productId: num
 
   if (!data || error) throw new Error("Couldn't get product info")
 
-  const { name, categories, description, standard_price, premium_price, deluxe_price, image_url } = data[0] as DbData;
+  const { name, categories, description, prices, image_url } = data[0] as DbData;
+
+  console.log(prices);
 
   const productInfo = {
     productId: productId,
     name: name,
     categories: categories!,
     description: description,
-    standardPrice: standard_price,
-    premiumPrice: premium_price,
-    deluxePrice: deluxe_price,
+    prices: [...prices],
     imageUrl: image_url
   }
 

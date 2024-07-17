@@ -13,12 +13,10 @@ export interface CategoryData {
 
 
 export interface ProductData {
-  id: string,
-  name: string,
+  id: string
+  name: string
   categories: number[] | null
-  description: string,
-  standard_price: string
-  premium_price: string
-  deluxe_price: string
-  image_url: string,
+  description: string
+  prices: number[]
+  image_url: string
 }

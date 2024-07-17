@@ -177,7 +177,7 @@ export function Carousel(props: CarouselProps) {
               fontSize: "0.9rem"
             },
           }}>
-          {`$${data.standard_price}`}
+          {`$${((data.prices[0] / 100).toFixed(2))}`}
         </Typography>
       </CarouselComp.CarItem>
     )

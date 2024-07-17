@@ -18,8 +18,6 @@ import { imageLoader } from "@/lib/imageLoader";
 import type { CartContextType } from "@/lib/contexts/CartContext";
 import type { OrderItem } from "@/app/types/component-types/OrderFormData";
 
-
-
 interface CartItem {
   product: OrderItem,
   orderIndex: number,
@@ -29,12 +27,14 @@ interface CartItem {
 const CartItem = (props: CartItem) => {
 
   const { product, orderIndex, dateIndex } = props;
+  console.log("CartItem/product", product)
 
   const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
   const order = getSortedOrder();
 
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-  const [price, setPrice] = useState<string>(product.price);
+  // const [price, setPrice] = useState<string>(product.price);
+  const [tier, setTier] = useState<number>(product.selectedTier ? product.selectedTier : 1)
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
   const [recipLast, setRecipLast] = useState<string>(product.recipLast);
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
@@ -53,11 +53,11 @@ const CartItem = (props: CartItem) => {
       let updateOrder = structuredClone(order);
       updateOrder[dateIndex][orderIndex] = {
         ...product,
-        price,
         recipFirst,
         recipLast,
         recipPhone,
         cardMessage,
+        selectedTier: tier,
         recipAddress: {
           streetAddress1,
           streetAddress2,
@@ -92,7 +92,7 @@ const CartItem = (props: CartItem) => {
 
   }
 
-  const prices = product.priceTiers;
+  // const prices = product.priceTiers;
 
 
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
@@ -112,15 +112,16 @@ const CartItem = (props: CartItem) => {
               <Select
                 variant="standard"
                 sx={{ ml: 1 }}
-                value={price}
+                value={tier.toString()}
                 onChange={(event: SelectChangeEvent<string>) => {
-                  setPrice(event.target.value);
+                  // setPrice(product.prices[tier]);
+                  setTier(parseInt(event.target.value))
                   // throw new Error("Price is not a number");
                 }}
               >
-                <MenuItem value={prices.standardPrice}>{`$${prices.standardPrice}`}</MenuItem>
-                <MenuItem value={prices.premiumPrice}>{`$${prices.premiumPrice}`}</MenuItem>
-                <MenuItem value={prices.deluxePrice}>{`$${prices.deluxePrice}`}</MenuItem>
+                <MenuItem value={0}>{`$${(product.prices[0] / 100).toFixed(2)}`}</MenuItem>
+                <MenuItem value={1}>{`$${(product.prices[1] / 100).toFixed(2)}`}</MenuItem>
+                <MenuItem value={2}>{`$${(product.prices[2] / 100).toFixed(2)}`}</MenuItem>
               </Select>
             </Container>
             <Container className="Address-TextBox-Wrapper">
@@ -219,7 +220,7 @@ const CartItem = (props: CartItem) => {
           </FormControl>
           : <Container>
             <Typography component="p" style={{ fontWeight: 500 }}>
-              {`ProductID: ${product.productId} | Price: ${product.price}`}
+              {`ProductID: ${product.productId} | Price: $${(product.prices[tier] / 100).toFixed(2)}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
               {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}

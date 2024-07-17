@@ -42,9 +42,7 @@ export default function NewProduct() {
     name: "",
     categories: [],
     description: "",
-    standardPrice: "",
-    premiumPrice: "",
-    deluxePrice: "",
+    prices: [0, 0, 0],
     imageUrl: ""
   })
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
@@ -112,19 +110,6 @@ export default function NewProduct() {
     };
   };
 
-  // const handleImageUrl = async () => {
-
-  //   const { name } = newProductForm;
-  //   //  -> adds to supabase -> returns URL for updating product page
-  //   const url = await uploadImage(name, fileData);
-  //   // -> updates "products" table with item & url from image.
-  //   console.log(url);
-  //   if (!url) {
-  //     throw new Error("Couldn't add image to database!")
-  //   };
-  //   setNewProductForm({ ...newProductForm, imageUrl: url });
-
-  // }
 
   const handleSubmit = async () => {
     try {
@@ -143,7 +128,7 @@ export default function NewProduct() {
       const { data, error } = await addProduct(finalProductForm);
 
       if (error || !data) {
-        throw new Error(`Something went wrong! ${error?.message}`)
+        throw new Error(`Something went wrong! ${error?.message} - Check for duplicate images in storage`)
       }
 
       setAlertUser({
@@ -164,10 +149,27 @@ export default function NewProduct() {
 
   /* Synchronous handlers and utilities */
   // generic handler for updating simple form data
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleOrderForm = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setNewProductForm({ ...newProductForm, [name]: value })
   }
+
+  const handlePrices = (e: ChangeEvent<HTMLInputElement>) => {
+
+    const priceTiers = ["standardPrice", "premiumPrice", "deluxePrice"];
+
+    const { name, value } = e.target;
+
+    const { prices } = newProductForm;
+
+    const newPrices = [...prices];
+
+    newPrices[priceTiers.indexOf(name)] = parseFloat(value) * 100;
+
+    setNewProductForm({ ...newProductForm, prices: newPrices });
+
+  }
+
   // handlers for managing category array
   const handleAddCategory = (category: { id: number, label: string } | null) => {
     const newCategories = [...newProductForm.categories];
@@ -208,9 +210,7 @@ export default function NewProduct() {
       name: "",
       categories: [],
       description: "",
-      standardPrice: "",
-      premiumPrice: "",
-      deluxePrice: "",
+      prices: [],
       imageUrl: ""
     });
 
@@ -264,8 +264,7 @@ export default function NewProduct() {
         padding: "10px"
       }}
     >
-      <Stack
-        id={""}
+      <Stack id="new-product-form-stack"
         component={"form"}
         // border={"1px solid black"}
         sx={{
@@ -274,10 +273,8 @@ export default function NewProduct() {
         }}
       >
         {previewUrl &&
-          <PreviewBox
-            // border={"1px dotted grey"}
+          <PreviewBox id="image-preview-box"
             previewUrl={previewUrl}
-            id="upload-preview-box"
             position="relative"
             sx={{
               alignSelf: "center"
@@ -297,7 +294,7 @@ export default function NewProduct() {
           label={"Product Name"}
           name="name"
           value={newProductForm.name}
-          onChange={handleChange}
+          onChange={handleOrderForm}
           size="small"
           sx={{
             marginY: "5px"
@@ -316,7 +313,7 @@ export default function NewProduct() {
           label={"Description"}
           name="description"
           value={newProductForm.description}
-          onChange={handleChange}
+          onChange={handleOrderForm}
           sx={{
             marginY: "5px"
           }}
@@ -327,7 +324,7 @@ export default function NewProduct() {
         >
           Pricing:
         </Typography>
-        <Grid
+        <Grid id="new-product-prices"
           container
         >
           <GridItem xs={4} >
@@ -335,8 +332,8 @@ export default function NewProduct() {
               id={"new-product-price-standard"}
               label={"Standard"}
               name="standardPrice"
-              value={newProductForm.standardPrice}
-              onChange={handleChange}
+              value={(newProductForm.prices[0] / 100).toFixed(2)}
+              onChange={handlePrices}
               size="small"
             />
           </GridItem>
@@ -345,8 +342,8 @@ export default function NewProduct() {
               id={"new-product-price-standard"}
               label={"Premium"}
               name="premiumPrice"
-              value={newProductForm.premiumPrice}
-              onChange={handleChange}
+              value={(newProductForm.prices[1] / 100).toFixed(2)}
+              onChange={handlePrices}
               size="small"
             />
           </GridItem>
@@ -355,8 +352,8 @@ export default function NewProduct() {
               id={"new-product-price-standard"}
               label={"Deluxe"}
               name="deluxePrice"
-              value={newProductForm.deluxePrice}
-              onChange={handleChange}
+              value={(newProductForm.prices[2] / 100).toFixed(2)}
+              onChange={handlePrices}
               size="small"
             />
           </GridItem>

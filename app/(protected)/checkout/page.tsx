@@ -35,8 +35,6 @@ export default function Checkout() {
   const order = getSortedOrder();
 
 
-
-
   return (
     <Elements stripe={stripePromise} >
       <Container

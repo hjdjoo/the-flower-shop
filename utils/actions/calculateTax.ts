@@ -1,7 +1,7 @@
 
 /**
  * 
- * @param price string: price for item
+ * @param price string: price for item, **in cents**
  * @param deliveryFee string: delivery fee calculated based on simple linear formula
  * @returns : {tax: string, total: string}
  */
@@ -14,7 +14,7 @@ export default function calculateTax(price: string | number, deliveryFee: string
 
   const njSalesTax = 0.0625
 
-  let inputPrice = typeof price === "string" ? parseFloat(price) : price;
+  let inputPrice = typeof price === "string" ? parseFloat(price) / 100 : price / 100;
   let inputDelFee = typeof deliveryFee === "string" ? parseFloat(deliveryFee) : deliveryFee;
 
 

@@ -35,12 +35,11 @@ export default function PricePicker(props: PricePickerProps) {
   }, [submitStatus, setPriceSelected])
 
 
-  const handlePrice = (price: string, idx: number) => {
+  const handlePrice = (idx: number) => {
     setSelectedPrice(idx);
 
     const updatedOrderInfo = { ...orderItem };
 
-    updatedOrderInfo.price = price;
     updatedOrderInfo.selectedTier = idx
 
     setOrderItem({ ...updatedOrderInfo });
@@ -53,8 +52,8 @@ export default function PricePicker(props: PricePickerProps) {
       <Button
         variant={selectedPrice === idx ? "contained" : "outlined"}
         key={`price-button-${idx + 1}`}
-        id={`price-button-`}
-        onClick={() => handlePrice(price, idx)}
+        id={`price-button-${idx + 1}`}
+        onClick={() => handlePrice(idx)}
         aria-label={`Select ${priceTiers[idx]}`}
         sx={{
           width: "25%"

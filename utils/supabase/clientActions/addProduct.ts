@@ -9,14 +9,18 @@ export default async function addProduct(productData: ProductData) {
 
   console.log('addProduct: ', productData);
 
+  const standard_price = parseFloat(standardPrice) * 100
+  const premium_price = parseFloat(premiumPrice) * 100
+  const deluxe_price = parseFloat(deluxePrice) * 100
+
+  const prices = [standard_price, premium_price, deluxe_price]
+
   const { data, error } = await supabase
     .from("products")
     .insert({
       name: name,
       description: description,
-      standard_price: standardPrice,
-      premium_price: premiumPrice,
-      deluxe_price: deluxePrice,
+      prices: prices,
       categories: categories,
       image_url: imageUrl
     })

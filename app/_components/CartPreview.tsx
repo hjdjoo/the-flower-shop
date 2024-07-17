@@ -39,14 +39,14 @@ interface CartPreviewItemProps {
 
 const CartPreviewItem = (props: CartPreviewItemProps) => {
 
-  const { name, imageUrl, price, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
+  const { name, imageUrl, recipFirst, recipLast, recipAddress, deliveryDate, prices, selectedTier, deliveryFee } = props.cartItem
   const { idx } = props;
 
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const { tax: taxVal, total: totalVal } = calculateTax(price, deliveryFee)
+  const { tax: taxVal, total: totalVal } = calculateTax(prices[selectedTier!], deliveryFee)
 
   const tax = taxVal.toString();
   const total = totalVal.toString();
@@ -114,7 +114,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
           <Typography>Item Value:</Typography>
         </Grid>
         <Grid xs={4}>
-          <Typography>{`$${price}`}</Typography>
+          <Typography>{`$${(prices[selectedTier!] / 100).toFixed(2)}`}</Typography>
         </Grid>
         <Grid xs={8}>
           <Typography>Del. Fee:</Typography>
