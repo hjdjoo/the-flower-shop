@@ -6,15 +6,23 @@
  * @returns : {tax: string, total: string}
  */
 
-export default function calculateTax(price: string, deliveryFee: string) {
+export default function calculateTax(price: string | number, deliveryFee: string | number = 0) {
+
+  if (!price) {
+    throw new Error("Input a product price.")
+  }
 
   const njSalesTax = 0.0625
 
-  const tax100 = Math.floor((parseFloat(price) + parseFloat(deliveryFee)) * njSalesTax * 100).toFixed(2)
+  let inputPrice = typeof price === "string" ? parseFloat(price) : price;
+  let inputDelFee = typeof deliveryFee === "string" ? parseFloat(deliveryFee) : deliveryFee;
+
+
+  const tax100 = Math.floor((inputPrice + inputDelFee) * njSalesTax * 100).toFixed(2)
 
   const tax = parseInt(tax100) / 100
 
-  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toFixed(2).toString();
+  const total = parseFloat((inputPrice + inputDelFee + tax).toFixed(2))
 
   return { tax: tax, total: total };
 

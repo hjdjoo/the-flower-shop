@@ -35,6 +35,7 @@ export interface OrderItem {
   imageUrl: string,
   name: string,
   price: string,
+  selectedTier: number,
   cardMessage: string,
   recipFirst: string,
   recipLast: string,

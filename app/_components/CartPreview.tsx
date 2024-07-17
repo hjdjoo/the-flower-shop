@@ -46,7 +46,10 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const { tax, total } = calculateTax(price, deliveryFee)
+  const { tax: taxVal, total: totalVal } = calculateTax(price, deliveryFee)
+
+  const tax = taxVal.toString();
+  const total = totalVal.toString();
 
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}
