@@ -15,7 +15,7 @@ export interface CategoryData {
 export interface ProductData {
   id: string
   name: string
-  categories: number[] | null
+  categories: number[]
   description: string
   prices: number[]
   image_url: string

@@ -46,10 +46,17 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const { tax: taxVal, total: totalVal } = calculateTax(prices[selectedTier!], deliveryFee)
+  const itemPrice = prices[selectedTier!] / 100
+  const itemTax = calculateTax(itemPrice)
+  const deliveryTax = calculateTax(deliveryFee)
 
-  const tax = taxVal.toString();
-  const total = totalVal.toString();
+  const taxedItem = itemPrice + itemTax;
+  const taxedDelivery = parseFloat(deliveryFee) + deliveryTax;
+
+  const tax = (itemTax + deliveryTax).toFixed(2);
+
+  const total = (taxedItem + taxedDelivery).toFixed(2);
+
 
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}

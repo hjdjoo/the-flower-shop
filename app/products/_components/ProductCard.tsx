@@ -101,7 +101,7 @@ export default function ProductCard(props: ProductCardProps) {
       console.log("You gotta pick a delivery date");
       return;
     }
-    if (!orderItem.selectedTier) {
+    if (orderItem.selectedTier === undefined || null) {
       // have customer select a price first
       // insert error logic here...
       console.log("You gotta pick a price")

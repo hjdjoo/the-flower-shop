@@ -27,7 +27,6 @@ interface CartItem {
 const CartItem = (props: CartItem) => {
 
   const { product, orderIndex, dateIndex } = props;
-  console.log("CartItem/product", product)
 
   const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
   const order = getSortedOrder();

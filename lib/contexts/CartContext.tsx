@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
+import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Cart, OrderItem, SortedOrder, Dates } from "../../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 
@@ -51,18 +51,21 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
-  const storedCartJSON = localStorage.getItem("cart");
-  const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
+  const [cart, setCart] = useState<Cart>(defaultCart);
 
-  const newCart = refreshCart(storedCart);
+  useEffect(() => {
+    const storedCartJSON = localStorage && localStorage.getItem("cart")
+    const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
-  const [cart, setCart] = useState<Cart>(newCart);
+    const newCart = refreshCart(storedCart);
+
+    setCart(newCart);
+
+  }, [])
 
   function refreshCart(cart: LocalCart) {
 
-    if (!cart) return defaultCart;
-
-    const cartAgeHrs = (Date.now() - cart.updatedAt) / 3600;
+    const cartAgeHrs = (Date.now() - cart.updatedAt) / 1000 / 3600;
 
     if (cartAgeHrs > 48) {
       localStorage.removeItem("cart");

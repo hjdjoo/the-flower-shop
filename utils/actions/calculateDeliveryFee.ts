@@ -1,19 +1,19 @@
 /**
  * 
- * @param distance Distance in meters
  * @param time Time in seconds
+ * @param distance Distance in meters
  * @returns delivery fee as a num
  */
-export default function calculateDelivery(distance: number, time: number) {
+export default function calculateDeliveryFee(duration: number, distance: number,) {
 
-  if (typeof distance !== "number" || typeof time !== "number") {
-    throw new Error("distance and time must be number types")
+  if (typeof distance !== "number" || typeof duration !== "number") {
+    throw new Error("distance and duration must be number types")
   }
 
   const baseFee = 8.95
 
   const miles = Math.ceil(distance / 1609);
-  const mins = Math.ceil(time / 60);
+  const mins = Math.ceil(duration / 60);
 
   if (miles > 12 || mins > 18) {
     throw new Error("This may be outside of our typical delivery zone. Please call the shop for assistance.");
