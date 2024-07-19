@@ -16,7 +16,7 @@ import { useCart } from "@/lib/contexts/CartContext";
 import { imageLoader } from "@/lib/imageLoader";
 
 import type { CartContextType } from "@/lib/contexts/CartContext";
-import type { OrderItem } from "@/app/types/component-types/OrderFormData";
+import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 
 
 
@@ -45,6 +45,45 @@ const CartItem = (props: CartItem) => {
   const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
   const [state, setState] = useState<string>(product.recipAddress.state);
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
+
+
+  const validateAddress = async () => {
+    let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+    fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: {
+            addressLines: [streetAddress1, formatApt, townCity, state, zip]
+          }
+        })
+      })
+      .then(data => data.json())
+      .then(res => {
+        if (res.result.address.addressComponents.length > 7) {
+          setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+          setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
+        } else {
+          setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
+        }
+        setTownCity(res.result.address.postalAddress.locality);
+        setState(res.result.address.postalAddress.administrativeArea);
+        setZip(res.result.address.postalAddress.postalCode);
+        console.log('Valid Address');
+      })
+      .catch(err => console.log('Error validating new address: ', err))
+  }
+
+  const compareAddress = (newAddress: Address, currAddress: Address) => {
+    if (newAddress.streetAddress1 == currAddress.streetAddress1 &&
+      newAddress.streetAddress2 == currAddress.streetAddress2 &&
+      newAddress.townCity == currAddress.townCity &&
+      newAddress.state == currAddress.state &&
+      newAddress.zip == currAddress.zip
+    ) return true;
+    else return false;
+  }
 
   const confirmChanges = () => {
 

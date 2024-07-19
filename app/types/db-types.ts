@@ -17,8 +17,6 @@ export interface ProductData {
   name: string,
   categories: number[] | null
   description: string,
-  standard_price: string
-  premium_price: string
-  deluxe_price: string
+  prices: number[]
   image_url: string,
 }

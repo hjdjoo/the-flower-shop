@@ -50,20 +50,15 @@ export default function ProductCard(props: ProductCardProps) {
 
   /* prop destructuring */
   const { productId } = props
-  const { name, categories, description, standardPrice, premiumPrice, deluxePrice, imageUrl } = props.productInfo
+  const { name, categories, description, prices, imageUrl } = props.productInfo
 
   // construct priceTiers to pass into cart.
-  const priceTiers = {
-    standardPrice: standardPrice,
-    premiumPrice: premiumPrice,
-    deluxePrice: deluxePrice
-  };
 
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
   /* Object reassignment to get default order for page;  */
-  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, priceTiers: priceTiers, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
+  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, priceTiers: prices, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
 
   const [orderItem, setOrderItem] = useState<OrderItem>(baseOrderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
@@ -234,7 +229,7 @@ export default function ProductCard(props: ProductCardProps) {
               productInfo={{
                 id: productId,
                 description: description,
-                prices: [standardPrice, premiumPrice, deluxePrice]
+                prices: prices
               }}
               orderItem={orderItem}
               submitStatus={submitStatus}
