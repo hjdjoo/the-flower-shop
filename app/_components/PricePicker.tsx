@@ -40,7 +40,7 @@ export default function PricePicker(props: PricePickerProps) {
 
     const updatedOrderInfo = { ...orderItem };
 
-    updatedOrderInfo.price = price.toString();
+    updatedOrderInfo.selectedTier = idx;
 
     setOrderItem({ ...updatedOrderInfo });
     setPriceSelected(true);

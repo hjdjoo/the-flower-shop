@@ -39,14 +39,27 @@ interface CartPreviewItemProps {
 
 const CartPreviewItem = (props: CartPreviewItemProps) => {
 
-  const { name, imageUrl, price, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
+  const { name, imageUrl, prices, selectedTier, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
   const { idx } = props;
 
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const { tax, total } = calculateTax(price, deliveryFee)
+  console.log("selectedTier: ", selectedTier)
+  console.log(prices)
+
+  const itemPrice = prices[selectedTier!]
+  const itemTax = calculateTax(itemPrice)
+  const deliveryTax = calculateTax(deliveryFee)
+
+  const taxedItem = itemPrice + itemTax;
+  const taxedDelivery = parseFloat(deliveryFee) + deliveryTax;
+
+  const tax = (itemTax + deliveryTax).toFixed(2);
+
+  const total = (taxedItem + taxedDelivery).toFixed(2);
+
 
   return (
     <Box id={`${deliveryDate}-box-${idx + 1}`}
@@ -111,7 +124,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
           <Typography>Item Value:</Typography>
         </Grid>
         <Grid xs={4}>
-          <Typography>{`$${price}`}</Typography>
+          <Typography>{`$${prices[selectedTier!]}`}</Typography>
         </Grid>
         <Grid xs={8}>
           <Typography>Del. Fee:</Typography>

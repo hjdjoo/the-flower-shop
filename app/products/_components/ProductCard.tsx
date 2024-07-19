@@ -58,7 +58,7 @@ export default function ProductCard(props: ProductCardProps) {
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
   /* Object reassignment to get default order for page;  */
-  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, priceTiers: prices, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
+  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, prices: prices, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
 
   const [orderItem, setOrderItem] = useState<OrderItem>(baseOrderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
@@ -93,13 +93,13 @@ export default function ProductCard(props: ProductCardProps) {
 
   const handleAddToCart = async () => {
     console.log("Order Info: ", orderItem);
-    if (!deliveryDate) {
+    if (!deliveryDateValid) {
       // have customer select a delivery date
       // insert error logic here...
       console.log("You gotta pick a delivery date");
       return;
     }
-    if (!orderItem.price) {
+    if (!priceSelected) {
       // have customer select a price first
       // insert error logic here...
       console.log("You gotta pick a price")

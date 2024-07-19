@@ -1,21 +1,23 @@
-
 /**
  * 
- * @param price string: price for item
- * @param deliveryFee string: delivery fee calculated based on simple linear formula
- * @returns : {tax: string, total: string}
+ * @param price string: price for item, **in dollars**
+ * @returns number: 
  */
 
-export default function calculateTax(price: string, deliveryFee: string) {
+export default function calculateTax(value: number | string) {
+
+  if (!value) {
+    throw new Error("Input a product price.")
+  }
 
   const njSalesTax = 0.0625
 
-  const tax100 = Math.floor((parseFloat(price) + parseFloat(deliveryFee)) * njSalesTax * 100).toFixed(2)
+  let inputPrice = typeof value === "string" ? parseFloat(value) : value;
+
+  const tax100 = Math.floor((inputPrice) * njSalesTax * 100).toFixed(2)
 
   const tax = parseInt(tax100) / 100
 
-  const total = (parseFloat(price) + parseFloat(deliveryFee) + tax).toFixed(2).toString();
-
-  return { tax: tax, total: total };
+  return tax;
 
 }
