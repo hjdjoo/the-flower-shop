@@ -32,8 +32,6 @@ export default async function calculatePrices(item: OrderItem) {
 
     const drivingRoute = await drivingRouteResponse.json() as DrivingRouteResponse;
 
-    console.log("calculatePrices/drivingRouteResponse.json(): ", drivingRoute);
-
     const { duration, distanceMeters } = drivingRoute.routes[0];
 
     const durationVal = parseInt(duration.replace("s", ""))
@@ -44,7 +42,8 @@ export default async function calculatePrices(item: OrderItem) {
 
     const tax = itemTax + deliveryTax;
 
-    const total = itemValue + deliveryFee + tax;
+    const total = parseInt(((itemValue + deliveryFee + tax) * 100).toFixed(2)) / 100;
+
 
     return {
       itemValue: itemValue,

@@ -46,7 +46,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
 
   const addressStr = Object.values(recipAddress).join(" ");
 
-  const itemPrice = prices[selectedTier!] / 100
+  const itemPrice = prices[selectedTier!]
   const itemTax = calculateTax(itemPrice)
   const deliveryTax = calculateTax(deliveryFee)
 
@@ -121,7 +121,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
           <Typography>Item Value:</Typography>
         </Grid>
         <Grid xs={4}>
-          <Typography>{`$${(prices[selectedTier!] / 100).toFixed(2)}`}</Typography>
+          <Typography>{`$${(prices[selectedTier!]).toFixed(2)}`}</Typography>
         </Grid>
         <Grid xs={8}>
           <Typography>Del. Fee:</Typography>

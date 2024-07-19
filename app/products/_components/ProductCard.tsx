@@ -52,9 +52,9 @@ export default function ProductCard(props: ProductCardProps) {
   const { productId } = props
   const { name, categories, description, prices, imageUrl } = props.productInfo
 
-  const standardPrice = (prices[0] / 100).toFixed(2);
-  const premiumPrice = (prices[1] / 100).toFixed(2);
-  const deluxePrice = (prices[2] / 100).toFixed(2);
+  const standardPrice = prices[0].toFixed(2)
+  const premiumPrice = prices[1].toFixed(2)
+  const deluxePrice = prices[2].toFixed(2)
 
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");

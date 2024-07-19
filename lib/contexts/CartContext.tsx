@@ -65,6 +65,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   function refreshCart(cart: LocalCart) {
 
+    if (!cart) { return defaultCart }
+
     const cartAgeHrs = (Date.now() - cart.updatedAt) / 1000 / 3600;
 
     if (cartAgeHrs > 48) {

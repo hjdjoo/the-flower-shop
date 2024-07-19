@@ -53,6 +53,7 @@ export default function Checkout() {
         return res.json()
       })
       .then((data) => {
+        console.log(data);
         setClientSecret(data.clientSecret);
       })
       .catch(error => {

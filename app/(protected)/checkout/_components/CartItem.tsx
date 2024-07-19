@@ -118,9 +118,9 @@ const CartItem = (props: CartItem) => {
                   // throw new Error("Price is not a number");
                 }}
               >
-                <MenuItem value={0}>{`$${(product.prices[0] / 100).toFixed(2)}`}</MenuItem>
-                <MenuItem value={1}>{`$${(product.prices[1] / 100).toFixed(2)}`}</MenuItem>
-                <MenuItem value={2}>{`$${(product.prices[2] / 100).toFixed(2)}`}</MenuItem>
+                <MenuItem value={0}>{`$${(product.prices[0]).toFixed(2)}`}</MenuItem>
+                <MenuItem value={1}>{`$${(product.prices[1]).toFixed(2)}`}</MenuItem>
+                <MenuItem value={2}>{`$${(product.prices[2]).toFixed(2)}`}</MenuItem>
               </Select>
             </Container>
             <Container className="Address-TextBox-Wrapper">
@@ -219,7 +219,7 @@ const CartItem = (props: CartItem) => {
           </FormControl>
           : <Container>
             <Typography component="p" style={{ fontWeight: 500 }}>
-              {`ProductID: ${product.productId} | Price: $${(product.prices[tier] / 100).toFixed(2)}`}
+              {`ProductID: ${product.productId} | Price: $${(product.prices[tier]).toFixed(2)}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
               {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
