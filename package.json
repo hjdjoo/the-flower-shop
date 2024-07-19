@@ -19,6 +19,8 @@
     "@mui/icons-material": "^5.15.8",
     "@mui/material": "^5.15.4",
     "@mui/material-nextjs": "^5.15.7",
+    "@stripe/react-stripe-js": "^2.7.3",
+    "@stripe/stripe-js": "^4.1.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.1.0",

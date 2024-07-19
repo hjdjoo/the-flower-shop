@@ -6,7 +6,7 @@ export interface OrderFormData {
   senderPhone: number | undefined,
   senderEmail: string | undefined,
 
-  orderItems: Array<OrderItem | undefined>
+  orderItems: Array<OrderItem>
 
 }
 
@@ -18,7 +18,6 @@ export interface Address {
   townCity: string,
   state: string,
   zip: string,
-  orders: number
 }
 
 export type Addresses = Address[];
@@ -26,10 +25,11 @@ export type Addresses = Address[];
 // Elliot: originally the recipAddress was just a number that had the index of the address from the Addresses type
 // I'm not sure if we need to save the address in the orderItem explicitly, so I'll just leave a comment about it to discuss later with Darryl
 export interface OrderItem {
-  productId: string,
+  productId: number,
+  selectedTier?: number,
+  prices: number[],
   imageUrl: string,
   name: string,
-  price: string,
   cardMessage: string,
   recipFirst: string,
   recipLast: string,
@@ -41,7 +41,7 @@ export interface OrderItem {
   deliveryDate: string,
 }
 
-export type Order = OrderItem[][];
+export type SortedOrder = OrderItem[][];
 
 export interface SenderInfo {
   senderFirst: string,
@@ -52,5 +52,5 @@ export interface SenderInfo {
 
 export interface Cart {
   deliveryDates: string[]
-  cartItems: Array<OrderItem | undefined>
+  cartItems: Array<OrderItem>
 }

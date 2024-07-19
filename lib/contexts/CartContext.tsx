@@ -1,23 +1,42 @@
 "use client";
 
 import { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
-import { Cart } from "../../app/_components/types/OrderFormData"
+import { Cart, OrderItem, SortedOrder, Dates } from "../../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 
 interface CartProviderProps {
   children: React.ReactNode
 }
 
+
 /**
- * In order to make the Cart more organized/performant:
- * deliveryDates is a hash map that takes the date as a key and assigns it an index.
- * addresses is a hashmap that takes the address as a key and assigns it to the index of the delivery date.
+ * 
+ * To access cart, import useCart and CartContextType into module, then typecast as CartContextType, like so:
+ * 
+ * const cart = useCart() as CartContextType
+ * 
+ * Cart {
+ *  deliveryDates: []
+ *  cartItems: OrderItem[]
+ * }
+ * 
+ * Cart.getSortedOrder() returns an array of arrays where the order items are organized by deliveryDate.
+ * 
+ * addToCart() adds item to carItems and then sorts the cart by delivery date.
+ * 
+ * removing from cart can be done by creating a copy of the cart with the item removed and using the generic setCart state dispatch.
+ * 
  */
 
+interface LocalCart extends Cart {
+  updatedAt: number
+}
 
 export interface CartContextType {
   cart: Cart
-  updateCart: (cart: Cart) => void
+  updateCart: (cart: Cart) => void // 
+  addToCart: (deliveryDate: string, item: OrderItem) => void
+  getSortedOrder: () => SortedOrder
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -32,17 +51,92 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
-  const [cart, setCart] = useState<Cart>(defaultCart);
+  const storedCartJSON = localStorage.getItem("cart");
+  const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
-  const updateCart = (cart: Cart) => {
+  const newCart = refreshCart(storedCart);
 
-    console.log("cart: ", cart)
-    setCart(cart);
+  const [cart, setCart] = useState<Cart>(newCart);
+
+  function refreshCart(cart: LocalCart) {
+
+    if (!cart) return defaultCart;
+
+    const cartAgeHrs = (Date.now() - cart.updatedAt) / 3600;
+
+    if (cartAgeHrs > 48) {
+      localStorage.removeItem("cart");
+      return defaultCart;
+    }
+    else {
+      return cart;
+    };
+  }
+
+  const addToCart = (deliveryDate: string, item: OrderItem) => {
+
+    const { deliveryDates, cartItems } = cart;
+
+    const newDeliveryDates: Dates = [...deliveryDates];
+    const newCartItems: Array<OrderItem> = [...cartItems];
+
+    if (!deliveryDates.includes(deliveryDate)) {
+      newDeliveryDates.push(deliveryDate);
+      newDeliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
+    }
+
+    newCartItems.push(item);
+    newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
+
+    const newCart = {
+      deliveryDates: newDeliveryDates,
+      cartItems: newCartItems
+    }
+
+    setCart({ ...newCart })
+
+    const localCart = { ...newCart } as LocalCart;
+
+    localCart.updatedAt = Date.now();
+
+    localStorage.setItem("cart", JSON.stringify(localCart));
 
   }
 
+  const getSortedOrder = () => {
+
+    const { deliveryDates, cartItems } = cart;
+
+    // Fun fact: Array.fill([]) won't work for this algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
+    const order = Array(deliveryDates.length);
+
+    deliveryDates.forEach((date, idx) => {
+
+      for (let item of cartItems) {
+        if (item?.deliveryDate === date) {
+          if (!order[idx]) {
+            order[idx] = [item];
+          }
+          else {
+            order[idx].push(item);
+          }
+        }
+      }
+    })
+
+    return order;
+  }
+
+  const updateCart = (newCart: Cart) => {
+
+    localStorage.setItem("cart", JSON.stringify(newCart));
+    setCart({ ...newCart })
+
+  }
+
+
   return (
-    <CartContext.Provider value={{ cart, updateCart }}>{children}</CartContext.Provider>
+    <CartContext.Provider value={{ cart, updateCart, addToCart, getSortedOrder }}>{children}</CartContext.Provider>
   )
 
 }

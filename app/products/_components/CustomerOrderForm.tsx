@@ -12,15 +12,16 @@ import Button from "@mui/material/Button";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-// import { TextField } from "@/app/_components/styled/TextField";
 import RecipientInfo from "@/app/_components/RecipientInfo";
 import ZipCheckerButton from "@/app/_components/ZipChecker";
 import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 
-import { OrderItem, Address } from "@/app/_components/types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
+
+import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
+import type { SubmitStatus } from "./ProductCard";
 
 
 interface CustomerOrderFormProps {
@@ -28,7 +29,9 @@ interface CustomerOrderFormProps {
   orderItem: OrderItem
   setDeliveryDate: Dispatch<SetStateAction<string>>
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
-  setReadyToSubmit: Dispatch<SetStateAction<boolean>>
+  setSubmitStatus: Dispatch<SetStateAction<SubmitStatus>>
+  setZipValid: Dispatch<SetStateAction<boolean>>
+  setDeliveryDateValid: Dispatch<SetStateAction<boolean>>
 }
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
@@ -38,7 +41,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   const theme = useTheme();
 
-  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setReadyToSubmit } = props;
+  const { orderItem, deliveryDate, setOrderItem, setDeliveryDate, setSubmitStatus, setZipValid, setDeliveryDateValid } = props;
 
   /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
@@ -56,6 +59,16 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   })
 
   const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
+
+  useEffect(() => {
+    // console.log("CustOrderForm/useEffect/deliveryDate: ", orderItem.deliveryDate);
+    if (!deliveryDate.length) {
+      setDeliveryDateValid(false);
+    }
+    if (!orderItem.recipAddress.zip) {
+      setZipValid(false)
+    }
+  }, [orderItem, deliveryDate, setDeliveryDateValid, setZipValid])
 
 
   /* Handler Functions */
@@ -79,7 +92,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
   const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-
     const updatedOrder = orderItem;
     const updatedAddress = { ...orderItem.recipAddress, [name]: value };
     updatedOrder.recipAddress = updatedAddress;
@@ -99,12 +111,14 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: `${message}`
       })
+      setDeliveryDateValid(false);
     }
     else {
       setDeliveryDateAlert({
         severity: undefined,
         message: ""
       })
+      setDeliveryDateValid(true);
     }
   }
   // simple check with zip code regexp
@@ -118,13 +132,13 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: "Please enter a valid ZIP"
       })
-      setReadyToSubmit(false)
+      setSubmitStatus("incomplete")
+      setZipValid(false);
     } else {
       setDeliveryZipAlert({
         severity: undefined,
         message: ""
       })
-      setReadyToSubmit(true)
     };
   }
 
@@ -136,7 +150,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
         severity: "error",
         message: `${value.length}/250 - too long!`
       });
-      setReadyToSubmit(false);
+      setSubmitStatus("incomplete");
       return;
     }
 
@@ -144,7 +158,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
       severity: undefined,
       message: `${value.length}/250`
     })
-    setReadyToSubmit(true);
 
   }
 
@@ -261,7 +274,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 zipCode={orderItem.recipAddress.zip}
                 setDeliveryZipAlert={setDeliveryZipAlert}
                 setDeliveryFee={setDeliveryFee}
-                setReadyToSubmit={setReadyToSubmit}
+                setZipValid={setZipValid}
               />
             </Box>
             <Box

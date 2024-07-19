@@ -13,7 +13,7 @@ import OrderInfo from "./OrderInfo";
 import { OrderForm as orderForm } from "./lib/OrderForm";
 
 /***** types *****/
-import { OrderFormData } from "./types/OrderFormData";
+import { OrderFormData } from "../types/component-types/OrderFormData";
 
 // leaving "cart" type as "any" while creating new order functionality is underway.
 interface OrderSheetProps {

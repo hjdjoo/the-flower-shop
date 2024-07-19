@@ -1,10 +1,10 @@
-import { cache } from "react";
+// import { cache } from "react";
 import { createClient } from "../client";
 import { CategoryData } from "@/app/types/db-types";
 
 export const revalidate = 3600;
 
-export const getCategories = cache(async () => {
+export const getCategories = async () => {
 
   const supabase = createClient();
   const { data, error } = await supabase
@@ -15,4 +15,4 @@ export const getCategories = cache(async () => {
 
   return { data, error }
 
-});
+};

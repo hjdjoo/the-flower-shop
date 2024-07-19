@@ -1,11 +1,10 @@
 import { createClient } from "../client";
-import { cache } from "react";
 
 export const revalidate = 3600;
 
 export const getCategoryNames = async (categories: number[]) => {
 
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("product_categories")

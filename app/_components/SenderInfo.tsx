@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 /***** Custom Components *****/
 import { InputField } from "./styled/InputField";
 /***** types *****/
-import { OrderFormData } from "./types/OrderFormData";
+import { OrderFormData } from "../types/component-types/OrderFormData";
 import type { ChangeEventHandler } from "react";
 
 interface SenderInfoProps {

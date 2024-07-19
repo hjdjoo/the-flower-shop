@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createProfile } from "@/utils/supabase/serverActions/createProfile";
 import { NextResponse } from "next/server";
-import { AuthFormData } from "../_components/types/AuthFormData";
+import { AuthFormData } from "../types/component-types/AuthFormData";
 
 export async function login(formData: AuthFormData) {
   const supabase = createClient();

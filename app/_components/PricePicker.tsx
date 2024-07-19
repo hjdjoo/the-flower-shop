@@ -1,36 +1,49 @@
-import { useState, Dispatch, SetStateAction, ChangeEvent } from "react";
+import { useState, useEffect, Dispatch, SetStateAction, ChangeEvent } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 
-import { OrderFormData, OrderItem, CartItem } from "./types/OrderFormData";
+import { OrderFormData, OrderItem } from "../types/component-types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {
   // prices: Array<number | string | undefined>
-  productInfo: { id: number, description: string, prices: Array<number | undefined> }
+  productInfo: { id: number, description: string, prices: Array<number> }
   orderItem: OrderItem
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
+  submitStatus: string | undefined
+  setPriceSelected: Dispatch<SetStateAction<boolean>>
 }
 
 
 export default function PricePicker(props: PricePickerProps) {
 
-  const { productInfo, orderItem, setOrderItem } = props;
+  const { productInfo, orderItem, setOrderItem, submitStatus, setPriceSelected } = props;
 
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(undefined)
 
   const priceTiers = ["Standard", "Premium", "Deluxe"]
+
+  useEffect(() => {
+
+    if (submitStatus === "submitted") {
+      setSelectedPrice(undefined);
+      setPriceSelected(false);
+    }
+
+  }, [submitStatus, setPriceSelected])
+
 
   const handlePrice = (price: number, idx: number) => {
     setSelectedPrice(idx);
 
     const updatedOrderInfo = { ...orderItem };
 
-    updatedOrderInfo.price = price.toString();
+    updatedOrderInfo.selectedTier = idx;
 
-    setOrderItem({ ...updatedOrderInfo })
+    setOrderItem({ ...updatedOrderInfo });
+    setPriceSelected(true);
   }
 
 
@@ -40,7 +53,7 @@ export default function PricePicker(props: PricePickerProps) {
         variant={selectedPrice === idx ? "contained" : "outlined"}
         key={`price-button-${idx + 1}`}
         id={`price-button-`}
-        onClick={() => handlePrice(price!, idx)}
+        onClick={() => handlePrice(price, idx)}
         aria-label={`Select ${priceTiers[idx]}`}
         sx={{
           width: "25%"
