@@ -52,10 +52,6 @@ export default function ProductCard(props: ProductCardProps) {
   const { productId } = props
   const { name, categories, description, prices, imageUrl } = props.productInfo
 
-  const standardPrice = prices[0].toFixed(2)
-  const premiumPrice = prices[1].toFixed(2)
-  const deluxePrice = prices[2].toFixed(2)
-
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
@@ -95,7 +91,7 @@ export default function ProductCard(props: ProductCardProps) {
 
   const handleAddToCart = async () => {
     console.log("Order Info: ", orderItem);
-    if (!deliveryDate) {
+    if (!deliveryDateValid) {
       // have customer select a delivery date
       // insert error logic here...
       console.log("You gotta pick a delivery date");
@@ -231,7 +227,7 @@ export default function ProductCard(props: ProductCardProps) {
               productInfo={{
                 id: productId,
                 description: description,
-                prices: [standardPrice, premiumPrice, deluxePrice]
+                prices: prices
               }}
               orderItem={orderItem}
               submitStatus={submitStatus}

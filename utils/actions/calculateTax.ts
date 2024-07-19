@@ -1,8 +1,6 @@
-
 /**
  * 
  * @param price string: price for item, **in dollars**
- * @param deliveryFee string: delivery fee calculated based on simple linear formula
  * @returns number: 
  */
 

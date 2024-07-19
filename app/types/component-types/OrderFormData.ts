@@ -34,6 +34,7 @@ export interface OrderItem {
   recipFirst: string,
   recipLast: string,
   recipAddress: Address,
+  recipAddressIndex: number,
   recipPhone: string,
   deliveryFee: string,
   deliveryInstructions: string,

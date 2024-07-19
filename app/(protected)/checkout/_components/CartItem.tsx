@@ -11,12 +11,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import { InputField } from "@/app/_components/styled/InputField";
+import e from "cors";
 
 import { useCart } from "@/lib/contexts/CartContext";
 import { imageLoader } from "@/lib/imageLoader";
 
 import type { CartContextType } from "@/lib/contexts/CartContext";
-import type { OrderItem } from "@/app/types/component-types/OrderFormData";
+import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 
 interface CartItem {
   product: OrderItem,
@@ -39,14 +40,52 @@ const CartItem = (props: CartItem) => {
   const [recipPhone, setRecipPhone] = useState<string>(product.recipPhone);
   const [cardMessage, setCardMessage] = useState<string>(product.cardMessage);
 
+  const [changeAdddress, setChangeAddress] = useState<boolean>(false);
   const [streetAddress1, setStreetAddress1] = useState<string>(product.recipAddress.streetAddress1);
   const [streetAddress2, setStreetAddress2] = useState<string>(product.recipAddress.streetAddress2);
   const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
   const [state, setState] = useState<string>(product.recipAddress.state);
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
 
-  const confirmChanges = () => {
+  const validateAddress = async () => {
+    let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
+    fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: {
+            addressLines: [streetAddress1, formatApt, townCity, state, zip]
+          }
+        })
+      })
+      .then(data => data.json())
+      .then(res => {
+        if (res.result.address.addressComponents.length > 7) {
+          setStreetAddress1(res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, ''));
+          setStreetAddress2(res.result.address.addressComponents[2].componentName.text);
+        } else {
+          setStreetAddress1(res.result.address.postalAddress.addressLines[0]);
+        }
+        setTownCity(res.result.address.postalAddress.locality);
+        setState(res.result.address.postalAddress.administrativeArea);
+        setZip(res.result.address.postalAddress.postalCode);
+        console.log('Valid Address');
+      })
+      .catch(err => console.log('Error validating new address: ', err))
+  }
 
+  const compareAddress = (newAddress: Address, currAddress: Address) => {
+    if (newAddress.streetAddress1 == currAddress.streetAddress1 &&
+      newAddress.streetAddress2 == currAddress.streetAddress2 &&
+      newAddress.townCity == currAddress.townCity &&
+      newAddress.state == currAddress.state &&
+      newAddress.zip == currAddress.zip
+    ) return true;
+    else return false;
+  }
+
+  const confirmChanges = async () => {
     if (toggleEdit) {
 
       let updateOrder = structuredClone(order);
@@ -71,12 +110,40 @@ const CartItem = (props: CartItem) => {
 
       updateCart({ ...cart, cartItems: newCartItems });
       setToggleEdit(false);
-
     }
     else {
       setToggleEdit(true);
     }
   }
+
+  // const deleteItem = () => {
+  //   let updateAddresses = structuredClone(demoAddress);
+  //   let updateOrder = structuredClone(demoOrder);
+  //   let updateItems = updateOrder[dateIndex];
+
+  //   if (updateAddresses[updateItems[orderIndex].recipAddressIndex].orders <= 0) {
+  //     throw new Error('Error in deleteItem: address with negative orders');
+  //   } else {
+  //     updateAddresses[updateItems[orderIndex].recipAddressIndex].orders--;
+  //     if (updateAddresses[product.recipAddressIndex].orders == 0) {
+  //       delete updateAddresses[product.recipAddressIndex];
+  //     }
+  //     setDemoAddress(updateAddresses);
+  //   }
+
+  //   if (updateItems.length > 1) {
+  //     updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
+  //     updateOrder[dateIndex] = updateItems;
+  //     setDemoOrder(updateOrder);
+  //   } else {
+  //     updateOrder = updateOrder.slice(0, dateIndex).concat(updateOrder.slice(dateIndex + 1));
+  //     setDemoOrder(updateOrder);
+
+  //     let updateDates = structuredClone(demoDates);
+  //     updateDates = updateDates.slice(0, dateIndex).concat(updateDates.slice(dateIndex + 1));
+  //     setDemoDates(updateDates);
+  //   }
+  // }
 
   // Wrote this without testing... Should work but haven't hooked it up.
   const removeItem = () => {
@@ -91,6 +158,7 @@ const CartItem = (props: CartItem) => {
 
   }
 
+  // const prices = product.priceTiers;
   // const prices = product.priceTiers;
 
 
@@ -108,6 +176,7 @@ const CartItem = (props: CartItem) => {
           ? <FormControl>
             <Container className="Price-wrapper" sx={{ display: "flex", height: 23, ml: 1, mb: 1 }} >
               <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
+              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
               <Select
                 variant="standard"
                 sx={{ ml: 1 }}
@@ -115,9 +184,15 @@ const CartItem = (props: CartItem) => {
                 onChange={(event: SelectChangeEvent<string>) => {
                   // setPrice(product.prices[tier]);
                   setTier(parseInt(event.target.value))
+                  // setPrice(product.prices[tier]);
+                  setTier(parseInt(event.target.value))
                   // throw new Error("Price is not a number");
+
                 }}
               >
+                <MenuItem value={0}>{`$${(product.prices[0]).toFixed(2)}`}</MenuItem>
+                <MenuItem value={1}>{`$${(product.prices[1]).toFixed(2)}`}</MenuItem>
+                <MenuItem value={2}>{`$${(product.prices[2]).toFixed(2)}`}</MenuItem>
                 <MenuItem value={0}>{`$${(product.prices[0]).toFixed(2)}`}</MenuItem>
                 <MenuItem value={1}>{`$${(product.prices[1]).toFixed(2)}`}</MenuItem>
                 <MenuItem value={2}>{`$${(product.prices[2]).toFixed(2)}`}</MenuItem>
@@ -162,17 +237,23 @@ const CartItem = (props: CartItem) => {
                   width: '97.5%'
                 }}
                 value={streetAddress1}
-                onChange={(event) => setStreetAddress1(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress1(event.target.value);
+                }}
               />
               <InputField
                 id="address-line-2"
                 name="StreetAddress2"
-                label="Address Line 2"
+                label="APT/Suite/Unit #"
                 sx={{
                   width: '97.5%'
                 }}
                 value={streetAddress2}
-                onChange={(event) => setStreetAddress2(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setStreetAddress2(event.target.value);
+                }}
               />
               <InputField
                 id="town"
@@ -182,7 +263,10 @@ const CartItem = (props: CartItem) => {
                   width: '33%'
                 }}
                 value={townCity}
-                onChange={(event) => setTownCity(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setTownCity(event.target.value);
+                }}
               />
               <InputField
                 id="State"
@@ -192,7 +276,10 @@ const CartItem = (props: CartItem) => {
                   width: '31%'
                 }}
                 value={state}
-                onChange={(event) => setState(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setState(event.target.value);
+                }}
               />
               <InputField
                 id="zip"
@@ -202,8 +289,25 @@ const CartItem = (props: CartItem) => {
                   width: '31%'
                 }}
                 value={zip}
-                onChange={(event) => setZip(event.target.value)}
+                onChange={(event) => {
+                  setChangeAddress(true);
+                  setZip(event.target.value);
+                }}
               />
+              <Button
+                onClick={() => validateAddress()}
+                sx={{
+                  border: "1px solid",
+                  borderColor: "primary.main",
+                  mt: 1,
+                  ml: 3.5,
+                  '&:hover': {
+                    backgroundColor: "#dfe6df",
+                  }
+                }}
+              >
+                Check Address
+              </Button>
               <InputField
                 id="card-message"
                 name="cardMessage"
@@ -228,7 +332,7 @@ const CartItem = (props: CartItem) => {
               {`Phone Number: ${product.recipPhone}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
-              {`Address: ${product.recipAddress.streetAddress1 ? `${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state}` : ""} ${product.recipAddress.zip}`}
+              {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
             </Typography>
             <Typography component="p" style={{ fontWeight: 500 }}>
               {`Note: 
@@ -265,6 +369,7 @@ const CartItem = (props: CartItem) => {
           </Button>
         }
       </Container>
+
     </Container>
   )
 }

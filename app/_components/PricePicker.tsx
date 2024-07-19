@@ -9,7 +9,7 @@ import { OrderFormData, OrderItem } from "../types/component-types/OrderFormData
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {
   // prices: Array<number | string | undefined>
-  productInfo: { id: number, description: string, prices: Array<string> }
+  productInfo: { id: number, description: string, prices: Array<number> }
   orderItem: OrderItem
   setOrderItem: Dispatch<SetStateAction<OrderItem>>
   submitStatus: string | undefined

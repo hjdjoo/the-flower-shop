@@ -15,6 +15,7 @@ import getStripe from "@/utils/stripe/getStripe";
 
 import CheckoutForm from "./_components/CheckoutForm";
 import CartItem from "./_components/CartItem";
+import Button from '@mui/material/Button';
 import { CartContextType } from "@/lib/contexts/CartContext";
 
 import { useCart } from "@/lib/contexts/CartContext";
@@ -99,11 +100,24 @@ export default function Checkout() {
           </AccordionDetails>
         </Accordion>
       )}
-      {clientSecret &&
-        <Elements stripe={stripePromise} options={options} >
-          <CheckoutForm />
-        </Elements>
-      }
+      {/* <Button
+        onClick={() => {
+          console.log('demoAddress', demoAddress);
+          console.log('demoOrder', demoOrder);
+          console.log('demoDates', demoDates);
+        }}
+        sx={{
+          border: "1px solid",
+          borderColor: "primary.main",
+          mt: 1,
+          ml: 3.5,
+          '&:hover': {
+            backgroundColor: "#dfe6df",
+          }
+        }}
+      >
+        Check
+      </Button> */}
     </Container>
   )
 }
