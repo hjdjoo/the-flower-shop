@@ -31,10 +31,10 @@ export interface PriceTiers {
 
 export interface OrderItem {
   productId: number,
-  priceTiers: PriceTiers,
+  selectedTier?: number,
+  prices: number[],
   imageUrl: string,
   name: string,
-  price: string,
   cardMessage: string,
   recipFirst: string,
   recipLast: string,
