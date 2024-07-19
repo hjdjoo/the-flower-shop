@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   const { itemPrices, cartTotal } = cartInfo;
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: cartTotal,
+    amount: cartTotal * 100,
     currency: "usd",
   })
 

@@ -38,8 +38,6 @@ export default function Checkout() {
 
     if (!cart) return;
 
-    console.log("Checkout/page/useEffect/cart: ", cart)
-
     setDeliveryDates(cart.deliveryDates);
     const sortedOrder = getSortedOrder();
     setOrder(sortedOrder);
