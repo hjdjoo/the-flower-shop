@@ -22,13 +22,8 @@ export interface Address {
 
 export type Addresses = Address[];
 
-// keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a number since that is what the DB is expecting and the value will always be nonzero.
-export interface PriceTiers {
-  standardPrice: string,
-  premiumPrice: string,
-  deluxePrice: string
-}
-
+// Elliot: originally the recipAddress was just a number that had the index of the address from the Addresses type
+// I'm not sure if we need to save the address in the orderItem explicitly, so I'll just leave a comment about it to discuss later with Darryl
 export interface OrderItem {
   productId: number,
   selectedTier?: number,
@@ -39,6 +34,7 @@ export interface OrderItem {
   recipFirst: string,
   recipLast: string,
   recipAddress: Address,
+  recipAddressIndex: number,
   recipPhone: string,
   deliveryFee: string,
   deliveryInstructions: string,
