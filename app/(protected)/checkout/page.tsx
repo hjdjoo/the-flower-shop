@@ -7,23 +7,18 @@ import Typography from "@mui/material/Typography";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Button from '@mui/material/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { Elements } from "@stripe/react-stripe-js";
 import { StripeElementsOptions } from "@stripe/stripe-js";
-import getStripe from "@/utils/stripe/getStripe";
 
-import CheckoutForm from "./_components/CheckoutForm";
 import CartItem from "./_components/CartItem";
-import Button from '@mui/material/Button';
+import OrderSummary from "./_components/OrderSummary";
 import { CartContextType } from "@/lib/contexts/CartContext";
 
 import { useCart } from "@/lib/contexts/CartContext";
 
 import { Dates, Addresses, SortedOrder } from '../../types/component-types/OrderFormData'
-
-
-const stripePromise = getStripe();
 
 export default function Checkout() {
 
@@ -43,24 +38,6 @@ export default function Checkout() {
     const sortedOrder = getSortedOrder();
     setOrder(sortedOrder);
 
-    fetch("/create-payment-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(cart)
-    })
-      .then((res) => {
-        return res.json()
-      })
-      .then((data) => {
-        console.log(data);
-        setClientSecret(data.clientSecret);
-      })
-      .catch(error => {
-        console.log("Something went wrong while creating payment intent")
-        console.error(error.message)
-      })
   }, [cart, getSortedOrder])
 
 
@@ -100,24 +77,6 @@ export default function Checkout() {
           </AccordionDetails>
         </Accordion>
       )}
-      {/* <Button
-        onClick={() => {
-          console.log('demoAddress', demoAddress);
-          console.log('demoOrder', demoOrder);
-          console.log('demoDates', demoDates);
-        }}
-        sx={{
-          border: "1px solid",
-          borderColor: "primary.main",
-          mt: 1,
-          ml: 3.5,
-          '&:hover': {
-            backgroundColor: "#dfe6df",
-          }
-        }}
-      >
-        Check
-      </Button> */}
     </Container>
   )
 }

@@ -9,12 +9,13 @@ export default function Loading({ error, reset, }:
   }) {
 
   useEffect(() => {
+    if (!error) return;
     console.error(error)
   }, [error]);
 
   return (
     <div>
-      <h2>Loading page...</h2>
+      <h1>Loading page...</h1>
     </div>
   )
 

@@ -15,7 +15,6 @@ export default function SenderInfo(props: SenderInfoProps) {
 
   const { formData, handleFormData } = props;
 
-
   return (
     <>
       <Typography

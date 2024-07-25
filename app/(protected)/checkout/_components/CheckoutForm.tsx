@@ -1,6 +1,10 @@
-import { useState, useEffect, ChangeEvent } from "react";
-import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { useState, useEffect, ChangeEvent, MouseEvent } from "react";
 
+import Box from "@mui/material/Box"
+import Typography from "@mui/material/Typography"
+import Button from "@mui/material/Button"
+
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { StripePaymentElementOptions } from "@stripe/stripe-js";
 
 export default function CheckoutForm() {
@@ -46,7 +50,9 @@ export default function CheckoutForm() {
 
   }, [stripe])
 
-  const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
+  // handleSubmit should also add item to DB.
+
+  const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
@@ -59,13 +65,14 @@ export default function CheckoutForm() {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "localhost:3000/"
+        return_url: "http://localhost:3000/confirm-payment"
       }
     })
 
     if (error.type === "card_error" || error.type === "validation_error") {
       setMessage(error.message);
     } else {
+      console.error(error);
       setMessage("An unexpected error occurred.")
     }
 
@@ -78,20 +85,36 @@ export default function CheckoutForm() {
   } as StripePaymentElementOptions
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
+
+    <form id="payment-form">
       <PaymentElement id="stripe-payment-element" options={paymentElementOptions} />
-      <button id="submit-button"
-        disabled={isLoading || !stripe || !elements}>
-        <span id="button-text">
-          {isLoading ? <div>loading...</div> : "Pay Now"}
-        </span>
-      </button>
+      <Box id="payment-button-box"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
+        }}>
+        <Button id="submit-button"
+          disabled={isLoading || !stripe || !elements}
+          variant="contained"
+          onClick={handleSubmit}
+          sx={{
+            marginY: "20px",
+            width: "50%"
+          }}
+        >
+          <span id="button-text">
+            {isLoading ? <div>loading...</div> : "Pay Now"}
+          </span>
+        </Button>
+      </Box>
       {message &&
-        <div id="payment-message">
+        <Box id="payment-message">
           {message}
-        </div>
+        </Box>
       }
     </form>
+
   )
 
 }

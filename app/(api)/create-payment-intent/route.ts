@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   const cart = await req.json();
 
-  console.log("create-payment-intent/cart: ", cart);
+  // console.log("create-payment-intent/cart: ", cart);
 
   const cartInfo = await calculateCart(cart);
 

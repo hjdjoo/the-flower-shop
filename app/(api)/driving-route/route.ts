@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     const response = await googleResponse.json();
 
-    console.log("driving-route/googleResponse: ", response);
+    // console.log("driving-route/googleResponse: ", response);
     if (response.error) {
       throw new Error(`couldn't get driving route: ${response.error.message}, ${response.error.details}`)
     }

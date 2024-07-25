@@ -1,10 +1,14 @@
+// when sending to DB:
+// have order details ready in "cart" table
+// "cart" table should contain OrderFormData.
+// 
 export interface OrderFormData {
 
-  senderId: string | undefined,
-  senderFirst: string,
-  senderLast: string,
-  senderPhone: number | undefined,
-  senderEmail: string | undefined,
+  senderId?: number,
+  senderFirst?: string,
+  senderLast?: string,
+  senderPhone?: string,
+  senderEmail?: string,
 
   orderItems: Array<OrderItem>
 

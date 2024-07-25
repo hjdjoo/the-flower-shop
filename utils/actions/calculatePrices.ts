@@ -44,6 +44,7 @@ export default async function calculatePrices(item: OrderItem) {
 
     const total = parseInt(((itemValue + deliveryFee + tax) * 100).toFixed(2)) / 100;
 
+    // console.log("calculatePrices: total", total)
 
     return {
       itemValue: itemValue,

@@ -9,12 +9,13 @@ export default function Loading({ error, reset, }:
   }) {
 
   useEffect(() => {
-    console.error(error)
+    if (!error) return;
+    console.error("app/loading.tsx/error:", error)
   }, [error]);
 
   return (
     <div>
-      <h2>Loading page...</h2>
+      <h1>Loading page...</h1>
     </div>
   )
 

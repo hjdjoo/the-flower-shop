@@ -61,8 +61,8 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
       if (zipCode?.toString() === "07450") {
         setDeliveryFee("8.95")
       } else {
-        const deliveryFee = JSON.stringify(calculateDeliveryFee(drivingDistance, drivingTime))
-        console.log("deliveryFee from check: ", deliveryFee)
+        const deliveryFee = JSON.stringify(calculateDeliveryFee(drivingTime, drivingDistance))
+        // console.log("deliveryFee from check: ", deliveryFee)
         setDeliveryFee(deliveryFee);
       }
 

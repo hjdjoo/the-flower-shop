@@ -1,9 +1,10 @@
-export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
+export default function CheckoutLayout({ children, payment }: { children: React.ReactNode, payment: React.ReactNode }) {
 
 
   return (
     <>
       {children}
+      {payment}
     </>
   )
 }

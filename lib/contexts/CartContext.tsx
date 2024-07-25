@@ -52,6 +52,7 @@ export const useCart = () => {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
   const [cart, setCart] = useState<Cart>(defaultCart);
+  const [user, setUser] = useState()
 
   useEffect(() => {
     const storedCartJSON = localStorage && localStorage.getItem("cart")
@@ -103,7 +104,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     const localCart = { ...newCart } as LocalCart;
 
     localCart.updatedAt = Date.now();
-
     localStorage.setItem("cart", JSON.stringify(localCart));
 
   }
