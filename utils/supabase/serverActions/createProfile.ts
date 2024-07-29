@@ -4,14 +4,26 @@ export async function createProfile(userId: string, isAdmin: boolean = false) {
 
   const supabase = createClient();
 
+  console.log("createProfile/", "userId", "isAdmin", userId, isAdmin)
+
   const { error } = await supabase
-    .from("public.profiles")
+    .from("profiles")
     .insert({
       user_id: userId,
-      is_Admin: isAdmin
+      is_admin: isAdmin
     })
 
   if (error) {
-    console.error(error)
+    console.error("createProfile/insert/error: ", error.message, error.details)
+    return {
+      data: null,
+      error: error
+    }
+  };
+
+  return {
+    data: "success",
+    error: null
   }
+
 }

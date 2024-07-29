@@ -57,6 +57,16 @@ export default function AuthForm() {
     }
   }
 
+  const handleGoogleButton = async () => {
+
+    supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`
+      }
+    })
+  }
+
   return (
 
     <FormControl
@@ -142,12 +152,7 @@ export default function AuthForm() {
       <div className={roboto.className}
         style={{ padding: 3 }}
       >
-        <button className="gsi-material-button" onClick={() => supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`
-          }
-        })}>
+        <button className="gsi-material-button" onClick={handleGoogleButton}>
           <div className="gsi-material-button-state"></div>
           <div className="gsi-material-button-content-wrapper">
             <div className="gsi-material-button-icon">

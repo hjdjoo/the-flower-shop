@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-interface OrderSummarProps {
+interface OrderSummaryProps {
 
 
 }

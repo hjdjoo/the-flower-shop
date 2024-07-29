@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Cart, OrderItem, SortedOrder, Dates } from "../../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
+import { createClient } from "@/utils/supabase/client";
 
 interface CartProviderProps {
   children: React.ReactNode
@@ -51,10 +52,13 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
+  const supabase = createClient();
+
   const [cart, setCart] = useState<Cart>(defaultCart);
   const [user, setUser] = useState()
 
   useEffect(() => {
+
     const storedCartJSON = localStorage && localStorage.getItem("cart")
     const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
@@ -63,6 +67,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     setCart(newCart);
 
   }, [])
+
+  useEffect(() => {
+    (async () => {
+
+      const { data, error } = await supabase
+        .auth
+        .getSession();
+
+
+    })()
+
+  }, [supabase])
+
+
 
   function refreshCart(cart: LocalCart) {
 
