@@ -4,7 +4,6 @@ export async function createProfile(userId: string, isAdmin: boolean = false) {
 
   const supabase = createClient();
 
-  console.log("createProfile/", "userId", "isAdmin", userId, isAdmin)
 
   const { error } = await supabase
     .from("profiles")

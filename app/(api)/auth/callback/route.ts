@@ -17,20 +17,23 @@ export async function GET(request: Request) {
 
       if (!error) {
 
-        const body = {
-          userId: data.user.id
-        }
+        if (!data.user.user_metadata.shop_acct_id) {
 
-        const res = await fetch("http://localhost:3000/auth/create-shop-profile", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
-        })
+          const body = {
+            userId: data.user.id
+          }
 
-        if (!res.ok || !res.body) {
-          throw new Error(`Couldn't create shop profile! ${res.body}`)
+          const res = await fetch("http://localhost:3000/auth/create-shop-profile", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+          })
+
+          if (!res.ok || !res.body) {
+            throw new Error(`Couldn't create shop profile! ${res.body}`)
+          }
         }
 
         return NextResponse.redirect(`${origin}${next}`)

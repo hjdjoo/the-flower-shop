@@ -8,6 +8,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 import formJson from "../actions/parseCookie";
 import checkAdmin from "./serverActions/checkAdmin";
+import { initUserMetadata } from "./serverActions/initUserMetadata";
 
 // import * as jose from "jose"
 
@@ -82,6 +83,18 @@ export async function updateSession(request: NextRequest) {
   }
 
   // console.log('@/utils/supabase/middleware/updateSession/data.user?.id', data.user.id)
+  if (!data.user.user_metadata.shop_acct_id) {
+    console.log("writing shop acct metadata")
+    const { data: initMetadataResponse, error } = await initUserMetadata(data.user.id);
+    if (error) {
+      console.log("Couldn't initialize metadata. Details:");
+      console.error(error);
+      console.error(error.message);
+    };
+    console.log(initMetadataResponse);
+
+  }
+
 
   const isAdmin = await checkAdmin(data.user.id);
 
