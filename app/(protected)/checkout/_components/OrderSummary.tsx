@@ -1,9 +1,8 @@
 import Image from "next/image";
-import { Cart } from "@/app/types/component-types/OrderFormData";
+import { Cart, PriceInfo } from "@/app/types/component-types/OrderFormData";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { OrderSummaryData } from "../@payment/page";
 import { imageLoader } from "@/lib/imageLoader";
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -11,13 +10,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useCart } from "@/lib/contexts/CartContext";
 import { CartContextType } from "@/lib/contexts/CartContext";
 
-interface OrderSummaryProps {
-  orderSummaryData: OrderSummaryData
+interface PriceSummaryProps {
+  priceInfo: PriceInfo
 }
 
-export default function OrderSummary(props: OrderSummaryProps) {
+export default function OrderSummary(props: PriceSummaryProps) {
 
-  const { cartTotal, itemPrices } = props.orderSummaryData;
+  const { cartTotal, itemPrices } = props.priceInfo;
 
   const { cart } = useCart() as CartContextType
   const { cartItems } = cart;

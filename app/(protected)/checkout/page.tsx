@@ -3,23 +3,24 @@
 import { useState, useEffect } from "react";
 
 import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Button from '@mui/material/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { StripeElementsOptions } from "@stripe/stripe-js";
 
 import CartItem from "./_components/CartItem";
-import OrderSummary from "./_components/OrderSummary";
 import { CartContextType } from "@/lib/contexts/CartContext";
+import { Cart, ItemPrices, PriceInfo } from "../../types/component-types/OrderFormData";
+import calculateCart from "@/utils/actions/calculateCart";
 
 import { useCart } from "@/lib/contexts/CartContext";
 import formatDate from "@/utils/actions/formatDate";
 
 import { Dates, Addresses, SortedOrder } from '../../types/component-types/OrderFormData'
+
 
 export default function Checkout() {
 
@@ -30,12 +31,10 @@ export default function Checkout() {
 
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
-
   // moved setState actions to useEffect to ensure that checkout renders cart items upon refresh.
   useEffect(() => {
 
     if (!cart) return;
-
     setDeliveryDates(cart.deliveryDates);
     const sortedOrder = getSortedOrder();
     setOrder(sortedOrder);
@@ -51,22 +50,22 @@ export default function Checkout() {
     >
       <Typography component='h1' sx={{ fontSize: 32, fontWeight: 500 }}>Cart</Typography>
       {deliveryDates.map((date, dateIndex) =>
-        <Accordion defaultExpanded key={dateIndex}>
+        <Accordion defaultExpanded key={`delivery-accordion-${dateIndex + 1}`}>
           <AccordionSummary
+            id={`summary-panel-${dateIndex + 1}`}
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
-            id="panel1-header"
           >
             <Typography component='h2' sx={{ fontSize: 20, fontWeight: 500 }}>Deliver on: {`${daysOfWeek[new Date(date).getDay()]} ${formatDate(date)}`}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Container className="Description-Root">
-              {order[dateIndex].map((product, orderIndex) =>
-                <Container className="CartItem-Root" key={orderIndex}>
-                  <CartItem product={product} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
-                </Container>
+            <Box id={`delivery-group-${dateIndex + 1}`}>
+              {order[dateIndex].map((orderItem, orderIndex) =>
+                <Box id={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`} key={`del-${dateIndex + 1}-order-${orderIndex + 1}`}>
+                  <CartItem orderItem={orderItem} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
+                </Box>
               )}
-            </Container>
+            </Box>
           </AccordionDetails>
         </Accordion>
       )}

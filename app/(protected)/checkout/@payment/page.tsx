@@ -15,28 +15,28 @@ import OrderSummary from "../_components/OrderSummary";
 import CheckoutForm from "../_components/CheckoutForm";
 
 import { Dates, SortedOrder } from "@/app/types/component-types/OrderFormData";
-import { Cart } from "@/app/types/component-types/OrderFormData";
+import { Cart, ItemPrices, PriceInfo } from "@/app/types/component-types/OrderFormData";
 
 const stripePromise = getStripe();
 
-interface ItemPrices {
-  itemValue: number,
-  deliveryFee: number,
-  tax: number,
-  total: number
-}
+// interface ItemPrices {
+//   itemValue: number,
+//   deliveryFee: number,
+//   tax: number,
+//   total: number
+// }
 
-export interface OrderSummaryData {
-  cart: Cart,
-  cartTotal: number,
-  itemPrices: ItemPrices[]
-}
+// export interface OrderSummaryData {
+//   cart: Cart,
+//   cartTotal: number,
+//   itemPrices: ItemPrices[]
+// }
 
 export default function MakePaymentPage() {
 
   const { cart } = useCart() as CartContextType;
   const [clientSecret, setClientSecret] = useState<string>("");
-  const [orderSummaryData, setOrderSummaryData] = useState<OrderSummaryData>();
+  const [_priceInfo, setPriceInfo] = useState<PriceInfo>();
 
   useEffect(() => {
 
@@ -54,7 +54,7 @@ export default function MakePaymentPage() {
         return res.json()
       })
       .then((data) => {
-        setOrderSummaryData({ cart: cart, cartTotal: data.cartTotal, itemPrices: data.itemPrices })
+        setPriceInfo({ cartTotal: data.cartTotal, itemPrices: data.itemPrices })
         setClientSecret(data.clientSecret);
       })
       .catch(error => {
@@ -83,9 +83,6 @@ export default function MakePaymentPage() {
         flexDirection: "column",
 
       }}>
-      {orderSummaryData &&
-        <OrderSummary orderSummaryData={orderSummaryData} />
-      }
       {clientSecret &&
         <Elements stripe={stripePromise} options={options} >
           <CheckoutForm />

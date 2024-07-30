@@ -45,7 +45,7 @@ export default async function calculatePrices(item: OrderItem) {
 
     const deliveryTax = calculateTax(deliveryFee);
 
-    const tax = itemTax + deliveryTax;
+    const tax = (itemTax * 100 + deliveryTax * 100) / 100
 
     const total = parseInt(((itemValue + deliveryFee + tax) * 100).toFixed(2)) / 100;
 
