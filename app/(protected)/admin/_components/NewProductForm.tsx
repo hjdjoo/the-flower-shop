@@ -117,7 +117,7 @@ export default function NewProduct() {
       const { name } = newProductForm;
       //  -> adds to supabase -> returns URL for updating product page
       const url = await uploadProductImage(name, fileData);
-      console.log(url);
+      // console.log(url);
       if (!url) {
         throw new Error("Couldn't add image to database!")
       };

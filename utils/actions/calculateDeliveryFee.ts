@@ -6,6 +6,10 @@
  */
 export default function calculateDeliveryFee(duration: number, distance: number,) {
 
+  if (duration === 0 || distance === 0) {
+    return 8.95
+  }
+
   if (typeof distance !== "number" || typeof duration !== "number") {
     throw new Error("distance and duration must be number types")
   }

@@ -34,7 +34,7 @@ export const UserProvider: React.FC<UserProviderProps> = (
 
       const session = (await supabase.auth.getSession()).data.session;
 
-      console.log("UserContext/useEffect/fetchuser/session: ", session)
+      // console.log("UserContext/useEffect/fetchuser/session: ", session)
 
       if (session) {
 
@@ -44,7 +44,7 @@ export const UserProvider: React.FC<UserProviderProps> = (
           .eq("user_id", session.user.id)
           .single();
 
-        console.log("UserContext/useEffect/profile: ", profile);
+        // console.log("UserContext/useEffect/profile: ", profile);
 
         if (profile.is_admin) {
           setUser({ role: "admin" });

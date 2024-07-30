@@ -17,6 +17,7 @@ import OrderSummary from "./_components/OrderSummary";
 import { CartContextType } from "@/lib/contexts/CartContext";
 
 import { useCart } from "@/lib/contexts/CartContext";
+import formatDate from "@/utils/actions/formatDate";
 
 import { Dates, Addresses, SortedOrder } from '../../types/component-types/OrderFormData'
 
@@ -27,7 +28,8 @@ export default function Checkout() {
   const [deliveryDates, setDeliveryDates] = useState<Dates>([]);
   const [order, setOrder] = useState<SortedOrder>([]);
 
-  const [clientSecret, setClientSecret] = useState<string>("");
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
 
   // moved setState actions to useEffect to ensure that checkout renders cart items upon refresh.
   useEffect(() => {
@@ -39,15 +41,6 @@ export default function Checkout() {
     setOrder(sortedOrder);
 
   }, [cart, getSortedOrder])
-
-
-  const appearance = {
-    theme: "stripe",
-  }
-  const options = {
-    clientSecret,
-    appearance
-  } as StripeElementsOptions
 
   return (
 
@@ -64,7 +57,7 @@ export default function Checkout() {
             aria-controls="panel1-content"
             id="panel1-header"
           >
-            <Typography component='h2' sx={{ fontSize: 20, fontWeight: 500 }}>Deliver on: {date}</Typography>
+            <Typography component='h2' sx={{ fontSize: 20, fontWeight: 500 }}>Deliver on: {`${daysOfWeek[new Date(date).getDay()]} ${formatDate(date)}`}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Container className="Description-Root">

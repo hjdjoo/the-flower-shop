@@ -8,7 +8,7 @@ export async function getProfileId(userId: string) {
     .select("id")
     .eq("user_id", userId);
 
-  console.log("getProfileId/data, error", data, error);
+  // console.log("getProfileId/data, error", data, error);
 
   if (error) {
     return {

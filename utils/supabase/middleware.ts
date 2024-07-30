@@ -75,9 +75,9 @@ export async function updateSession(request: NextRequest) {
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data.user) {
-    console.log('Error while checking supabase.auth.getUser()')
-    console.error(error);
-    console.log("No user found!")
+    // console.error('Error while checking supabase.auth.getUser()')
+    console.error("error? ", error);
+    console.log("No user found! Setting guest role.")
     response.cookies.set("userRole", "guest")
     return response;
   }
@@ -91,8 +91,7 @@ export async function updateSession(request: NextRequest) {
       console.error(error);
       console.error(error.message);
     };
-    console.log(initMetadataResponse);
-
+    // console.log(initMetadataResponse);
   }
 
 

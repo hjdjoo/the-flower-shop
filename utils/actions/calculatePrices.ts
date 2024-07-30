@@ -9,7 +9,7 @@ type DrivingRouteResponse = {
 
 export default async function calculatePrices(item: OrderItem) {
   try {
-    // use database info as reference instead of using client-side info for consistency.
+    // use database info instead of using client-provided data for safety
     const { data, error } = await getProductInfo(item.productId);
 
     if (!data || error) {
@@ -19,6 +19,7 @@ export default async function calculatePrices(item: OrderItem) {
     const tier = item.selectedTier!;
     const itemValue = data.prices[tier];
     const address = item.recipAddress;
+    // console.log(address);
 
     const itemTax = calculateTax(itemValue);
 
@@ -32,7 +33,11 @@ export default async function calculatePrices(item: OrderItem) {
 
     const drivingRoute = await drivingRouteResponse.json() as DrivingRouteResponse;
 
+    // console.log(drivingRoute);
+
     const { duration, distanceMeters } = drivingRoute.routes[0];
+
+    // console.log(duration, distanceMeters)
 
     const durationVal = parseInt(duration.replace("s", ""))
 
@@ -43,6 +48,8 @@ export default async function calculatePrices(item: OrderItem) {
     const tax = itemTax + deliveryTax;
 
     const total = parseInt(((itemValue + deliveryFee + tax) * 100).toFixed(2)) / 100;
+
+    // console.log(total);
 
     // console.log("calculatePrices: total", total)
 

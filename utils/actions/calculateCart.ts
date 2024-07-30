@@ -33,6 +33,8 @@ export default async function calculateCart(cart: Cart) {
     cartTotal += itemPrices[item].total;
   }
 
+  // console.log(cartTotal);
+
   return {
     itemPrices: itemPrices,
     cartTotal: cartTotal

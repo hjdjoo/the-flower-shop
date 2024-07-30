@@ -26,10 +26,10 @@ interface ItemPrices {
   total: number
 }
 
-interface OrderSummaryData {
+export interface OrderSummaryData {
   cart: Cart,
   cartTotal: number,
-  itemPrices: { cartTotal: number, clientSecret: string, itemPrices: ItemPrices[] }
+  itemPrices: ItemPrices[]
 }
 
 export default function MakePaymentPage() {
@@ -58,7 +58,7 @@ export default function MakePaymentPage() {
         setClientSecret(data.clientSecret);
       })
       .catch(error => {
-        console.log("Something went wrong while creating payment intent")
+        console.error("Something went wrong while creating payment intent")
         console.error(error.message)
       })
   }, [cart])
@@ -74,16 +74,18 @@ export default function MakePaymentPage() {
 
   return (
     <Box id="payment-box"
-      width={"60%"}
+      width={"100%"}
       maxWidth={"600px"}
       sx={{
         marginTop: "15px",
         marginX: "15px",
+        display: "flex",
+        flexDirection: "column",
+
       }}>
       {orderSummaryData &&
-        <OrderSummary />
+        <OrderSummary orderSummaryData={orderSummaryData} />
       }
-      <Typography>Payment Page</Typography>
       {clientSecret &&
         <Elements stripe={stripePromise} options={options} >
           <CheckoutForm />

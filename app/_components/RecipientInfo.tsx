@@ -18,6 +18,9 @@ export default function RecipientInfo(props: RecipientInfoProps) {
   const { orderItem, handleOrderItem, handleAddress } = props;
 
   const parsePhone = (phoneNumber: string): string | undefined => {
+    // i: formatted phone
+    // o: formatted phone
+    // normalize phone number, then re-format.
     const normalized = phoneNumber.replace(/[(, )]|[-]|[\s]/g, "")
     const length = normalized.length;
 

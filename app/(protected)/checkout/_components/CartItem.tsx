@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from 'next/image';
 
 import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import Button from '@mui/material/Button';
@@ -11,10 +12,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import { InputField } from "@/app/_components/styled/InputField";
-import e from "cors";
 
 import { useCart } from "@/lib/contexts/CartContext";
 import { imageLoader } from "@/lib/imageLoader";
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
+
+import { OrderItemForm, address, FullOrderForm } from "@/app/_components/lib/OrderForm";
 
 import type { CartContextType } from "@/lib/contexts/CartContext";
 import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
@@ -32,7 +35,10 @@ const CartItem = (props: CartItem) => {
   const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
   const order = getSortedOrder();
 
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
+
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+
   // const [price, setPrice] = useState<string>(product.price);
   const [tier, setTier] = useState<number>(product.selectedTier ? product.selectedTier : 1)
   const [recipFirst, setRecipFirst] = useState<string>(product.recipFirst);
@@ -46,6 +52,7 @@ const CartItem = (props: CartItem) => {
   const [townCity, setTownCity] = useState<string>(product.recipAddress.townCity);
   const [state, setState] = useState<string>(product.recipAddress.state);
   const [zip, setZip] = useState<string>(product.recipAddress.zip);
+
 
   const validateAddress = async () => {
     let formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
@@ -114,36 +121,7 @@ const CartItem = (props: CartItem) => {
     else {
       setToggleEdit(true);
     }
-  }
-
-  // const deleteItem = () => {
-  //   let updateAddresses = structuredClone(demoAddress);
-  //   let updateOrder = structuredClone(demoOrder);
-  //   let updateItems = updateOrder[dateIndex];
-
-  //   if (updateAddresses[updateItems[orderIndex].recipAddressIndex].orders <= 0) {
-  //     throw new Error('Error in deleteItem: address with negative orders');
-  //   } else {
-  //     updateAddresses[updateItems[orderIndex].recipAddressIndex].orders--;
-  //     if (updateAddresses[product.recipAddressIndex].orders == 0) {
-  //       delete updateAddresses[product.recipAddressIndex];
-  //     }
-  //     setDemoAddress(updateAddresses);
-  //   }
-
-  //   if (updateItems.length > 1) {
-  //     updateItems = updateItems.slice(0, orderIndex).concat(updateItems.slice(orderIndex + 1));
-  //     updateOrder[dateIndex] = updateItems;
-  //     setDemoOrder(updateOrder);
-  //   } else {
-  //     updateOrder = updateOrder.slice(0, dateIndex).concat(updateOrder.slice(dateIndex + 1));
-  //     setDemoOrder(updateOrder);
-
-  //     let updateDates = structuredClone(demoDates);
-  //     updateDates = updateDates.slice(0, dateIndex).concat(updateDates.slice(dateIndex + 1));
-  //     setDemoDates(updateDates);
-  //   }
-  // }
+  };
 
   // Wrote this without testing... Should work but haven't hooked it up.
   const removeItem = () => {
@@ -156,7 +134,7 @@ const CartItem = (props: CartItem) => {
 
     updateCart({ ...cart, cartItems: newCartItems });
 
-  }
+  };
 
   // const prices = product.priceTiers;
   // const prices = product.priceTiers;
@@ -164,192 +142,299 @@ const CartItem = (props: CartItem) => {
 
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
-    <Container
-      className="mapped"
-      style={{
+    <Box
+      id={`product-${product.productId}-order-item`}
+      sx={{
         display: 'flex',
+        flexDirection: mobile ? "column" : "row",
+        marginY: "25px"
       }}
     >
-      <Image alt="Logo" src={product.imageUrl} loader={imageLoader} width="128" height="128" style={{ paddingBottom: 25 }} />
-      <Container>
+      <Box id={`product-${product.productId}-image-box`}
+        sx={{
+          position: "relative",
+          flexGrow: 0,
+          flexShrink: 0,
+          minWidth: (mobile || tablet) ? "150px" : "200px",
+          minHeight: (mobile) ? "250px" : "200px",
+          mx: "2rem",
+          my: "2rem",
+        }}
+      >
+        <Image id={`product-${product.productId}-image`} alt={`${product.name} image`} src={product.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
+      </Box>
+      <Box id={`product-${product.productId}-info-box`}
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mt: 2.5,
+        }}>
         {toggleEdit
-          ? <FormControl>
-            <Container className="Price-wrapper" sx={{ display: "flex", height: 23, ml: 1, mb: 1 }} >
-              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
-              <Typography component="p" style={{ fontWeight: 500 }}>{`ProductID: ${product.productId} | Price:`}</Typography>
-              <Select
-                variant="standard"
-                sx={{ ml: 1 }}
-                value={tier.toString()}
-                onChange={(event: SelectChangeEvent<string>) => {
-                  // setPrice(product.prices[tier]);
-                  setTier(parseInt(event.target.value))
-                  // setPrice(product.prices[tier]);
-                  setTier(parseInt(event.target.value))
-                  // throw new Error("Price is not a number");
-
-                }}
-              >
-                <MenuItem value={0}>{`$${(product.prices[0]).toFixed(2)}`}</MenuItem>
-                <MenuItem value={1}>{`$${(product.prices[1]).toFixed(2)}`}</MenuItem>
-                <MenuItem value={2}>{`$${(product.prices[2]).toFixed(2)}`}</MenuItem>
-                <MenuItem value={0}>{`$${(product.prices[0]).toFixed(2)}`}</MenuItem>
-                <MenuItem value={1}>{`$${(product.prices[1]).toFixed(2)}`}</MenuItem>
-                <MenuItem value={2}>{`$${(product.prices[2]).toFixed(2)}`}</MenuItem>
-              </Select>
-            </Container>
-            <Container className="Address-TextBox-Wrapper">
-              <InputField
-                id="recipient-first-name"
-                name="recipFirst"
-                label="First Name"
+          ?
+          <Box id={`product-${product.productId}-edit-info-box`}
+            sx={{
+              mb: 3,
+            }}>
+            <FormControl>
+              <Box id={`product-${product.productId}-price-wrapper`}
                 sx={{
-                  width: '37.5%'
-                }}
-                value={recipFirst}
-                onChange={(event) => setRecipFirst(event.target.value)}
-              />
-              <InputField
-                id="recipient-last-name"
-                name="recipLast"
-                label="Last Name"
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  alignItems: "center",
+                  mb: 1
+                }} >
+                <Typography component="p" style={{ fontWeight: 500 }}>
+                  {`ProductID: ${product.productId}`}
+                </Typography>
+                {/* <Label></Label> */}
+                <Select
+                  variant="standard"
+                  sx={{ ml: 1 }}
+                  value={tier.toString()}
+                  onChange={(event: SelectChangeEvent<string>) => {
+                    setTier(parseInt(event.target.value));
+                    setTier(parseInt(event.target.value));
+                  }}
+                >
+                  {product.prices.map((price, idx) => (
+                    <MenuItem key={`price-tier-${idx + 1}`}
+                      value={idx}>
+                      {`$${price}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Box>
+              <Box id={`product-${product.productId}-delivery-details`}
                 sx={{
-                  width: '37.5%'
-                }}
-                value={recipLast}
-                onChange={(event) => setRecipLast(event.target.value)}
-              />
-              <InputField
-                id="phone-Number"
-                name="recipPhone"
-                label="Phone Number"
-                sx={{
-                  width: '20%',
-                }}
-                value={recipPhone}
-                onChange={(event) => setRecipPhone(event.target.value)}
-              />
-              <InputField
-                id="address-line-1"
-                name="StreetAddress1"
-                label="Address Line 1"
-                sx={{
-                  width: '97.5%'
-                }}
-                value={streetAddress1}
-                onChange={(event) => {
-                  setChangeAddress(true);
-                  setStreetAddress1(event.target.value);
-                }}
-              />
-              <InputField
-                id="address-line-2"
-                name="StreetAddress2"
-                label="APT/Suite/Unit #"
-                sx={{
-                  width: '97.5%'
-                }}
-                value={streetAddress2}
-                onChange={(event) => {
-                  setChangeAddress(true);
-                  setStreetAddress2(event.target.value);
-                }}
-              />
-              <InputField
-                id="town"
-                name="Town"
-                label="Town"
-                sx={{
-                  width: '33%'
-                }}
-                value={townCity}
-                onChange={(event) => {
-                  setChangeAddress(true);
-                  setTownCity(event.target.value);
-                }}
-              />
-              <InputField
-                id="State"
-                name="State"
-                label="State"
-                sx={{
-                  width: '31%'
-                }}
-                value={state}
-                onChange={(event) => {
-                  setChangeAddress(true);
-                  setState(event.target.value);
-                }}
-              />
-              <InputField
-                id="zip"
-                name="Zip"
-                label="Zip"
-                sx={{
-                  width: '31%'
-                }}
-                value={zip}
-                onChange={(event) => {
-                  setChangeAddress(true);
-                  setZip(event.target.value);
-                }}
-              />
-              <Button
-                onClick={() => validateAddress()}
-                sx={{
-                  border: "1px solid",
-                  borderColor: "primary.main",
-                  mt: 1,
-                  ml: 3.5,
-                  '&:hover': {
-                    backgroundColor: "#dfe6df",
-                  }
-                }}
-              >
-                Check Address
-              </Button>
-              <InputField
-                id="card-message"
-                name="cardMessage"
-                label="Note"
-                rows={4}
-                sx={{
-                  width: '97.5%',
-                }}
-                value={cardMessage}
-                onChange={(event) => setCardMessage(event.target.value)}
-              />
-            </Container>
-          </FormControl>
-          : <Container>
-            <Typography component="p" style={{ fontWeight: 500 }}>
-              {`ProductID: ${product.productId} | Price: $${(product.prices[tier]).toFixed(2)}`}
+                  maxWidth: "100%",
+                }}>
+                <Box id={`product-${product.productId}-recipient-name-box`}
+                  sx={{
+                    display: "flex"
+                  }}>
+                  <InputField
+                    id="recipient-first-name"
+                    name="recipFirst"
+                    label="First Name"
+                    // color={}
+                    sx={{
+                    }}
+                    value={recipFirst ? recipFirst : ""}
+                    onChange={(event) => setRecipFirst(event.target.value)}
+                  />
+                  <InputField
+                    id="recipient-last-name"
+                    name="recipLast"
+                    label="Last Name"
+                    sx={{
+                    }}
+                    value={recipLast ? recipLast : ""}
+                    onChange={(event) => setRecipLast(event.target.value)}
+                  />
+                </Box>
+                <Box id={`product-${product.productId}-recipient-phone`}
+                  sx={{
+                    display: "flex"
+                  }}>
+                  <InputField
+                    id={`product-${product.productId}-recip-phone`}
+                    name="recipPhone"
+                    label="Phone Number"
+                    sx={{
+                      width: "100%",
+                    }}
+                    value={recipPhone ? recipPhone : ""}
+                    onChange={(event) => setRecipPhone(event.target.value)}
+                  />
+                </Box>
+                <Box id={`product-${product.productId}-recip-address-box`}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                  }}>
+                  <InputField
+                    id={`product-${product.productId}-address-1`}
+                    name="StreetAddress1"
+                    label="Address Line 1"
+                    sx={{
+                    }}
+                    value={streetAddress1 ? streetAddress1 : ""}
+                    onChange={(event) => {
+                      setChangeAddress(true);
+                      setStreetAddress1(event.target.value);
+                    }}
+                  />
+                  <InputField
+                    id={`product-${product.productId}-address-2`}
+                    name="StreetAddress2"
+                    label="APT/Suite/Unit #"
+                    sx={{
+                    }}
+                    value={streetAddress2 ? streetAddress2 : ""}
+                    onChange={(event) => {
+                      setChangeAddress(true);
+                      setStreetAddress2(event.target.value);
+                    }}
+                  />
+                  <Box id={`product-${product.productId}-recip-town-state-box`}
+                    sx={{
+                      display: "flex"
+                    }}>
+                    <InputField
+                      id="town"
+                      name="Town"
+                      label="Town"
+                      sx={{
+                        flexGrow: 1
+                      }}
+                      value={townCity ? townCity : ""}
+                      onChange={(event) => {
+                        setChangeAddress(true);
+                        setTownCity(event.target.value);
+                      }}
+                    />
+                    <InputField
+                      id="State"
+                      name="State"
+                      label="State"
+                      sx={{
+                        flexGrow: 1
+                      }}
+                      value={state ? state : ""}
+                      onChange={(event) => {
+                        setChangeAddress(true);
+                        setState(event.target.value);
+                      }}
+                    />
+                  </Box>
+                </Box>
+                <Box id={`product-${product.productId}-zip-and-check-box`}
+                  sx={{
+                    display: "flex",
+                  }}>
+                  <Box id={`product-${product.productId}-zip-box`}
+                    sx={{
+                      flexGrow: 1,
+                      width: "50%",
+                    }}>
+                    <InputField
+                      id={`product-${product.productId}-zip`}
+                      name="Zip"
+                      label="Zip"
+                      value={zip ? zip : ""}
+                      onChange={(event) => {
+                        setChangeAddress(true);
+                        setZip(event.target.value);
+                      }}
+                    />
+                  </Box>
+                  <Box id={`product-${product.productId}-address-check-button-box`}
+                    sx={{
+                      flexGrow: 1,
+                      width: "50%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}>
+                    <Button id={`product-${product.productId}-address-check-button`}
+                      onClick={() => validateAddress()}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "primary.main",
+                        width: "80%",
+                        '&:hover': {
+                          backgroundColor: "#dfe6df",
+                        }
+                      }}
+                    >
+                      Check Address
+                    </Button>
+                  </Box>
+                </Box>
+                <Box id={`product-${product.productId}-card-message-box`}
+                  sx={{
+                    display: "flex"
+                  }}>
+                  <InputField
+                    id={`product-${product.productId}-card-message`}
+                    name="cardMessage"
+                    label="Card Message"
+                    multiline
+                    sx={{
+                      width: "100%"
+                    }}
+                    value={cardMessage ? cardMessage : ""}
+                    onChange={(event) => setCardMessage(event.target.value)}
+                  />
+                </Box>
+              </Box>
+            </FormControl>
+          </Box>
+          : <Box id={`product-${product.productId}-info-display-box`}
+            sx={{
+              width: "80%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "start",
+              pl: 4,
+              mb: 4,
+            }}>
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
+              {`ProductID: ${product.productId}`}
             </Typography>
-            <Typography component="p" style={{ fontWeight: 500 }}>
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
+              {`Price: $${(product.prices[tier]).toFixed(2)}`}
+            </Typography>
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
               {`Recipient Name: ${product.recipFirst} ${product.recipLast}`}
             </Typography>
-            <Typography component="p" style={{ fontWeight: 500 }}>
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
               {`Phone Number: ${product.recipPhone}`}
             </Typography>
-            <Typography component="p" style={{ fontWeight: 500 }}>
-              {`Address: ${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
+              {`Address: ${!product.recipAddress.streetAddress1 ? "" : `${product.recipAddress.streetAddress1} ${product.recipAddress.streetAddress2} ${product.recipAddress.townCity} ${product.recipAddress.state} ${product.recipAddress.zip}`}`}
             </Typography>
-            <Typography component="p" style={{ fontWeight: 500 }}>
-              {`Note: 
+            <Typography
+              component="p"
+              sx={{
+                fontWeight: 500
+              }}>
+              {`Card Message: 
                   ${product.cardMessage}`
               }
             </Typography>
-          </Container>
+          </Box>
         }
-
         {toggleEdit
           ? <Button
             onClick={() => confirmChanges()}
             sx={{
               border: "1px solid",
               borderColor: "primary.main",
-              mt: 1,
-              ml: 3.5,
+              width: "80%",
             }}
           >
             Confirm
@@ -361,16 +446,16 @@ const CartItem = (props: CartItem) => {
             sx={{
               border: "1px solid",
               borderColor: "primary.main",
-              mt: 1,
+              width: "80%",
               ml: 3
             }}
           >
             Edit
           </Button>
         }
-      </Container>
+      </Box>
 
-    </Container>
+    </Box>
   )
 }
 

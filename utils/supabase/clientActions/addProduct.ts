@@ -7,7 +7,7 @@ export default async function addProduct(productData: ProductData) {
 
   const { name, description, prices, imageUrl, categories } = productData
 
-  console.log('addProduct: ', productData);
+  // console.log('addProduct: ', productData);
 
   const centPrices = prices.map(price => price * 100);
 
