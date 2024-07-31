@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES } from "react";
 import Image from 'next/image';
 
 import Container from "@mui/material/Container";
@@ -11,26 +11,24 @@ import FormControl from "@mui/material/FormControl";
 import Button from '@mui/material/Button';
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Report';
-import CheckIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/DeleteForever';
 
-import { InputField } from "@/app/_components/styled/InputField";
 
 import { useCart } from "@/lib/contexts/CartContext";
 import { imageLoader } from "@/lib/imageLoader";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
-import { parsePhone } from "@/app/_components/RecipientInfo";
-
+import { InputField } from "@/app/_components/styled/InputField";
+import OrderInfoDisplay from "./_sub/OrderInfoDisplay";
 import RecipientInfo from "@/app/_components/RecipientInfo";
-import { OrderItemForm, address, FullOrderForm } from "@/app/_components/lib/OrderForm";
 
+import validateAddress from "@/utils/google/validateAddress";
 import calculatePrices from "@/utils/actions/calculatePrices";
 
+import { ErrorMessage } from "@/app/types/client-types";
 import type { CartContextType } from "@/lib/contexts/CartContext";
 import type { OrderItem, Address, ItemPrices } from "@/app/types/component-types/OrderFormData";
-import { styled } from "@mui/material";
+
 
 interface CartItem {
   orderItem: OrderItem,
@@ -51,29 +49,45 @@ const CartItem = (props: CartItem) => {
     deliveryFee: 0,
     tax: 0,
     total: 0
-  })
-
-  const CheckIconColored = styled(CheckIcon)(({ theme }) => ({
-    color: theme.palette.primary.main
-  }))
-  const ErrorIconColored = styled(ErrorIcon)(({ theme }) => ({
-    color: theme.palette.error.main
-  }))
-  const WarningIconColored = styled(WarningIcon)(({ theme }) => ({
-    color: theme.palette.warning.main
-  }))
+  });
 
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [updatedItem, setUpdatedItem] = useState<OrderItem>(orderItemCopy);
-  const [tier, setTier] = useState<number>(orderItem.selectedTier ? orderItem.selectedTier : 1)
-  const [cardMessage, setCardMessage] = useState<string>(orderItem.cardMessage);
+  const [tier, setTier] = useState<number>(orderItem.selectedTier ? orderItem.selectedTier : 1);
+
+  const [addressAlert, setAddressAlert] = useState<ErrorMessage>(
+    {
+      severity: undefined,
+      message: ""
+    });
+
+  const [deliveryAlert, setDeliveryAlert] = useState<ErrorMessage>(
+    {
+      severity: undefined,
+      message: ""
+    });
+
+  const [cardMessageAlert, setCardMessageAlert] = useState<ErrorMessage>(
+    {
+      severity: undefined,
+      message: `${updatedItem.cardMessage.length}/250`
+    });
+
 
 
   useEffect(() => {
 
     (async () => {
-      const prices = await calculatePrices(updatedItem);
-      setItemPrices(prices);
+      try {
+        const prices = await calculatePrices(updatedItem);
+        setItemPrices(prices);
+      }
+      catch (e) {
+        setDeliveryAlert({
+          severity: "error",
+          message: e as string
+        })
+      }
     })();
 
   }, [updatedItem])
@@ -95,58 +109,48 @@ const CartItem = (props: CartItem) => {
     setUpdatedItem({ ...newItem });
   }
 
-  const validateAddress = async () => {
-    const { streetAddress1, streetAddress2, townCity, state, zip } = updatedItem.recipAddress;
-    const formatApt = streetAddress2.replace(/^[^0-9]*/g, '');
-    fetch(`https://addressvalidation.googleapis.com/v1:validateAddress?key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          address: {
-            addressLines: [streetAddress1, formatApt, townCity, state, zip]
-          }
+  const handleAddressCheck = async () => {
+    try {
+      const formattedAddress = await validateAddress(updatedItem);
+      if (!formattedAddress) {
+        setAddressAlert({
+          severity: "error",
+          message: "Address validation returned nothing. Please check recipient details."
         })
+      };
+      setUpdatedItem({ ...updatedItem, recipAddress: formattedAddress })
+    }
+    catch (e) {
+      setAddressAlert({
+        severity: "error",
+        message: "Address could not be validated. Please check recipient details."
       })
-      .then(data => data.json())
-      .then(res => {
-        let newStreetAddress1 = "";
-        let newStreetAddress2 = "";
-        if (res.result.address.addressComponents.length > 7) {
-          newStreetAddress1 = res.result.address.postalAddress.addressLines[0].replace(/\s[^\s]*$/, '');
-          newStreetAddress2 = res.result.address.addressComponents[2].componentName.text
-        } else {
-          newStreetAddress1 = res.result.address.postalAddress.addressLines[0];
-        }
-        const formattedAddress = {
-          streetAddress1: newStreetAddress1,
-          streetAddress2: newStreetAddress2,
-          townCity: res.result.address.postalAddress.locality,
-          state: res.result.address.postalAddress.administrativeArea,
-          zip: res.result.address.postalAddress.postalCode,
-        }
-        setUpdatedItem({ ...updatedItem, recipAddress: formattedAddress })
-        console.log('Valid Address');
-      })
-      .catch(err => console.log('Error validating new address: ', err))
+
+    };
   }
 
-  // const compareAddress = (newAddress: Address, currAddress: Address) => {
-  //   if (newAddress.streetAddress1 == currAddress.streetAddress1 &&
-  //     newAddress.streetAddress2 == currAddress.streetAddress2 &&
-  //     newAddress.townCity == currAddress.townCity &&
-  //     newAddress.state == currAddress.state &&
-  //     newAddress.zip == currAddress.zip
-  //   ) return true;
-  //   else return false;
-  // }
+  const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { value } = e.target;
+
+    if (value.length > 250) {
+      setCardMessageAlert({
+        severity: "error",
+        message: `${value.length}/250 - too long!`
+      });
+      // setSubmitStatus("incomplete");
+      return;
+    }
+    setCardMessageAlert({
+      severity: undefined,
+      message: `${value.length}/250`
+    })
+  }
 
   const confirmChanges = async () => {
     if (toggleEdit) {
-
       let updateOrder = structuredClone(order);
       updateOrder[dateIndex][orderIndex] = updatedItem;
-      // to update the cart, just flatten out the order into a 1-D array and use generic set.
+      // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
       const newCartItems = updateOrder.flat();
       updateCart({ ...cart, cartItems: newCartItems });
       setToggleEdit(false);
@@ -158,6 +162,7 @@ const CartItem = (props: CartItem) => {
 
   // Wrote this without testing... Should work but haven't hooked it up.
   const removeItem = () => {
+
     let updateOrder = structuredClone(order);
     // remove item from array;
     updateOrder[dateIndex].splice(orderIndex, 1);
@@ -168,290 +173,17 @@ const CartItem = (props: CartItem) => {
 
   };
 
-  // Big subcomponent for displaying order info neatly.
-  // Could move this into another component altogether, but not sure if it is going to be that reusable.
-  const OrderInfoDisplay = () => {
-
-    const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = updatedItem;
-    const { itemValue, deliveryFee, tax, total } = itemPrices;
-
-    return (
-      <Box id={`order-${dateIndex + 1}-${orderIndex + 1}-product-info-display-box`} sx={{
-        display: "flex"
-      }}>
-        <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-info-display`}
-          container
-          rowSpacing={1}
-          sx={{
-            mb: 2,
-            ml: 4,
-          }}>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-item-name`}
-            xs={3} sm={4} md={2}
-            sx={{
-              display: "flex",
-              justifyContent: "end"
-            }}>
-            <Typography>{name}:</Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-price`}
-            xs={9} sm={8} md={10}>
-            <Typography sx={{
-              pl: 2
-            }}>${itemValue}</Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-name-confirm-icon`}
-            xs={1}
-            sx={{
-              display: "flex",
-              alignItems: "center"
-            }}>
-            {recipLast ? <CheckIconColored /> : <WarningIconColored />}
-          </Grid>
-          <Grid xs={2} sm={3} md={1}
-            sx={{
-              textAlign: "right",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "end",
-            }}>
-            <Typography sx={{ fontSize: "0.9rem", }}>
-              Name:
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-name`}
-            xs={9} sm={8} md={10}
-            sx={{
-              pl: 2,
-              display: "flex",
-              alignItems: "center",
-            }}>
-            <Typography id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-name`}
-              sx={{
-                fontSize: "0.9rem",
-              }}>
-              {`${recipFirst} ${recipLast}`}
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-address-confirm-icon`}
-            xs={1}
-            sx={{
-              display: "flex",
-              alignItems: "start",
-            }}>
-            {recipAddress.streetAddress1 && recipAddress.townCity && recipAddress.state ? <CheckIconColored /> : <ErrorIconColored />}
-          </Grid>
-          <Grid xs={2} sm={3} md={1}
-            sx={{
-              display: "flex",
-              alignItems: "start",
-              justifyContent: "end",
-            }}>
-            <Typography sx={{ fontSize: "0.9rem" }}>
-              Address:
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-address-grid`}
-            xs={9} sm={8} md={10}
-            sx={{
-              pl: 2,
-              display: "flex",
-              alignItems: "start",
-            }}>
-            <Box id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-address-box`}
-            >
-              <Typography sx={{
-                fontSize: "0.9rem",
-              }}>{recipAddress.streetAddress1}</Typography>
-              <Typography sx={{
-                fontSize: "0.9rem",
-              }}>{recipAddress.streetAddress2}</Typography>
-              <Box sx={{ display: "flex" }}>
-                <Typography sx={{
-                  fontSize: "0.9rem",
-                }}>{recipAddress.townCity}</Typography>
-                <Typography sx={{
-                  fontSize: "0.9rem",
-                  pl: 1
-                }}>{recipAddress.state}</Typography>
-              </Box>
-              <Typography sx={{
-                fontSize: "0.9rem",
-              }}>{recipAddress.zip}</Typography>
-            </Box>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-phone-confirm-icon`}
-            xs={1}
-            sx={{
-              display: "flex",
-              alignItems: "center"
-            }}>
-            {recipPhone ? <CheckIconColored /> : <ErrorIconColored />}
-          </Grid>
-          <Grid xs={2} sm={3} md={1}
-            sx={{
-              textAlign: "right",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "end",
-            }}>
-            <Typography sx={{ fontSize: "0.9rem", }}>
-              Phone:
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-name`}
-            xs={9} sm={8} md={10}
-            sx={{
-              pl: 2,
-              display: "flex",
-              alignItems: "center",
-            }}>
-            <Typography id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-name`}
-              sx={{
-                fontSize: "0.9rem",
-              }}>
-              {`${parsePhone(recipPhone)}`}
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-card-message-confirm-icon`}
-            xs={1}
-            sx={{
-              display: "flex",
-              alignItems: "start",
-            }}>
-            {cardMessage ? <CheckIconColored /> : <WarningIconColored />}
-          </Grid>
-          <Grid xs={2} sm={3} md={1}
-            sx={{
-              display: "flex",
-              alignItems: "start",
-              justifyContent: "end",
-            }}>
-            <Typography sx={{ fontSize: "0.9rem", textAlign: "right" }}>
-              Card Message:
-            </Typography>
-          </Grid>
-          <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-address-grid`}
-            xs={9} sm={8} md={10}
-            sx={{
-              pl: 2,
-              display: "flex",
-              alignItems: "start",
-            }}>
-            <Box id={`order-${dateIndex + 1}-${orderIndex + 1}-recip-address-box`}
-            >
-              <Typography sx={{
-                fontSize: "0.9rem",
-                whiteSpace: "pre"
-              }}>
-                {cardMessage}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-        <Box id={`order-${dateIndex + 1}-${orderIndex + 1}-price-info-display`} sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center"
-        }}>
-          <Grid container
-            rowSpacing={2}
-            sx={{
-              mb: 3,
-              mr: 3
-            }}>
-            <Grid xs={8}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right",
-                pr: 1
-              }}>
-                Item:
-              </Typography>
-            </Grid>
-            <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-item-value`}
-              xs={4}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right"
-              }}>
-                ${itemValue}
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right",
-                pr: 1
-              }}>
-                Del. Fee
-              </Typography>
-            </Grid>
-            <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-delivery-fee`}
-              xs={4}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right"
-              }}>
-                ${deliveryFee}
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right",
-                pr: 1
-              }}>
-                Tax:
-              </Typography>
-            </Grid>
-            <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-tax`}
-              xs={4}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                textAlign: "right"
-              }}>
-                ${tax}
-              </Typography>
-            </Grid>
-            <Grid xs={8}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                fontWeight: 900,
-                textAlign: "right",
-                pr: 1
-              }}>
-                Total:
-              </Typography>
-            </Grid>
-            <Grid id={`order-${dateIndex + 1}-${orderIndex + 1}-total`}
-              xs={4}>
-              <Typography sx={{
-                fontSize: "0.9rem",
-                fontStyle: "bold",
-                fontWeight: 900,
-                textAlign: "right"
-              }}>
-                ${total}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-    )
-  }
-
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
     <Box
-      id={`orderItem-${orderItem.productId}-order-item`}
+      id={`orderItem-${dateIndex}-${dateIndex}-order-item`}
       sx={{
         display: 'flex',
-        flexDirection: mobile ? "column" : "row",
+        flexDirection: mobile || tablet ? "column" : "row",
         marginY: "25px"
       }}
     >
-      <Box id={`orderItem-${orderItem.productId}-image-box`}
+      <Box id={`orderItem-${dateIndex}-${dateIndex}-image-box`}
         sx={{
           position: "relative",
           flexGrow: 0,
@@ -462,9 +194,9 @@ const CartItem = (props: CartItem) => {
           my: "2rem",
         }}
       >
-        <Image id={`orderItem-${orderItem.productId}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
+        <Image id={`orderItem-${dateIndex}-${dateIndex}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
       </Box>
-      <Box id={`orderItem-${orderItem.productId}-info-box`}
+      <Box id={`orderItem-${dateIndex}-${dateIndex}-info-box`}
         sx={{
           flexGrow: 1,
           display: "flex",
@@ -474,12 +206,12 @@ const CartItem = (props: CartItem) => {
         }}>
         {toggleEdit
           ?
-          <Box id={`orderItem-${orderItem.productId}-edit-info-box`}
+          <Box id={`orderItem-${dateIndex}-${dateIndex}-edit-info-box`}
             sx={{
               mb: 3,
             }}>
             <FormControl>
-              <Box id={`orderItem-${orderItem.productId}-price-wrapper`}
+              <Box id={`orderItem-${dateIndex}-${dateIndex}-price-wrapper`}
                 sx={{
                   display: "flex",
                   justifyContent: "space-evenly",
@@ -507,7 +239,7 @@ const CartItem = (props: CartItem) => {
                 </Select>
               </Box>
               <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
-              <Box id={`orderItem-${orderItem.productId}-address-check-button-box`}
+              <Box id={`orderItem-${dateIndex}-${dateIndex}-address-check-button-box`}
                 sx={{
                   flexGrow: 1,
                   width: "100%",
@@ -516,13 +248,13 @@ const CartItem = (props: CartItem) => {
                   alignItems: "center",
                   justifyContent: "center",
                 }}>
-                <Button id={`orderItem-${orderItem.productId}-address-check-button`}
-                  onClick={() => validateAddress()}
+                <Button id={`orderItem-${dateIndex}-${dateIndex}-address-check-button`}
+                  onClick={handleAddressCheck}
                   sx={{
                     border: "1px solid",
                     borderColor: "primary.main",
                     width: "90%",
-                    my: 3,
+                    mb: 3,
                     '&:hover': {
                       backgroundColor: "#dfe6df",
                     }
@@ -530,30 +262,39 @@ const CartItem = (props: CartItem) => {
                 >
                   Check Address
                 </Button>
-                <Box id={`orderItem-${orderItem.productId}-card-message-box`}
+              </Box>
+              <Box id={`orderItem-${dateIndex}-${dateIndex}-card-message-box`}
+                sx={{
+                  display: "flex",
+                  width: "100%"
+                }}>
+                <InputField
+                  id={`orderItem-${dateIndex}-${dateIndex}-card-message-input`}
+                  name="cardMessage"
+                  value={updatedItem.cardMessage}
+                  error={cardMessageAlert.severity === "error"}
+                  helperText={cardMessageAlert.message}
+                  onKeyDown={(k) => {
+                    if (cardMessageAlert.severity === ("error" || "warning") && k.code !== "Backspace") k.preventDefault();
+                  }}
+                  onChange={(e) => {
+                    handleOrderItem(e);
+                    checkMessageLength(e);
+                  }}
+                  fullWidth
+                  multiline
                   sx={{
-                    display: "flex",
-                    width: "100%"
-                  }}>
-                  <InputField
-                    id={`orderItem-${orderItem.productId}-card-message`}
-                    name="cardMessage"
-                    label="Card Message"
-                    multiline
-                    sx={{
-                      width: "100%"
-                    }}
-                    value={updatedItem.cardMessage ? updatedItem.cardMessage : ""}
-                    onChange={handleOrderItem}
-                  />
-                </Box>
+                    marginTop: "5px",
+                    marginBottom: "15px"
+                  }}
+                />
               </Box>
             </FormControl>
           </Box>
-          : <OrderInfoDisplay />
+          : <OrderInfoDisplay orderItem={updatedItem} itemPrices={itemPrices} orderIdx={orderIndex} dateIdx={dateIndex} />
         }
         {toggleEdit
-          ? <Button
+          ? <Button id={`orderItem-${dateIndex}-${dateIndex}-confirm-changes-button`}
             onClick={() => confirmChanges()}
             sx={{
               border: "1px solid",
@@ -563,7 +304,7 @@ const CartItem = (props: CartItem) => {
           >
             Confirm
           </Button>
-          : <Button
+          : <Button id={`orderItem-${dateIndex}-${dateIndex}-toggle-edit-button`}
             onClick={() => {
               toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
             }}
@@ -571,12 +312,25 @@ const CartItem = (props: CartItem) => {
               border: "1px solid",
               borderColor: "primary.main",
               width: "80%",
-              ml: 3
             }}
           >
             Edit
           </Button>
         }
+        <Button id={`orderItem-${dateIndex}-${dateIndex}-remove-from-cart-button`}
+          onClick={removeItem}
+          variant="outlined"
+          color="error"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            fontSize: "0.8rem",
+            width: "80%",
+            my: 2
+          }}
+        >
+          <DeleteIcon /> Remove From Cart
+        </Button>
       </Box>
 
     </Box>

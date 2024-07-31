@@ -42,6 +42,7 @@ export interface OrderFormData {
 }
 
 export interface Cart {
+  addresses: Addresses
   deliveryDates: string[]
   cartItems: Array<OrderItem>
 }
@@ -68,5 +69,5 @@ export interface Address {
   zip: string,
 }
 
-export type Addresses = Address[];
+export type Addresses = string[];
 

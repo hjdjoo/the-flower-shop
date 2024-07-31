@@ -24,16 +24,19 @@ import { Dates, Addresses, SortedOrder } from '../../types/component-types/Order
 
 export default function Checkout() {
 
+  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
   const { cart, getSortedOrder } = useCart() as CartContextType;
+
+  const { addresses } = cart;
 
   const [deliveryDates, setDeliveryDates] = useState<Dates>([]);
   const [order, setOrder] = useState<SortedOrder>([]);
 
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
   // moved setState actions to useEffect to ensure that checkout renders cart items upon refresh.
   useEffect(() => {
 
+    console.log(cart);
     if (!cart) return;
     setDeliveryDates(cart.deliveryDates);
     const sortedOrder = getSortedOrder();
@@ -49,7 +52,7 @@ export default function Checkout() {
       }}
     >
       <Typography component='h1' sx={{ fontSize: 32, fontWeight: 500 }}>Cart</Typography>
-      {deliveryDates.map((date, dateIndex) =>
+      {deliveryDates.length ? deliveryDates.map((date, dateIndex) =>
         <Accordion defaultExpanded key={`delivery-accordion-${dateIndex + 1}`}>
           <AccordionSummary
             id={`summary-panel-${dateIndex + 1}`}
@@ -60,15 +63,47 @@ export default function Checkout() {
           </AccordionSummary>
           <AccordionDetails>
             <Box id={`delivery-group-${dateIndex + 1}`}>
-              {order[dateIndex].map((orderItem, orderIndex) =>
-                <Box id={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`} key={`del-${dateIndex + 1}-order-${orderIndex + 1}`}>
-                  <CartItem orderItem={orderItem} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
-                </Box>
-              )}
+              {addresses.map((address, addressIdx) => {
+                //going through addresses,
+                // let's go through the orders for that delivery date and check if there is a match with the address index.
+                order[dateIndex].map((orderItem, orderIndex) => {
+
+
+
+                  return (
+                    <Box id={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`} key={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`}>
+                      <Box>
+                        <Typography>Delivery to:</Typography>
+                        <Typography>{addresses[orderItem.recipAddressIndex]}</Typography>
+                      </Box>
+                    </Box>
+                  )
+                })
+
+                if (orderItem.recipAddressIndex === addressIdx) {
+                  return (
+                    <Box id={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}-date-${addressIdx + 1}`} key={`del-${dateIndex + 1}-order-${orderIndex + 1}-date-${addressIdx + 1}`}>
+                      <CartItem orderItem={orderItem} orderIndex={orderIndex} dateIndex={dateIndex}></CartItem>
+                    </Box>);
+                };
+
+              })}
+              {/* {order[dateIndex].map((orderItem, orderIndex) => {
+                return (
+                  <Box id={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`} key={`cart-item-delivery-group-${dateIndex + 1}-order-${orderIndex + 1}`}>
+                    <Box>
+                      <Typography>Delivery to:</Typography>
+                      <Typography>{addresses[orderItem.recipAddressIndex]}</Typography>
+                    </Box>
+                  </Box>
+                )
+              })}; */}
             </Box>
           </AccordionDetails>
         </Accordion>
-      )}
+      ) : <Typography>
+        Cart is empty!
+      </Typography>}
     </Container>
   )
 }

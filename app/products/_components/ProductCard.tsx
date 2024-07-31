@@ -307,7 +307,7 @@ export default function ProductCard(props: ProductCardProps) {
                 Price tier selected {priceSelected ? <CheckIcon /> : <ClearIcon />}
               </Typography>
             </Box>
-            {!!cart.deliveryDates.length &&
+            {!!cart.cartItems.length &&
               <>
                 <Box id="cart-preview-box"
                   marginTop="25px"

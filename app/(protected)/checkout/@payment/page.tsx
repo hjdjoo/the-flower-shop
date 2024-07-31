@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
@@ -38,10 +38,15 @@ export default function MakePaymentPage() {
   const [clientSecret, setClientSecret] = useState<string>("");
   const [_priceInfo, setPriceInfo] = useState<PriceInfo>();
 
+  // Come back to this - React is getting angry between renders when the clientSecret temporary goes back to being null. Using a function to 
+
+  // const cachedSecret = useMemo(() => {
+
+  // }, [])
+
   useEffect(() => {
 
-    if (!cart) return;
-    if (!cart.cartItems.length) return;
+    if (!cart || !cart.cartItems.length) return;
 
     fetch("/create-payment-intent", {
       method: "POST",
@@ -54,6 +59,7 @@ export default function MakePaymentPage() {
         return res.json()
       })
       .then((data) => {
+        console.log("MakePaymentPage/useEffect/fetch/create-payment-intent/cart total: ", data.cartTotal);
         setPriceInfo({ cartTotal: data.cartTotal, itemPrices: data.itemPrices })
         setClientSecret(data.clientSecret);
       })

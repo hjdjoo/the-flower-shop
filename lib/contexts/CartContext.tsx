@@ -1,9 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Cart, OrderItem, SortedOrder, Dates } from "../../app/types/component-types/OrderFormData"
+import { Cart, OrderItem, SortedOrder, Dates, Addresses } from "../../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 import { createClient } from "@/utils/supabase/client";
+
+import addressToString from "@/utils/actions/addressToString";
 
 interface CartProviderProps {
   children: React.ReactNode
@@ -55,7 +57,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   const supabase = createClient();
 
   const [cart, setCart] = useState<Cart>(defaultCart);
-  const [user, setUser] = useState()
+
+  // Todo: set userId to shop ID and update user info as needed with session.
+  // const [user, setUser] = useState()
 
   useEffect(() => {
 
@@ -68,18 +72,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   }, [])
 
-  useEffect(() => {
-    (async () => {
+  // useEffect(() => {
+  //   (async () => {
 
-      const { data, error } = await supabase
-        .auth
-        .getSession();
+  //     const { data, error } = await supabase
+  //       .auth
+  //       .getSession();
 
+  //   })()
 
-    })()
-
-  }, [supabase])
-
+  // }, [supabase])
 
 
   function refreshCart(cart: LocalCart) {
@@ -99,9 +101,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   const addToCart = (deliveryDate: string, item: OrderItem) => {
 
-    const { deliveryDates, cartItems } = cart;
+    const { deliveryDates, addresses, cartItems } = cart;
 
     const newDeliveryDates: Dates = [...deliveryDates];
+    const newAddresses: Addresses = [...addresses];
     const newCartItems: Array<OrderItem> = [...cartItems];
 
     if (!deliveryDates.includes(deliveryDate)) {
@@ -113,16 +116,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
 
     const newCart = {
+      addresses: newAddresses,
       deliveryDates: newDeliveryDates,
       cartItems: newCartItems
     }
 
-    setCart({ ...newCart })
-
-    const localCart = { ...newCart } as LocalCart;
-
-    localCart.updatedAt = Date.now();
-    localStorage.setItem("cart", JSON.stringify(localCart));
+    updateCart(newCart)
 
   }
 
@@ -146,14 +145,76 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
         }
       }
     })
-
     return order;
+  }
+
+  /**
+   * updateAddresses()
+   * @returns :Cart - this is a NEW cart object with a refreshed set of addresses and cart items containing the new address indices.
+   * This does *not* refresh the cart and should be used as a utility function for other cart operations.
+   * 
+   */
+  const updateAddressesAndDates = (cart: Cart) => {
+
+    // careful when using "keyof typeof" to dynamically type keys. A "keyof" a blank object will return an array-like with number indices, and so TS will automatically type the key as "string | number" even if the key has been indicated as a string in the interface.
+    // Address cache for updating addresses. Initialized every time cart is updated.
+    interface AddressCache {
+      [key: string]: number
+    };
+    const addressCache: AddressCache = {};
+
+    const { cartItems } = cart;
+
+    const newCartItems = [...cartItems]
+    const newAddresses: Addresses = [];
+    const newDeliveryDates: string[] = [];
+
+    newCartItems.forEach((item) => {
+
+      const addressStr = addressToString(item.recipAddress);
+
+      // be careful of zero indexing and null checks
+      if (addressCache[addressStr] === 0 || addressCache[addressStr]) {
+        item.recipAddressIndex = addressCache[addressStr];
+      } else {
+        newAddresses.push(addressStr);
+        item.recipAddressIndex = newAddresses.length - 1;
+        addressCache[addressStr] = newAddresses.length - 1;
+      };
+
+      if (!newDeliveryDates.includes(item.deliveryDate)) {
+        newDeliveryDates.push(item.deliveryDate);
+      };
+
+    });
+
+    const newCart = {
+      addresses: newAddresses,
+      deliveryDates: newDeliveryDates,
+      cartItems: newCartItems,
+    }
+
+    console.log("CartContext/updateAddresses/newCart: ", newCart);
+    return newCart;
+
   }
 
   const updateCart = (newCart: Cart) => {
 
-    localStorage.setItem("cart", JSON.stringify(newCart));
-    setCart({ ...newCart })
+    if (!newCart.cartItems.length) {
+      console.log("No items in cart - setting to default cart.")
+      localStorage.setItem("cart", JSON.stringify(defaultCart));
+      setCart({ ...defaultCart })
+    }
+
+    const updatedCart = updateAddressesAndDates(newCart);
+
+    const localCart = { ...updatedCart } as LocalCart;
+
+    localCart.updatedAt = Date.now();
+    localStorage.setItem("cart", JSON.stringify(localCart));
+
+    setCart({ ...newCart });
 
   }
 

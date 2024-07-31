@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import addressToString from "@/utils/supabase/clientActions/addressToString";
+import addressToString from "@/utils/actions/addressToString";
 
 const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY!
 

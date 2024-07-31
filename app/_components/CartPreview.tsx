@@ -165,7 +165,7 @@ export default function CartPreview() {
     const displayDay = getDayOfWeek(date);
     const displayDate = formatDate(date);
 
-    const previewItems = order[i].map((item, j) => {
+    const previewItems = order[i]?.map((item, j) => {
 
       if (item.deliveryDate === date) {
 

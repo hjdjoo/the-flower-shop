@@ -158,7 +158,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
       severity: undefined,
       message: `${value.length}/250`
     })
-
   }
 
   return (
