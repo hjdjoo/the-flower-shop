@@ -3,18 +3,20 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
 import { ItemPrices } from "@/app/types/component-types/OrderFormData";
+import { useCart } from "@/lib/contexts/CartContext";
+import { CartContextType } from "@/lib/contexts/CartContext";
 
 interface PriceInfoDisplayProps {
   itemPrices: ItemPrices
   dateIdx: number
-  orderIdx: number
+  addressIdx: number
 }
 
 export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
 
-  const { itemPrices, dateIdx, orderIdx } = props;
-
-  const { itemValue, deliveryFee, tax, total } = itemPrices
+  const { cart } = useCart() as CartContextType;
+  const { itemPrices, dateIdx, addressIdx } = props;
+  const { itemValue, tax, total } = itemPrices
 
   return (
     <Grid container
@@ -33,7 +35,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           Item:
         </Typography>
       </Grid>
-      <Grid id={`order-${dateIdx + 1}-${orderIdx + 1}-item-value`}
+      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-item-value`}
         xs={5}>
         <Typography sx={{
           fontSize: "0.9rem",
@@ -51,13 +53,13 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           Del. Fee
         </Typography>
       </Grid>
-      <Grid id={`order-${dateIdx + 1}-${orderIdx + 1}-delivery-fee`}
+      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-delivery-fee`}
         xs={5}>
         <Typography sx={{
           fontSize: "0.9rem",
           textAlign: "right"
         }}>
-          ${deliveryFee}
+          {/* ${deliveryFee} */}
         </Typography>
       </Grid>
       <Grid xs={7}>
@@ -69,7 +71,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           Tax:
         </Typography>
       </Grid>
-      <Grid id={`order-${dateIdx + 1}-${orderIdx + 1}-tax`}
+      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-tax`}
         xs={5}>
         <Typography sx={{
           fontSize: "0.9rem",
@@ -88,7 +90,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           Total:
         </Typography>
       </Grid>
-      <Grid id={`order-${dateIdx + 1}-${orderIdx + 1}-total`}
+      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-total`}
         xs={5}>
         <Typography sx={{
           fontSize: "0.9rem",

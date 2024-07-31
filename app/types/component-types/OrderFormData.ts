@@ -23,6 +23,7 @@ export interface OrderItem {
 export type SortedOrder = OrderItem[][];
 
 export interface SenderInfo {
+  senderId?: number
   senderFirst: string,
   senderLast: string,
   phoneNumber: number,
@@ -37,8 +38,22 @@ export interface OrderFormData {
   senderPhone?: string,
   senderEmail?: string,
 
-  orderItems: Array<OrderItem>
+  orderItems: OrderItem[]
 
+}
+
+export interface Order {
+  deliveryDate: string
+  address: Address
+  orderItems: OrderItem[]
+  orderPrices: OrderPrices
+}
+
+export interface OrderPrices {
+  itemValues: number[],
+  tax: number,
+  deliveryFee: number,
+  total: number
 }
 
 export interface Cart {
@@ -54,10 +69,10 @@ export interface PriceInfo {
 
 export interface ItemPrices {
   itemValue: number,
-  deliveryFee: number,
   tax: number,
   total: number
 }
+
 
 export type Dates = string[];
 

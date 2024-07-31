@@ -32,13 +32,13 @@ import type { OrderItem, Address, ItemPrices } from "@/app/types/component-types
 
 interface CartItem {
   orderItem: OrderItem,
-  orderIndex: number,
-  dateIndex: number
+  orderIdx: number,
+  dateIdx: number
 }
 
 const CartItem = (props: CartItem) => {
 
-  const { orderItem, orderIndex, dateIndex } = props;
+  const { orderItem, orderIdx, dateIdx } = props;
   const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
   const order = getSortedOrder();
   const orderItemCopy = Object.assign({}, orderItem);
@@ -46,7 +46,6 @@ const CartItem = (props: CartItem) => {
 
   const [itemPrices, setItemPrices] = useState<ItemPrices>({
     itemValue: 0,
-    deliveryFee: 0,
     tax: 0,
     total: 0
   });
@@ -149,7 +148,7 @@ const CartItem = (props: CartItem) => {
   const confirmChanges = async () => {
     if (toggleEdit) {
       let updateOrder = structuredClone(order);
-      updateOrder[dateIndex][orderIndex] = updatedItem;
+      updateOrder[dateIdx][orderIdx] = updatedItem;
       // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
       const newCartItems = updateOrder.flat();
       updateCart({ ...cart, cartItems: newCartItems });
@@ -165,7 +164,7 @@ const CartItem = (props: CartItem) => {
 
     let updateOrder = structuredClone(order);
     // remove item from array;
-    updateOrder[dateIndex].splice(orderIndex, 1);
+    updateOrder[dateIdx].splice(orderIdx, 1);
     // flatten;
     const newCartItems = updateOrder.flat();
 
@@ -176,14 +175,14 @@ const CartItem = (props: CartItem) => {
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
     <Box
-      id={`orderItem-${dateIndex}-${dateIndex}-order-item`}
+      id={`orderItem-${dateIdx}-${dateIdx}-order-item`}
       sx={{
         display: 'flex',
         flexDirection: mobile || tablet ? "column" : "row",
         marginY: "25px"
       }}
     >
-      <Box id={`orderItem-${dateIndex}-${dateIndex}-image-box`}
+      <Box id={`orderItem-${dateIdx}-${dateIdx}-image-box`}
         sx={{
           position: "relative",
           flexGrow: 0,
@@ -194,9 +193,9 @@ const CartItem = (props: CartItem) => {
           my: "2rem",
         }}
       >
-        <Image id={`orderItem-${dateIndex}-${dateIndex}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
+        <Image id={`orderItem-${dateIdx}-${dateIdx}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
       </Box>
-      <Box id={`orderItem-${dateIndex}-${dateIndex}-info-box`}
+      <Box id={`orderItem-${dateIdx}-${dateIdx}-info-box`}
         sx={{
           flexGrow: 1,
           display: "flex",
@@ -206,12 +205,12 @@ const CartItem = (props: CartItem) => {
         }}>
         {toggleEdit
           ?
-          <Box id={`orderItem-${dateIndex}-${dateIndex}-edit-info-box`}
+          <Box id={`orderItem-${dateIdx}-${dateIdx}-edit-info-box`}
             sx={{
               mb: 3,
             }}>
             <FormControl>
-              <Box id={`orderItem-${dateIndex}-${dateIndex}-price-wrapper`}
+              <Box id={`orderItem-${dateIdx}-${dateIdx}-price-wrapper`}
                 sx={{
                   display: "flex",
                   justifyContent: "space-evenly",
@@ -239,7 +238,7 @@ const CartItem = (props: CartItem) => {
                 </Select>
               </Box>
               <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
-              <Box id={`orderItem-${dateIndex}-${dateIndex}-address-check-button-box`}
+              <Box id={`orderItem-${dateIdx}-${dateIdx}-address-check-button-box`}
                 sx={{
                   flexGrow: 1,
                   width: "100%",
@@ -248,7 +247,7 @@ const CartItem = (props: CartItem) => {
                   alignItems: "center",
                   justifyContent: "center",
                 }}>
-                <Button id={`orderItem-${dateIndex}-${dateIndex}-address-check-button`}
+                <Button id={`orderItem-${dateIdx}-${dateIdx}-address-check-button`}
                   onClick={handleAddressCheck}
                   sx={{
                     border: "1px solid",
@@ -263,13 +262,13 @@ const CartItem = (props: CartItem) => {
                   Check Address
                 </Button>
               </Box>
-              <Box id={`orderItem-${dateIndex}-${dateIndex}-card-message-box`}
+              <Box id={`orderItem-${dateIdx}-${dateIdx}-card-message-box`}
                 sx={{
                   display: "flex",
                   width: "100%"
                 }}>
                 <InputField
-                  id={`orderItem-${dateIndex}-${dateIndex}-card-message-input`}
+                  id={`orderItem-${dateIdx}-${dateIdx}-card-message-input`}
                   name="cardMessage"
                   value={updatedItem.cardMessage}
                   error={cardMessageAlert.severity === "error"}
@@ -291,10 +290,10 @@ const CartItem = (props: CartItem) => {
               </Box>
             </FormControl>
           </Box>
-          : <OrderInfoDisplay orderItem={updatedItem} itemPrices={itemPrices} orderIdx={orderIndex} dateIdx={dateIndex} />
+          : <OrderInfoDisplay orderItem={updatedItem} itemPrices={itemPrices} orderIdx={orderIdx} dateIdx={dateIdx} />
         }
         {toggleEdit
-          ? <Button id={`orderItem-${dateIndex}-${dateIndex}-confirm-changes-button`}
+          ? <Button id={`orderItem-${dateIdx}-${dateIdx}-confirm-changes-button`}
             onClick={() => confirmChanges()}
             sx={{
               border: "1px solid",
@@ -304,7 +303,7 @@ const CartItem = (props: CartItem) => {
           >
             Confirm
           </Button>
-          : <Button id={`orderItem-${dateIndex}-${dateIndex}-toggle-edit-button`}
+          : <Button id={`orderItem-${dateIdx}-${dateIdx}-toggle-edit-button`}
             onClick={() => {
               toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
             }}
@@ -317,7 +316,7 @@ const CartItem = (props: CartItem) => {
             Edit
           </Button>
         }
-        <Button id={`orderItem-${dateIndex}-${dateIndex}-remove-from-cart-button`}
+        <Button id={`orderItem-${dateIdx}-${dateIdx}-remove-from-cart-button`}
           onClick={removeItem}
           variant="outlined"
           color="error"

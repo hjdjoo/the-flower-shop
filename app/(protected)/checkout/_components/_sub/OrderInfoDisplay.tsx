@@ -26,7 +26,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
   const { orderItem, itemPrices, orderIdx, dateIdx } = props;
 
   const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = orderItem;
-  const { itemValue, deliveryFee, tax, total } = itemPrices;
+  const { itemValue, tax, total } = itemPrices;
 
   const CheckIconColored = styled(CheckIcon)(({ theme }) => ({
     color: theme.palette.primary.main
@@ -219,14 +219,6 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
             </Box>
           </Grid>
         </Grid>
-      </Box>
-      <Box id={`order-${dateIdx + 1}-${orderIdx + 1}-price-info-display`} sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}>
-        <PriceInfoDisplay itemPrices={itemPrices} dateIdx={dateIdx} orderIdx={orderIdx} />
       </Box>
     </Box>
   )

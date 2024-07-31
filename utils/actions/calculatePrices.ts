@@ -55,7 +55,6 @@ export default async function calculatePrices(item: OrderItem) {
 
     return {
       itemValue: itemValue,
-      deliveryFee: deliveryFee,
       tax: tax,
       total: total
     };

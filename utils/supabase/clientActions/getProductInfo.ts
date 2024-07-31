@@ -19,6 +19,8 @@ export const getProductInfo = async (id: number) => {
   // console.log('getProductIds/data: ', data);
   const { id: productId, name, description, categories, prices, image_url, } = dbData[0];
 
+  console.log(prices);
+
   const normalizedPrices = prices.map(price => {
     return price / 100;
   })
