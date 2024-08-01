@@ -15,7 +15,7 @@ import OrderSummary from "../_components/OrderSummary";
 import CheckoutForm from "../_components/CheckoutForm";
 
 import { Dates, SortedOrder } from "@/app/types/component-types/OrderFormData";
-import { Cart, ItemPrices, PriceInfo } from "@/app/types/component-types/OrderFormData";
+import { Cart, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
 
 const stripePromise = getStripe();
 
@@ -34,9 +34,9 @@ const stripePromise = getStripe();
 
 export default function MakePaymentPage() {
 
-  const { cart } = useCart() as CartContextType;
+  const { cart, getSortedOrder } = useCart() as CartContextType;
   const [clientSecret, setClientSecret] = useState<string>("");
-  const [_priceInfo, setPriceInfo] = useState<PriceInfo>();
+  const [_orderPrices, setOrderPrices] = useState<OrderPrices>();
 
   // Come back to this - React is getting angry between renders when the clientSecret temporary goes back to being null. Using a function to 
 
@@ -48,26 +48,34 @@ export default function MakePaymentPage() {
 
     if (!cart || !cart.cartItems.length) return;
 
+    const sortedOrder = getSortedOrder();
+
     fetch("/create-payment-intent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cart)
+      body: JSON.stringify(sortedOrder)
     })
       .then((res) => {
         return res.json()
       })
       .then((data) => {
-        console.log("MakePaymentPage/useEffect/fetch/create-payment-intent/cart total: ", data.cartTotal);
-        setPriceInfo({ cartTotal: data.cartTotal, itemPrices: data.itemPrices })
+        // console.log("MakePaymentPage/useEffect/fetch/create-payment-intent/cart total: ", data.cartTotal);
+        const updatedOrderPrices = {
+          itemValues: data.itemValues,
+          deliveryFee: data.deliveryFee,
+          tax: data.tax,
+          total: data.total,
+        }
+        setOrderPrices(updatedOrderPrices)
         setClientSecret(data.clientSecret);
       })
       .catch(error => {
         console.error("Something went wrong while creating payment intent")
         console.error(error.message)
       })
-  }, [cart])
+  }, [cart, getSortedOrder])
 
 
   const appearance = {

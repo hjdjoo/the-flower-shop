@@ -108,10 +108,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     const newCartItems: Array<OrderItem> = [...cartItems];
 
     if (!deliveryDates.includes(deliveryDate)) {
+      console.log("addtoCart/newDeliverydates.push")
       newDeliveryDates.push(deliveryDate);
       newDeliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
     }
-
+    console.log("addtoCart/newCartItems.push")
     newCartItems.push(item);
     newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
 
@@ -125,37 +126,49 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   }
 
+  /**
+   * 
+   * @returns :SortedOrder - 
+   * A 3-d array in which:
+   * - The outermost index references the deliveryDate index
+   * - The next inner index references the address index
+   * - The innermost index does not reference anything, but the array represents the items for an order.
+   * 
+   */
   const getSortedOrder = () => {
 
-    const { deliveryDates, cartItems } = cart;
+    const { deliveryDates, addresses, cartItems } = cart;
 
-    // Fun fact: Array.fill([]) won't work for this algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
-    const order = Array(deliveryDates.length);
+    // Fun fact: Array.fill([]) won't work for this kind of an algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
 
-    deliveryDates.forEach((date, idx) => {
+    // Initialize an "order" array that contains an array of arrays.
+    const order = deliveryDates.map(() => {
+      // go through each order item and check the delivery date.
+      // initialize an empty array at each dateIndex that is the length of addresses.
+      return addresses.map(() => {
+        return new Array();
+      })
+    });
 
+    order.forEach((dateArr, dateIdx) => {
       for (let item of cartItems) {
-        if (item?.deliveryDate === date) {
-          if (!order[idx]) {
-            order[idx] = [item];
-          }
-          else {
-            order[idx].push(item);
-          }
+        if (item.deliveryDate === deliveryDates[dateIdx]) {
+          // console.log("getSortedItem/dateArr[item.recipAddressIndex].push")
+          dateArr[item.recipAddressIndex].push(item);
         }
       }
     })
+
     return order;
   }
 
   /**
-   * updateAddresses()
+   * updateAddressesAndDates()
    * @returns :Cart - this is a NEW cart object with a refreshed set of addresses and cart items containing the new address indices.
    * This does *not* refresh the cart and should be used as a utility function for other cart operations.
    * 
    */
   const updateAddressesAndDates = (cart: Cart) => {
-
     // careful when using "keyof typeof" to dynamically type keys. A "keyof" a blank object will return an array-like with number indices, and so TS will automatically type the key as "string | number" even if the key has been indicated as a string in the interface.
     // Address cache for updating addresses. Initialized every time cart is updated.
     interface AddressCache {
@@ -164,6 +177,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     const addressCache: AddressCache = {};
 
     const { cartItems } = cart;
+
+    if (!cartItems.length) return;
 
     const newCartItems = [...cartItems]
     const newAddresses: Addresses = [];
@@ -181,7 +196,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
         item.recipAddressIndex = newAddresses.length - 1;
         addressCache[addressStr] = newAddresses.length - 1;
       };
-
       if (!newDeliveryDates.includes(item.deliveryDate)) {
         newDeliveryDates.push(item.deliveryDate);
       };
@@ -194,7 +208,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       cartItems: newCartItems,
     }
 
-    console.log("CartContext/updateAddresses/newCart: ", newCart);
     return newCart;
 
   }

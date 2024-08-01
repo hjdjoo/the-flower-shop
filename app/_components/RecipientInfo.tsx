@@ -133,7 +133,9 @@ export default function RecipientInfo(props: RecipientInfoProps) {
             onChange={handleAddress}
             value={orderItem.recipAddress.state}
             size="small"
-            sx={{ flexGrow: 1 }}
+            sx={{
+              flexGrow: 1
+            }}
           />
           <InputField
             id="recipient-zip"

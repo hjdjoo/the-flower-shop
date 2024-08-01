@@ -50,8 +50,7 @@ export default function CheckoutForm() {
 
   }, [stripe])
 
-  // handleSubmit should also add item to DB.
-
+  // TODO: handleSubmit should also add item to DB. 
   const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, ChangeEvent, DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES } from "react";
+import { useEffect, useState, ChangeEvent, Suspense } from "react";
 import Image from 'next/image';
 
 import Container from "@mui/material/Container";
@@ -27,32 +27,30 @@ import calculatePrices from "@/utils/actions/calculatePrices";
 
 import { ErrorMessage } from "@/app/types/client-types";
 import type { CartContextType } from "@/lib/contexts/CartContext";
-import type { OrderItem, Address, ItemPrices } from "@/app/types/component-types/OrderFormData";
+import type { OrderItem, Address, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
 
 
 interface CartItem {
   orderItem: OrderItem,
-  orderIdx: number,
+  orderPrices: OrderPrices,
+  addressIdx: number,
   dateIdx: number
+  orderIdx: number,
 }
 
 const CartItem = (props: CartItem) => {
 
-  const { orderItem, orderIdx, dateIdx } = props;
-  const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
-  const order = getSortedOrder();
-  const orderItemCopy = Object.assign({}, orderItem);
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
-  const [itemPrices, setItemPrices] = useState<ItemPrices>({
-    itemValue: 0,
-    tax: 0,
-    total: 0
-  });
+  const { orderItem, orderPrices, dateIdx, addressIdx, orderIdx } = props;
+  const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
+  const sortedOrder = getSortedOrder();
 
-  const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+  const orderItemCopy = Object.assign({}, orderItem);
+
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [updatedItem, setUpdatedItem] = useState<OrderItem>(orderItemCopy);
-  const [tier, setTier] = useState<number>(orderItem.selectedTier ? orderItem.selectedTier : 1);
+  const [tier, setTier] = useState<number>(orderItem.selectedTier === 0 || orderItem.selectedTier ? orderItem.selectedTier : 0);
 
   const [addressAlert, setAddressAlert] = useState<ErrorMessage>(
     {
@@ -73,26 +71,25 @@ const CartItem = (props: CartItem) => {
     });
 
 
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       // const prices = await calculatePrices(updatedItem);
+  //       // setItemPrices(prices);
+  //     }
+  //     catch (e) {
+  //       setDeliveryAlert({
+  //         severity: "error",
+  //         message: e as string
+  //       })
+  //     }
+  //   })();
 
-  useEffect(() => {
+  // }, [updatedItem])
 
-    (async () => {
-      try {
-        const prices = await calculatePrices(updatedItem);
-        setItemPrices(prices);
-      }
-      catch (e) {
-        setDeliveryAlert({
-          severity: "error",
-          message: e as string
-        })
-      }
-    })();
-
-  }, [updatedItem])
-
-  const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
+    console.log(name, value)
 
     setUpdatedItem({ ...updatedItem, [name]: value });
 
@@ -146,27 +143,31 @@ const CartItem = (props: CartItem) => {
   }
 
   const confirmChanges = async () => {
-    if (toggleEdit) {
-      let updateOrder = structuredClone(order);
-      updateOrder[dateIdx][orderIdx] = updatedItem;
+    if (isEditing) {
+      let updateOrder = structuredClone(sortedOrder);
+
+      console.log("CartItem/confirmChanges/updatedItem: ", updatedItem)
+      updateOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
+
       // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
-      const newCartItems = updateOrder.flat();
+      const newCartItems = updateOrder.flat(2);
       updateCart({ ...cart, cartItems: newCartItems });
-      setToggleEdit(false);
+      setIsEditing(false);
+
     }
     else {
-      setToggleEdit(true);
+      setIsEditing(true);
     }
   };
 
   // Wrote this without testing... Should work but haven't hooked it up.
   const removeItem = () => {
 
-    let updateOrder = structuredClone(order);
+    let updateOrder = structuredClone(sortedOrder);
     // remove item from array;
-    updateOrder[dateIdx].splice(orderIdx, 1);
+    updateOrder[dateIdx][addressIdx].splice(orderIdx, 1);
     // flatten;
-    const newCartItems = updateOrder.flat();
+    const newCartItems = updateOrder.flat(2);
 
     updateCart({ ...cart, cartItems: newCartItems });
 
@@ -175,27 +176,28 @@ const CartItem = (props: CartItem) => {
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
     <Box
-      id={`orderItem-${dateIdx}-${dateIdx}-order-item`}
+      id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-order-item`}
       sx={{
         display: 'flex',
         flexDirection: mobile || tablet ? "column" : "row",
-        marginY: "25px"
+        marginY: "25px",
+        borderBottom: (orderIdx < sortedOrder[dateIdx][addressIdx].length) ? "1px lightgray solid" : "none"
       }}
     >
-      <Box id={`orderItem-${dateIdx}-${dateIdx}-image-box`}
+      <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-image-box`}
         sx={{
           position: "relative",
           flexGrow: 0,
           flexShrink: 0,
           minWidth: (mobile || tablet) ? "150px" : "200px",
-          minHeight: (mobile) ? "250px" : "200px",
+          minHeight: (mobile || tablet) ? "250px" : "200px",
           mx: "2rem",
           my: "2rem",
         }}
       >
-        <Image id={`orderItem-${dateIdx}-${dateIdx}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
+        <Image id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-image`} alt={`${orderItem.name} image`} src={orderItem.imageUrl} loader={imageLoader} fill style={{ paddingBottom: 25, objectFit: "contain" }} />
       </Box>
-      <Box id={`orderItem-${dateIdx}-${dateIdx}-info-box`}
+      <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-info-container`}
         sx={{
           flexGrow: 1,
           display: "flex",
@@ -203,135 +205,149 @@ const CartItem = (props: CartItem) => {
           alignItems: "center",
           mt: 2.5,
         }}>
-        {toggleEdit
-          ?
-          <Box id={`orderItem-${dateIdx}-${dateIdx}-edit-info-box`}
-            sx={{
-              mb: 3,
-            }}>
-            <FormControl>
-              <Box id={`orderItem-${dateIdx}-${dateIdx}-price-wrapper`}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-evenly",
-                  alignItems: "center",
-                  mb: 1
-                }} >
-                <Typography component="p" style={{ fontWeight: 500 }}>
-                  {`${orderItem.name}`}
-                </Typography>
-                <Select
-                  variant="standard"
-                  sx={{ ml: 1 }}
-                  value={tier.toString()}
-                  onChange={(event: SelectChangeEvent<string>) => {
-                    setTier(parseInt(event.target.value));
-                    setTier(parseInt(event.target.value));
-                  }}
-                >
-                  {orderItem.prices.map((price, idx) => (
-                    <MenuItem key={`price-tier-${idx + 1}`}
-                      value={idx}>
-                      {`$${price}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Box>
-              <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
-              <Box id={`orderItem-${dateIdx}-${dateIdx}-address-check-button-box`}
-                sx={{
-                  flexGrow: 1,
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}>
-                <Button id={`orderItem-${dateIdx}-${dateIdx}-address-check-button`}
-                  onClick={handleAddressCheck}
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "primary.main",
-                    width: "90%",
-                    mb: 3,
-                    '&:hover': {
-                      backgroundColor: "#dfe6df",
-                    }
-                  }}
-                >
-                  Check Address
-                </Button>
-              </Box>
-              <Box id={`orderItem-${dateIdx}-${dateIdx}-card-message-box`}
-                sx={{
-                  display: "flex",
-                  width: "100%"
-                }}>
-                <InputField
-                  id={`orderItem-${dateIdx}-${dateIdx}-card-message-input`}
-                  name="cardMessage"
-                  value={updatedItem.cardMessage}
-                  error={cardMessageAlert.severity === "error"}
-                  helperText={cardMessageAlert.message}
-                  onKeyDown={(k) => {
-                    if (cardMessageAlert.severity === ("error" || "warning") && k.code !== "Backspace") k.preventDefault();
-                  }}
-                  onChange={(e) => {
-                    handleOrderItem(e);
-                    checkMessageLength(e);
-                  }}
-                  fullWidth
-                  multiline
-                  sx={{
-                    marginTop: "5px",
-                    marginBottom: "15px"
-                  }}
-                />
-              </Box>
-            </FormControl>
-          </Box>
-          : <OrderInfoDisplay orderItem={updatedItem} itemPrices={itemPrices} orderIdx={orderIdx} dateIdx={dateIdx} />
-        }
-        {toggleEdit
-          ? <Button id={`orderItem-${dateIdx}-${dateIdx}-confirm-changes-button`}
-            onClick={() => confirmChanges()}
-            sx={{
-              border: "1px solid",
-              borderColor: "primary.main",
-              width: "80%",
-            }}
-          >
-            Confirm
-          </Button>
-          : <Button id={`orderItem-${dateIdx}-${dateIdx}-toggle-edit-button`}
-            onClick={() => {
-              toggleEdit ? setToggleEdit(false) : setToggleEdit(true);
-            }}
-            sx={{
-              border: "1px solid",
-              borderColor: "primary.main",
-              width: "80%",
-            }}
-          >
-            Edit
-          </Button>
-        }
-        <Button id={`orderItem-${dateIdx}-${dateIdx}-remove-from-cart-button`}
-          onClick={removeItem}
-          variant="outlined"
-          color="error"
+        <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-info-box`}
           sx={{
             display: "flex",
-            alignItems: "center",
-            fontSize: "0.8rem",
-            width: "80%",
-            my: 2
-          }}
-        >
-          <DeleteIcon /> Remove From Cart
-        </Button>
+          }}>
+          {isEditing
+            ?
+            <Suspense >
+              <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-edit-info-box`}
+                sx={{
+                  mb: 3,
+                }}>
+                <FormControl>
+                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-evenly",
+                      alignItems: "center",
+                      mb: 1
+                    }} >
+                    <Typography component="p" style={{ fontWeight: 500 }}>
+                      {`${orderItem.name}`}
+                    </Typography>
+                    <Select
+                      variant="standard"
+                      sx={{ ml: 1 }}
+                      name="selectedTier"
+                      value={tier.toString()}
+                      onChange={(event) => {
+                        setTier(parseInt(event.target.value));
+                        handleOrderItem(event)
+                      }}
+                    >
+                      {orderItem.prices.map((price, idx) => (
+                        <MenuItem key={`price-tier-${idx + 1}`}
+                          value={idx}>
+                          {`$${price}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Box>
+                  <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
+                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button-box`}
+                    sx={{
+                      flexGrow: 1,
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}>
+                    <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button`}
+                      onClick={handleAddressCheck}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "primary.main",
+                        width: "90%",
+                        mb: 3,
+                        '&:hover': {
+                          backgroundColor: "#dfe6df",
+                        }
+                      }}
+                    >
+                      Verify Address
+                    </Button>
+                  </Box>
+                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-box`}
+                    sx={{
+                      display: "flex",
+                      width: "100%"
+                    }}>
+                    <InputField
+                      id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-input`}
+                      name="cardMessage"
+                      value={updatedItem.cardMessage}
+                      error={cardMessageAlert.severity === "error"}
+                      helperText={cardMessageAlert.message}
+                      onKeyDown={(k) => {
+                        if (cardMessageAlert.severity === ("error" || "warning") && k.code !== "Backspace") k.preventDefault();
+                      }}
+                      onChange={(e) => {
+                        handleOrderItem(e);
+                        checkMessageLength(e);
+                      }}
+                      fullWidth
+                      multiline
+                      sx={{
+                        marginTop: "5px",
+                        marginBottom: "15px"
+                      }}
+                    />
+                  </Box>
+                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button-box`}
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center"
+                    }}>
+                    <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button`}
+                      onClick={() => confirmChanges()}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "primary.main",
+                        width: "90%",
+                      }}
+                    >
+                      Confirm Changes
+                    </Button>
+                  </Box>
+                </FormControl>
+              </Box>
+            </Suspense>
+            : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} />
+          }
+          <Box>
+            <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-toggle-edit-button`}
+              onClick={() => {
+                isEditing ? setIsEditing(false) : setIsEditing(true);
+              }}
+              sx={{
+                border: "1px solid",
+                borderColor: "primary.main",
+                width: "80%",
+              }}
+            >
+              Edit
+            </Button>
+            <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-remove-from-cart-button`}
+              onClick={removeItem}
+              variant="outlined"
+              color="error"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: "0.8rem",
+                width: "80%",
+                my: 2
+              }}
+            >
+              <DeleteIcon />
+            </Button>
+          </Box>
+        </Box>
       </Box>
-
     </Box>
   )
 }

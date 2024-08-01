@@ -2,48 +2,66 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
-import { ItemPrices } from "@/app/types/component-types/OrderFormData";
-import { useCart } from "@/lib/contexts/CartContext";
-import { CartContextType } from "@/lib/contexts/CartContext";
+import { ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
+import { CartContextType, useCart } from "@/lib/contexts/CartContext";
 
 interface PriceInfoDisplayProps {
-  itemPrices: ItemPrices
+  orderPrices: OrderPrices
   dateIdx: number
   addressIdx: number
 }
 
 export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
 
-  const { cart } = useCart() as CartContextType;
-  const { itemPrices, dateIdx, addressIdx } = props;
-  const { itemValue, tax, total } = itemPrices
+  const { getSortedOrder } = useCart() as CartContextType;
+  const sortedOrder = getSortedOrder();
+  const { orderPrices, dateIdx, addressIdx } = props;
+
+  const { itemValues, deliveryFee, tax, total } = orderPrices
+
+  const ItemInfo = itemValues.map((value, orderIdx) => {
+
+    return (
+      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-item`}
+        key={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-item`}
+        container
+        xs={12}
+        sx={{
+          width: "full"
+        }}
+      >
+        <Grid xs={7}>
+          <Typography sx={{
+            fontSize: "0.9rem",
+            textAlign: "right",
+            pr: 1
+          }}>
+            {sortedOrder && `${sortedOrder[dateIdx][addressIdx][orderIdx].name}:`}
+          </Typography>
+        </Grid>
+        <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-item-value`}
+          xs={5}>
+          <Typography sx={{
+            fontSize: "0.9rem",
+            textAlign: "right"
+          }}>
+            ${value}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
+  })
+
 
   return (
     <Grid container
-      rowSpacing={2}
+      rowSpacing={1}
       sx={{
-        width: "100%",
+        width: "75%",
         mb: 3,
         mr: 3
       }}>
-      <Grid xs={7}>
-        <Typography sx={{
-          fontSize: "0.9rem",
-          textAlign: "right",
-          pr: 1
-        }}>
-          Item:
-        </Typography>
-      </Grid>
-      <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-item-value`}
-        xs={5}>
-        <Typography sx={{
-          fontSize: "0.9rem",
-          textAlign: "right"
-        }}>
-          ${itemValue}
-        </Typography>
-      </Grid>
+      {ItemInfo}
       <Grid xs={7}>
         <Typography sx={{
           fontSize: "0.9rem",
@@ -59,7 +77,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           fontSize: "0.9rem",
           textAlign: "right"
         }}>
-          {/* ${deliveryFee} */}
+          ${deliveryFee}
         </Typography>
       </Grid>
       <Grid xs={7}>

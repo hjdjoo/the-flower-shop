@@ -315,7 +315,7 @@ export default function ProductCard(props: ProductCardProps) {
                   textAlign="center"
                 >
                   <Typography paddingX="10px" fontWeight={600}>Cart Preview:</Typography>
-                  <CartPreview />
+                  {/* <CartPreview /> */}
                 </Box>
                 <Link href="/checkout"
                   style={{

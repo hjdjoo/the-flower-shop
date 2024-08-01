@@ -17,17 +17,17 @@ const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 export async function POST(req: NextRequest) {
 
-  const cart = await req.json();
+  const sortedCart = await req.json();
 
-  // console.log("create-payment-intent/cart: ", cart);
-
-  const cartInfo = await calculateCart(cart);
+  const cartInfo = await calculateCart(sortedCart);
 
   if (!cartInfo) {
     return NextResponse.json({ error: "No cart detected" }, { status: 500 })
   }
 
-  const { itemPrices, cartTotal } = cartInfo;
+  const { orderPrices, cartTotal } = cartInfo;
+
+  // console.log("create-payment-intent/orderPrices: ", cartInfo);
 
   const total = (cartTotal * 100).toFixed(0);
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   })
 
   const priceDetails = {
-    itemPrices: itemPrices,
+    orderPrices: orderPrices,
     cartTotal: cartTotal
   }
 

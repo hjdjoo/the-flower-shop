@@ -13,14 +13,14 @@ export const getProductInfo = async (id: number) => {
     .eq("id", id)
     .returns<ProductData[]>()
 
-  if (!dbData) {
+  if (!dbData || !dbData[0]) {
+    console.error("getProductInfo", error);
     return { dbData, error }
   }
   // console.log('getProductIds/data: ', data);
   const { id: productId, name, description, categories, prices, image_url, } = dbData[0];
 
-  console.log(prices);
-
+  // console.log(prices);
   const normalizedPrices = prices.map(price => {
     return price / 100;
   })

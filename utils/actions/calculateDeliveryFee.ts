@@ -2,7 +2,7 @@
  * 
  * @param time Time in seconds
  * @param distance Distance in meters
- * @returns delivery fee as a num
+ * @returns delivery fee, in *dollars*
  */
 export default function calculateDeliveryFee(duration: number, distance: number,) {
 
