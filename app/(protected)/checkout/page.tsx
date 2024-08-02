@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 
+import { useTheme } from "@mui/material";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -9,15 +10,16 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ShoppingCart from "@mui/icons-material/ShoppingCart";
 
 
 import CartItem from "./_components/CartItem";
-import { CartContextType } from "@/lib/contexts/CartContext";
+import { CartContextType } from "@/contexts/CartContext";
 import { Cart, ItemPrices, OrderPrices, PriceInfo } from "../../types/component-types/OrderFormData";
 import calculateCart from "@/utils/actions/calculateCart";
 import PriceInfoDisplay from "./_components/_sub/PriceInfoDisplay";
 
-import { useCart } from "@/lib/contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import formatDate from "@/utils/actions/formatDate";
 
 import { Dates, Addresses, SortedOrder } from '../../types/component-types/OrderFormData'
@@ -34,6 +36,7 @@ export default function Checkout() {
   const [deliveryDates, setDeliveryDates] = useState<Dates>([]);
   const [order, setOrder] = useState<SortedOrder>([]);
   const [orderPrices, setOrderPrices] = useState<OrderPrices[][]>([]);
+  const [cartTotal, setCartTotal] = useState<string>("")
 
   // moved setState actions to useEffect to ensure that checkout renders cart items upon refresh.
   useEffect(() => {
@@ -42,24 +45,26 @@ export default function Checkout() {
     setDeliveryDates(cart.deliveryDates);
     const sortedOrder = getSortedOrder();
 
-    (async () => {
-      try {
-        const cartPriceInfo = await calculateCart(sortedOrder);
+    if (sortedOrder[0][0] && sortedOrder[0][0].length)
+      (async () => {
+        try {
+          const cartPriceInfo = await calculateCart(sortedOrder);
 
-        if (!cartPriceInfo) {
-          throw new Error(`Couldn't get price info for cart`)
+          if (!cartPriceInfo) {
+            throw new Error(`Couldn't get price info for cart`)
+          }
+
+          const { orderPrices, cartTotal } = cartPriceInfo;
+
+          setOrder(sortedOrder);
+          setOrderPrices(orderPrices);
+          setCartTotal(cartTotal.toFixed(2))
+
+        } catch (e) {
+          console.error(e);
+          return;
         }
-
-        const { orderPrices, cartTotal } = cartPriceInfo;
-
-        setOrder(sortedOrder);
-        setOrderPrices(orderPrices);
-
-      } catch (e) {
-        console.error(e);
-        return;
-      }
-    })();
+      })();
 
   }, [cart, getSortedOrder]);
 
@@ -71,9 +76,15 @@ export default function Checkout() {
         marginTop: "80px",
       }}
     >
-      <Typography component='h1' sx={{ fontSize: 32, fontWeight: 500 }}>Cart</Typography>
+      <Box id="cart-header-box"
+        sx={{
+          display: "flex",
+          alignItems: "center"
+        }}>
+        <ShoppingCart sx={{ mr: 1 }} />
+        <Typography component='h1' sx={{ fontSize: 24, fontWeight: 800, my: 1 }}>Cart</Typography>
+      </Box>
       {order.length ? order.map((dateArr, dateIdx) => {
-
         return (
           <Accordion defaultExpanded key={`delivery-accordion-${dateIdx + 1}`}>
             <AccordionSummary
@@ -89,7 +100,11 @@ export default function Checkout() {
                   dateArr.map((addressArr, addressIdx) => {
                     if (!addressArr.length) return;
                     return (
-                      <Box id={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`} key={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`}>
+                      <Box id={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`} key={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column"
+                        }}>
                         <Box>
                           <Typography>Delivery to:</Typography>
                           <Typography>{addresses[addressIdx]}</Typography>
@@ -103,17 +118,20 @@ export default function Checkout() {
                           }
                         })}
                         <Box id={`order-${dateIdx + 1}-${addressIdx + 1}-price-info-display-container`} sx={{
-                          flexGrow: 1,
+                          py: 2,
+                          px: 4,
+                          width: "50%",
+                          alignSelf: "end",
                           display: "flex",
                           flexDirection: "column",
                           justifyContent: "center",
-                          alignItems: "end"
+                          alignItems: "end",
+                          backgroundColor: "#F0FEF180",
                         }}>
                           <Typography sx={{
-                            mr: 3,
                             mb: 3
                           }}>
-                            Order Price Summary:
+                            {`Order ${dateIdx + addressIdx + 1} Price Summary:`}
                           </Typography>
                           <PriceInfoDisplay orderPrices={orderPrices[dateIdx][addressIdx]} dateIdx={dateIdx} addressIdx={addressIdx} />
                         </Box>

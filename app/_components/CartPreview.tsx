@@ -8,9 +8,9 @@ import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import Typography from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 
-import { imageLoader } from "@/lib/imageLoader";
+import { imageLoader } from "@/app/lib/imageLoader";
 
-import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+import { useCart, CartContextType } from "@/contexts/CartContext";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import calculateTax from "@/utils/actions/calculateTax";

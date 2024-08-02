@@ -2,6 +2,7 @@
 
 import { useEffect, useState, ChangeEvent, Suspense } from "react";
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
 
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -14,8 +15,8 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import DeleteIcon from '@mui/icons-material/DeleteForever';
 
 
-import { useCart } from "@/lib/contexts/CartContext";
-import { imageLoader } from "@/lib/imageLoader";
+import { useCart } from "@/contexts/CartContext";
+import { imageLoader } from "@/app/lib/imageLoader";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import { InputField } from "@/app/_components/styled/InputField";
@@ -23,10 +24,11 @@ import OrderInfoDisplay from "./_sub/OrderInfoDisplay";
 import RecipientInfo from "@/app/_components/RecipientInfo";
 
 import validateAddress from "@/utils/google/validateAddress";
-import calculatePrices from "@/utils/actions/calculatePrices";
+import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
+
 
 import { ErrorMessage } from "@/app/types/client-types";
-import type { CartContextType } from "@/lib/contexts/CartContext";
+import type { CartContextType } from "@/contexts/CartContext";
 import type { OrderItem, Address, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
 
 
@@ -40,6 +42,7 @@ interface CartItem {
 
 const CartItem = (props: CartItem) => {
 
+  const router = useRouter();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const { orderItem, orderPrices, dateIdx, addressIdx, orderIdx } = props;
@@ -58,7 +61,7 @@ const CartItem = (props: CartItem) => {
       message: ""
     });
 
-  const [deliveryAlert, setDeliveryAlert] = useState<ErrorMessage>(
+  const [deliveryDateAlert, setDeliveryDateAlert] = useState<ErrorMessage>(
     {
       severity: undefined,
       message: ""
@@ -70,23 +73,12 @@ const CartItem = (props: CartItem) => {
       message: `${updatedItem.cardMessage.length}/250`
     });
 
+  useEffect(() => {
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       // const prices = await calculatePrices(updatedItem);
-  //       // setItemPrices(prices);
-  //     }
-  //     catch (e) {
-  //       setDeliveryAlert({
-  //         severity: "error",
-  //         message: e as string
-  //       })
-  //     }
-  //   })();
+  }, [cart])
 
-  // }, [updatedItem])
 
+  // Order Item Handlers:
   const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     console.log(name, value)
@@ -95,6 +87,59 @@ const CartItem = (props: CartItem) => {
 
   }
 
+  const confirmChanges = async () => {
+    if (isEditing) {
+      let updateOrder = structuredClone(sortedOrder);
+
+      console.log("CartItem/confirmChanges/updatedItem: ", updatedItem)
+      updateOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
+
+      // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
+      const newCartItems = updateOrder.flat(2);
+      updateCart({ ...cart, cartItems: newCartItems });
+      setIsEditing(false);
+
+    }
+    else {
+      setIsEditing(true);
+    }
+  };
+
+  const removeItem = () => {
+
+    let updateOrder = structuredClone(sortedOrder);
+    // remove item from array;
+    updateOrder[dateIdx][addressIdx].splice(orderIdx, 1);
+    // flatten;
+    const newCartItems = updateOrder.flat(2);
+    console.log(newCartItems);
+
+    updateCart({ ...cart, cartItems: newCartItems });
+    router.refresh();
+
+  };
+
+  // Delivery Date helper
+  const checkDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { value } = e.target;
+
+    const { valid, message } = verifyDeliveryDate(value)
+
+    if (!valid) {
+      setDeliveryDateAlert({
+        severity: "error",
+        message: `${message}`
+      })
+    }
+    else {
+      setDeliveryDateAlert({
+        severity: undefined,
+        message: ""
+      })
+    }
+  }
+
+  // Address handlers
   const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
@@ -125,6 +170,7 @@ const CartItem = (props: CartItem) => {
     };
   }
 
+  // Message helper
   const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
@@ -141,37 +187,6 @@ const CartItem = (props: CartItem) => {
       message: `${value.length}/250`
     })
   }
-
-  const confirmChanges = async () => {
-    if (isEditing) {
-      let updateOrder = structuredClone(sortedOrder);
-
-      console.log("CartItem/confirmChanges/updatedItem: ", updatedItem)
-      updateOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
-
-      // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
-      const newCartItems = updateOrder.flat(2);
-      updateCart({ ...cart, cartItems: newCartItems });
-      setIsEditing(false);
-
-    }
-    else {
-      setIsEditing(true);
-    }
-  };
-
-  // Wrote this without testing... Should work but haven't hooked it up.
-  const removeItem = () => {
-
-    let updateOrder = structuredClone(sortedOrder);
-    // remove item from array;
-    updateOrder[dateIdx][addressIdx].splice(orderIdx, 1);
-    // flatten;
-    const newCartItems = updateOrder.flat(2);
-
-    updateCart({ ...cart, cartItems: newCartItems });
-
-  };
 
   // Note about Container usage: MUI Docs recommends "Container" as a top-level element - basically something to quickly get elements centered on the page. It states that you can have nested containers, but "Box" is the typical component for regular div elements.
   return (
@@ -217,34 +232,61 @@ const CartItem = (props: CartItem) => {
                   mb: 3,
                 }}>
                 <FormControl>
-                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
+                  <Typography component="p" style={{ fontWeight: 500 }}>
+                    {`${orderItem.name}`}
+                  </Typography>
+                  <Grid id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
                     sx={{
                       display: "flex",
                       justifyContent: "space-evenly",
                       alignItems: "center",
                       mb: 1
                     }} >
-                    <Typography component="p" style={{ fontWeight: 500 }}>
-                      {`${orderItem.name}`}
-                    </Typography>
-                    <Select
-                      variant="standard"
-                      sx={{ ml: 1 }}
-                      name="selectedTier"
-                      value={tier.toString()}
-                      onChange={(event) => {
-                        setTier(parseInt(event.target.value));
-                        handleOrderItem(event)
-                      }}
-                    >
-                      {orderItem.prices.map((price, idx) => (
-                        <MenuItem key={`price-tier-${idx + 1}`}
-                          value={idx}>
-                          {`$${price}`}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
+                    <Grid>
+                      <Typography>
+                        Change Price Tier:
+                      </Typography>
+                    </Grid>
+                    <Grid>
+                      <Select
+                        variant="standard"
+                        sx={{ ml: 1 }}
+                        name="selectedTier"
+                        value={tier.toString()}
+                        onChange={(event) => {
+                          setTier(parseInt(event.target.value));
+                          handleOrderItem(event)
+                        }}
+                      >
+                        {orderItem.prices.map((price, idx) => (
+                          <MenuItem key={`price-tier-${idx + 1}`}
+                            value={idx}>
+                            {`$${price}`}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </Grid>
+                    <Grid>
+                      <Grid>
+                        <InputField
+                          id="delivery-date-input"
+                          type="date"
+                          name="deliveryDate"
+                          value={updatedItem.deliveryDate}
+                          error={!!deliveryDateAlert.severity}
+                          helperText={deliveryDateAlert.message}
+                          onChange={(e) => {
+                            checkDeliveryDate(e);
+                            handleOrderItem(e);
+                          }}
+                          sx={{
+                            marginTop: "5px",
+                            marginBottom: "15px"
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Grid>
                   <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
                   <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button-box`}
                     sx={{
@@ -316,7 +358,7 @@ const CartItem = (props: CartItem) => {
                 </FormControl>
               </Box>
             </Suspense>
-            : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} />
+            : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} alerts={{ addressAlert: addressAlert, deliveryDateAlert: deliveryDateAlert, cardMessageAlert: cardMessageAlert, }} />
           }
           <Box>
             <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-toggle-edit-button`}

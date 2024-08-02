@@ -17,6 +17,7 @@ export default async function calculateCart(sortedOrder: SortedOrder) {
   const orderPrices = await Promise.all(sortedOrder.map((dateArr) => {
 
     return Promise.all(dateArr.map(async (addressArr) => {
+
       if (!addressArr.length) {
         return {
           itemValues: [],

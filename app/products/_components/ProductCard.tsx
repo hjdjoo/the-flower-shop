@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
-import { imageLoader } from "@/lib/imageLoader";
+import { imageLoader } from "@/app/lib/imageLoader";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,7 +16,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import { useTheme } from "@mui/material";
 
-import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+import { useCart, CartContextType } from "@/contexts/CartContext";
 
 import CartPreview from "@/app/_components/CartPreview";
 import CustomerOrderForm from "./CustomerOrderForm";
@@ -32,7 +32,7 @@ import { OrderItem } from "@/app/types/component-types/OrderFormData";
 
 
 
-// import { useCart } from "@/lib/contexts/CartContext";
+// import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
   productInfo: ProductData,
@@ -47,6 +47,7 @@ export default function ProductCard(props: ProductCardProps) {
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
   const { cart, addToCart } = useCart() as CartContextType;
+  console.log("ProductCard/cart: ", cart);
 
   /* prop destructuring */
   const { productId } = props
@@ -307,7 +308,7 @@ export default function ProductCard(props: ProductCardProps) {
                 Price tier selected {priceSelected ? <CheckIcon /> : <ClearIcon />}
               </Typography>
             </Box>
-            {!!cart.cartItems.length &&
+            {(cart.cartItems && !!cart.cartItems.length) &&
               <>
                 <Box id="cart-preview-box"
                   marginTop="25px"

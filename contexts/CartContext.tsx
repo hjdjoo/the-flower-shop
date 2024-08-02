@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Cart, OrderItem, SortedOrder, Dates, Addresses } from "../../app/types/component-types/OrderFormData"
+import { Cart, OrderItem, SortedOrder, Dates, Addresses } from "../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 import { createClient } from "@/utils/supabase/client";
 
@@ -86,10 +86,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   function refreshCart(cart: LocalCart) {
 
-    if (!cart) { return defaultCart }
-
+    if (!cart || !cart.deliveryDates) { return defaultCart }
     const cartAgeHrs = (Date.now() - cart.updatedAt) / 1000 / 3600;
-
     if (cartAgeHrs > 48) {
       localStorage.removeItem("cart");
       return defaultCart;
@@ -102,19 +100,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   const addToCart = (deliveryDate: string, item: OrderItem) => {
 
     const { deliveryDates, addresses, cartItems } = cart;
+    console.log("deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems)
 
     const newDeliveryDates: Dates = [...deliveryDates];
     const newAddresses: Addresses = [...addresses];
     const newCartItems: Array<OrderItem> = [...cartItems];
 
     if (!deliveryDates.includes(deliveryDate)) {
-      console.log("addtoCart/newDeliverydates.push")
       newDeliveryDates.push(deliveryDate);
-      newDeliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
     }
-    console.log("addtoCart/newCartItems.push")
+
     newCartItems.push(item);
-    newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
 
     const newCart = {
       addresses: newAddresses,
@@ -138,9 +134,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   const getSortedOrder = () => {
 
     const { deliveryDates, addresses, cartItems } = cart;
-
+    // console.log("getSortedOrder/deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems)
     // Fun fact: Array.fill([]) won't work for this kind of an algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
-
+    if (!deliveryDates || !deliveryDates.length) {
+      return [[[]]]
+    }
     // Initialize an "order" array that contains an array of arrays.
     const order = deliveryDates.map(() => {
       // go through each order item and check the delivery date.
@@ -150,9 +148,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       })
     });
 
+    // console.log("blank order: ", order)
     order.forEach((dateArr, dateIdx) => {
       for (let item of cartItems) {
-        if (item.deliveryDate === deliveryDates[dateIdx]) {
+        // console.log(item.deliveryDate, deliveryDates[dateIdx], dateArr, item.recipAddressIndex)
+        if (item.deliveryDate === deliveryDates[dateIdx] && dateArr[item.recipAddressIndex]) {
           // console.log("getSortedItem/dateArr[item.recipAddressIndex].push")
           dateArr[item.recipAddressIndex].push(item);
         }
@@ -176,13 +176,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     };
     const addressCache: AddressCache = {};
 
-    const { cartItems } = cart;
+    const { cartItems, deliveryDates } = cart;
 
     if (!cartItems.length) return;
 
     const newCartItems = [...cartItems]
     const newAddresses: Addresses = [];
-    const newDeliveryDates: string[] = [];
+    const newDeliveryDates: string[] = [...deliveryDates];
 
     newCartItems.forEach((item) => {
 
@@ -195,9 +195,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
         newAddresses.push(addressStr);
         item.recipAddressIndex = newAddresses.length - 1;
         addressCache[addressStr] = newAddresses.length - 1;
-      };
-      if (!newDeliveryDates.includes(item.deliveryDate)) {
-        newDeliveryDates.push(item.deliveryDate);
       };
 
     });
@@ -220,12 +217,17 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       setCart({ ...defaultCart })
     }
 
+    const { deliveryDates, addresses, cartItems } = newCart;
+    deliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
+    cartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
+
     const updatedCart = updateAddressesAndDates(newCart);
 
     const localCart = { ...updatedCart } as LocalCart;
 
     localCart.updatedAt = Date.now();
     localStorage.setItem("cart", JSON.stringify(localCart));
+
 
     setCart({ ...newCart });
 

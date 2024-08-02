@@ -19,15 +19,20 @@ export async function POST(req: NextRequest) {
 
   const sortedCart = await req.json();
 
-  const cartInfo = await calculateCart(sortedCart);
+  console.log("create-payment-intent/sortedCart: ", sortedCart)
 
-  if (!cartInfo) {
+
+  if (!sortedCart || !sortedCart[0].length) {
     return NextResponse.json({ error: "No cart detected" }, { status: 500 })
   }
-
+  const cartInfo = await calculateCart(sortedCart);
   const { orderPrices, cartTotal } = cartInfo;
 
-  // console.log("create-payment-intent/orderPrices: ", cartInfo);
+  console.log("create-payment-intent/orderPrices: ", orderPrices);
+
+  if (!cartTotal || cartTotal === 0) {
+    return NextResponse.json({ ...cartInfo, clientSecret: null })
+  }
 
   const total = (cartTotal * 100).toFixed(0);
 
@@ -36,12 +41,12 @@ export async function POST(req: NextRequest) {
     currency: "usd",
   })
 
-  const priceDetails = {
-    orderPrices: orderPrices,
-    cartTotal: cartTotal
-  }
+  // const priceDetails = {
+  //   orderPrices: orderPrices,
+  //   cartTotal: cartTotal
+  // }
 
-  const response = { ...priceDetails, clientSecret: paymentIntent.client_secret }
+  const response = { ...cartInfo, clientSecret: paymentIntent.client_secret }
 
   return NextResponse.json(response);
 

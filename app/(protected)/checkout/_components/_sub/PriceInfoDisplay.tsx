@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
 import { ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
-import { CartContextType, useCart } from "@/lib/contexts/CartContext";
+import { CartContextType, useCart } from "@/contexts/CartContext";
 
 interface PriceInfoDisplayProps {
   orderPrices: OrderPrices
@@ -36,7 +36,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
             textAlign: "right",
             pr: 1
           }}>
-            {sortedOrder && `${sortedOrder[dateIdx][addressIdx][orderIdx].name}:`}
+            {sortedOrder[dateIdx][addressIdx][orderIdx] && `${sortedOrder[dateIdx][addressIdx][orderIdx].name}:`}
           </Typography>
         </Grid>
         <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-item-value`}
@@ -45,7 +45,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
             fontSize: "0.9rem",
             textAlign: "right"
           }}>
-            ${value}
+            ${value.toFixed(2)}
           </Typography>
         </Grid>
       </Grid>
@@ -57,9 +57,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
     <Grid container
       rowSpacing={1}
       sx={{
-        width: "75%",
-        mb: 3,
-        mr: 3
+        width: "100%",
       }}>
       {ItemInfo}
       <Grid xs={7}>
@@ -77,7 +75,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           fontSize: "0.9rem",
           textAlign: "right"
         }}>
-          ${deliveryFee}
+          ${deliveryFee.toFixed(2)}
         </Typography>
       </Grid>
       <Grid xs={7}>
@@ -95,7 +93,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           fontSize: "0.9rem",
           textAlign: "right"
         }}>
-          ${tax}
+          ${tax.toFixed(2)}
         </Typography>
       </Grid>
       <Grid xs={7}>
@@ -103,7 +101,10 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           fontSize: "0.9rem",
           fontWeight: 900,
           textAlign: "right",
-          pr: 1
+          pr: 1,
+          mt: 1,
+          pt: 1,
+          borderTop: "1px solid lightgrey"
         }}>
           Total:
         </Typography>
@@ -114,9 +115,12 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
           fontSize: "0.9rem",
           fontStyle: "bold",
           fontWeight: 900,
-          textAlign: "right"
+          textAlign: "right",
+          mt: 1,
+          pt: 1,
+          borderTop: "1px solid lightgrey"
         }}>
-          ${total}
+          ${total.toFixed(2)}
         </Typography>
       </Grid>
     </Grid>

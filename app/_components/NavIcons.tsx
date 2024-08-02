@@ -12,7 +12,7 @@ import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import CustomCartIcon from './styled/CustomCartIcon';
 
 import signOut from "@/utils/supabase/signOut";
-import { CartContextType, useCart } from '@/lib/contexts/CartContext';
+import { CartContextType, useCart } from '@/contexts/CartContext';
 
 interface NavIconsProps {
   userRole: string
@@ -33,12 +33,12 @@ export function NavIcons(props: NavIconsProps) {
 
   const { userRole } = props;
   const { cart } = useCart() as CartContextType
-  const [_cartItemCount, setCartItemCount] = useState<number>(0)
+  const [cartItemCount, setCartItemCount] = useState<number>(0)
 
 
   useEffect(() => {
 
-    setCartItemCount(cart.cartItems.length)
+    setCartItemCount(cart.cartItems ? cart.cartItems.length : 0)
 
   }, [cart])
 
@@ -71,7 +71,7 @@ export function NavIcons(props: NavIconsProps) {
       </StyledIconButton>
       <StyledIconButton>
         <Link href={'/checkout'}>
-          <CustomCartIcon cart={cart} />
+          <CustomCartIcon cart={cart} cartItemCount={cartItemCount} />
         </Link>
       </StyledIconButton>
       <StyledIconButton

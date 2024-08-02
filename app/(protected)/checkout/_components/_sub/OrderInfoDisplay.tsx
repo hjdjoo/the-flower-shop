@@ -13,6 +13,7 @@ import PriceInfoDisplay from "./PriceInfoDisplay";
 import { parsePhone } from "@/app/_components/RecipientInfo";
 
 import { OrderItem, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
+import { ErrorMessage } from "@/app/types/client-types";
 
 interface OrderInfoDisplayProps {
   orderItem: OrderItem
@@ -20,11 +21,14 @@ interface OrderInfoDisplayProps {
   addressIdx: number
   orderIdx: number
   dateIdx: number
+  alerts: {
+    [name: string]: ErrorMessage
+  }
 }
 
 export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
 
-  const { orderItem, orderPrices, addressIdx, orderIdx, dateIdx } = props;
+  const { orderItem, orderPrices, addressIdx, orderIdx, dateIdx, alerts } = props;
 
   const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = orderItem;
   const { itemValues } = orderPrices;
@@ -107,7 +111,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
               alignItems: "start",
               justifyContent: "end",
             }}>
-            {recipAddress.streetAddress1 && recipAddress.townCity && recipAddress.state ? <CheckIconColored /> : <ErrorIconColored />}
+            {alerts.addressAlerts && alerts.addressAlerts.severity === ("success" || undefined) ? <CheckIconColored /> : <ErrorIconColored />}
           </Grid>
           <Grid xs={4}
             sx={{

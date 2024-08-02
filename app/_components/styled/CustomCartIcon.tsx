@@ -47,20 +47,21 @@ const Count = styled(Typography, {
 
 interface CustomCartIconProps {
   cart: Cart
+  cartItemCount: number
 }
 
 const CustomCartIcon = React.forwardRef(function CustomCartIcon(props: CustomCartIconProps, ref) {
 
-  const { cart, ...other } = props;
+  const { cart, cartItemCount, ...other } = props;
 
-  const cartCount = cart.cartItems.length;
+  // const cartCount = cart.cartItems.length;
 
   return (
     <CustomCartIconRoot {...other}>
-      {!!cartCount &&
+      {!!cartItemCount &&
         <CounterDiv >
           <Count>
-            {cartCount === 0 ? "" : cartCount}
+            {cartItemCount === 0 ? "" : cartItemCount}
           </Count>
         </CounterDiv>
       }

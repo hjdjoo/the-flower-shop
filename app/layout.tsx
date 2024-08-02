@@ -9,9 +9,9 @@ import '@/styles/global.css';
 import theme from '../styles/theme';
 import { Navbar } from './_components/Navbar';
 
-import { UserProvider } from '@/lib/contexts/UserContext';
+import { UserProvider } from '@/contexts/UserContext';
 
-import { CartProvider } from '@/lib/contexts/CartContext';
+import { CartProvider } from '@/contexts/CartContext';
 
 import { createClient } from "@/utils/supabase/server";
 
