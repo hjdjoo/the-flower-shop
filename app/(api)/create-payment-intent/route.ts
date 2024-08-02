@@ -19,11 +19,11 @@ export async function POST(req: NextRequest) {
 
   const sortedCart = await req.json();
 
-  console.log("create-payment-intent/sortedCart: ", sortedCart)
+  // console.log("create-payment-intent/sortedCart: ", sortedCart)
 
 
   if (!sortedCart || !sortedCart[0].length) {
-    return NextResponse.json({ error: "No cart detected" }, { status: 500 })
+    return NextResponse.json({ error: "No cart detected" }, { status: 205 })
   }
   const cartInfo = await calculateCart(sortedCart);
   const { orderPrices, cartTotal } = cartInfo;

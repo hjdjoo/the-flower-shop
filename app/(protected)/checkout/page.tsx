@@ -36,14 +36,27 @@ export default function Checkout() {
   const [deliveryDates, setDeliveryDates] = useState<Dates>([]);
   const [order, setOrder] = useState<SortedOrder>([]);
   const [orderPrices, setOrderPrices] = useState<OrderPrices[][]>([]);
+  const [orderQuantity, setOrderQuantity] = useState<number>()
   const [cartTotal, setCartTotal] = useState<string>("")
 
   // moved setState actions to useEffect to ensure that checkout renders cart items upon refresh.
   useEffect(() => {
     // console.log("Checkout/useEffect/cart: ", cart);
     if (!cart) return;
+
     setDeliveryDates(cart.deliveryDates);
+
     const sortedOrder = getSortedOrder();
+
+    let quantity = 0;
+    // currently: 
+    // [ [{}, null], [[{}, {}]]   ]
+    for (let addressArr of sortedOrder) {
+      for (let orderArr of addressArr) {
+
+      }
+    }
+    setOrderQuantity(quantity);
 
     if (sortedOrder[0][0] && sortedOrder[0][0].length)
       (async () => {
@@ -84,7 +97,11 @@ export default function Checkout() {
         <ShoppingCart sx={{ mr: 1 }} />
         <Typography component='h1' sx={{ fontSize: 24, fontWeight: 800, my: 1 }}>Cart</Typography>
       </Box>
-      {order.length ? order.map((dateArr, dateIdx) => {
+      <Box id="order-quantity-info-box">
+        <Typography>{`It looks like we'll need to send ${orderQuantity ? orderQuantity === 1 ? `${orderQuantity} order.` : ` ${orderQuantity} orders.` : "..."}`}</Typography>
+      </Box>
+      {order.length ? order.map((addressArr, dateIdx) => {
+
         return (
           <Accordion defaultExpanded key={`delivery-accordion-${dateIdx + 1}`}>
             <AccordionSummary
@@ -97,8 +114,8 @@ export default function Checkout() {
             <AccordionDetails>
               <Box id={`delivery-group-${dateIdx + 1}`}>
                 {
-                  dateArr.map((addressArr, addressIdx) => {
-                    if (!addressArr.length) return;
+                  addressArr.map((orderArr, addressIdx) => {
+                    if (!orderArr.length) return;
                     return (
                       <Box id={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`} key={`cart-item-delivery-group-${dateIdx + 1}-address-${addressIdx + 1}`}
                         sx={{
@@ -109,7 +126,7 @@ export default function Checkout() {
                           <Typography>Delivery to:</Typography>
                           <Typography>{addresses[addressIdx]}</Typography>
                         </Box>
-                        {addressArr.map((orderItem, orderIdx) => {
+                        {orderArr.map((orderItem, orderIdx) => {
                           if (orderItem.recipAddressIndex === addressIdx) {
                             return (
                               <Box id={`cart-item-delivery-group-${dateIdx + 1}-order-${orderIdx + 1}-date-${orderItem.recipAddressIndex + 1}`} key={`del-${dateIdx + 1}-order-${orderIdx + 1}-date-${orderItem.recipAddressIndex + 1}`}>

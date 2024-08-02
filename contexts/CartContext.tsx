@@ -178,14 +178,18 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
     const { cartItems, deliveryDates } = cart;
 
+    console.log("updateAddressesAndDates, ", cartItems, deliveryDates)
+
+
     if (!cartItems.length) return;
 
     const newCartItems = [...cartItems]
     const newAddresses: Addresses = [];
-    const newDeliveryDates: string[] = [...deliveryDates];
+    const newDeliveryDates: string[] = [];
+
+    newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate))
 
     newCartItems.forEach((item) => {
-
       const addressStr = addressToString(item.recipAddress);
 
       // be careful of zero indexing and null checks
@@ -197,6 +201,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
         addressCache[addressStr] = newAddresses.length - 1;
       };
 
+      if (!newDeliveryDates.includes(item.deliveryDate)) {
+        newDeliveryDates.push(item.deliveryDate);
+      };
     });
 
     const newCart = {
@@ -216,10 +223,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       localStorage.setItem("cart", JSON.stringify(defaultCart));
       setCart({ ...defaultCart })
     }
-
-    const { deliveryDates, addresses, cartItems } = newCart;
-    deliveryDates.sort((a, b) => Date.parse(a) - Date.parse(b));
-    cartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate));
 
     const updatedCart = updateAddressesAndDates(newCart);
 

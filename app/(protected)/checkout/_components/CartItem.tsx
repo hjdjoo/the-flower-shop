@@ -47,6 +47,8 @@ const CartItem = (props: CartItem) => {
 
   const { orderItem, orderPrices, dateIdx, addressIdx, orderIdx } = props;
   const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
+
+  console.log("CartItem/cart: ", cart)
   const sortedOrder = getSortedOrder();
 
   const orderItemCopy = Object.assign({}, orderItem);
@@ -98,7 +100,6 @@ const CartItem = (props: CartItem) => {
       const newCartItems = updateOrder.flat(2);
       updateCart({ ...cart, cartItems: newCartItems });
       setIsEditing(false);
-
     }
     else {
       setIsEditing(true);
