@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction } from "react";
+import { createContext, useContext, useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import { Cart, OrderItem, SortedOrder, Dates, Addresses } from "../app/types/component-types/OrderFormData"
 import { defaultCart } from "@/app/_components/lib/DefaultCart";
 import { createClient } from "@/utils/supabase/client";
@@ -38,8 +38,9 @@ interface LocalCart extends Cart {
 export interface CartContextType {
   cart: Cart
   updateCart: (cart: Cart) => void // 
-  addToCart: (deliveryDate: string, item: OrderItem) => void
+  addToCart: (item: OrderItem) => void
   getSortedOrder: () => SortedOrder
+  updateAddressesAndDates: (cart: Cart) => Cart
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -58,35 +59,37 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   const [cart, setCart] = useState<Cart>(defaultCart);
 
+  const cartRef = useRef<Cart>(cart);
+
+  console.log("CartProvider/cart: ", cart);
+
   // Todo: set userId to shop ID and update user info as needed with session.
   // const [user, setUser] = useState()
 
   useEffect(() => {
+
+    console.log("CartProvider useEffect triggered. getting cart.")
 
     const storedCartJSON = localStorage && localStorage.getItem("cart")
     const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
     const newCart = refreshCart(storedCart);
 
+    cartRef.current = newCart;
     setCart(newCart);
 
   }, [])
 
-  // useEffect(() => {
-  //   (async () => {
 
-  //     const { data, error } = await supabase
-  //       .auth
-  //       .getSession();
-
-  //   })()
-
-  // }, [supabase])
-
-
+  /**
+   * 
+   * @param cart :LocalCart - check if there is a cart. If so, check the age of the cart. Return client a new cart after 2 days.
+   * @returns updated version of cart.
+   */
   function refreshCart(cart: LocalCart) {
 
     if (!cart || !cart.deliveryDates) { return defaultCart }
+
     const cartAgeHrs = (Date.now() - cart.updatedAt) / 1000 / 3600;
     if (cartAgeHrs > 48) {
       localStorage.removeItem("cart");
@@ -97,26 +100,24 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     };
   }
 
-  const addToCart = (deliveryDate: string, item: OrderItem) => {
+  /**
+   * 
+   * @param item :OrderItem - new item that customer is adding to cart. Updates the addresses and dates stored in the cart.
+   * 
+   */
+  const addToCart = (item: OrderItem) => {
 
     const { deliveryDates, addresses, cartItems } = cart;
     console.log("deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems)
 
-    const newDeliveryDates: Dates = [...deliveryDates];
-    const newAddresses: Addresses = [...addresses];
     const newCartItems: Array<OrderItem> = [...cartItems];
-
-    if (!deliveryDates.includes(deliveryDate)) {
-      newDeliveryDates.push(deliveryDate);
-    }
 
     newCartItems.push(item);
 
-    const newCart = {
-      addresses: newAddresses,
-      deliveryDates: newDeliveryDates,
+    const newCart = updateAddressesAndDates({
+      ...cart,
       cartItems: newCartItems
-    }
+    })
 
     updateCart(newCart)
 
@@ -125,15 +126,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   /**
    * 
    * @returns :SortedOrder - 
-   * A 3-d array in which:
-   * - The outermost index references the deliveryDate index
-   * - The next inner index references the address index
-   * - The innermost index does not reference anything, but the array represents the items for an order.
+   * OrderItems[][] where:
+   * The outer array is organized in ascending order of delivery date
+   * The inner array contains an array of orders mapped to the index of the deliveryDate array.
+   * 
    * 
    */
   const getSortedOrder = () => {
 
-    const { deliveryDates, addresses, cartItems } = cart;
+    const { deliveryDates, addresses, cartItems } = cartRef.current;
     // console.log("getSortedOrder/deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems)
     // Fun fact: Array.fill([]) won't work for this kind of an algorithm, since the fill method passes the *reference* to the object that was given as a param. Thus, mutating an array at any idx will mutate all others.
     if (!deliveryDates || !deliveryDates.length) {
@@ -163,7 +164,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   }
 
   /**
-   * updateAddressesAndDates()
+   * 
    * @returns :Cart - this is a NEW cart object with a refreshed set of addresses and cart items containing the new address indices.
    * This does *not* refresh the cart and should be used as a utility function for other cart operations.
    * 
@@ -176,12 +177,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     };
     const addressCache: AddressCache = {};
 
-    const { cartItems, deliveryDates } = cart;
-
-    console.log("updateAddressesAndDates, ", cartItems, deliveryDates)
-
-
-    if (!cartItems.length) return;
+    const { cartItems } = cart;
 
     const newCartItems = [...cartItems]
     const newAddresses: Addresses = [];
@@ -190,13 +186,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     newCartItems.sort((a, b) => Date.parse(a.deliveryDate) - Date.parse(b.deliveryDate))
 
     newCartItems.forEach((item) => {
+
       const addressStr = addressToString(item.recipAddress);
 
       // be careful of zero indexing and null checks
       if (addressCache[addressStr] === 0 || addressCache[addressStr]) {
         item.recipAddressIndex = addressCache[addressStr];
       } else {
-        newAddresses.push(addressStr);
+        newAddresses.push(item.recipAddress);
         item.recipAddressIndex = newAddresses.length - 1;
         addressCache[addressStr] = newAddresses.length - 1;
       };
@@ -216,6 +213,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   }
 
+  // setter function - makes sure to add timestamp to cart.
   const updateCart = (newCart: Cart) => {
 
     if (!newCart.cartItems.length) {
@@ -224,21 +222,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       setCart({ ...defaultCart })
     }
 
-    const updatedCart = updateAddressesAndDates(newCart);
+    // const updatedCart = updateAddressesAndDates(newCart);
 
-    const localCart = { ...updatedCart } as LocalCart;
+    const localCart = { ...newCart } as LocalCart;
 
     localCart.updatedAt = Date.now();
     localStorage.setItem("cart", JSON.stringify(localCart));
 
-
+    cartRef.current = newCart;
     setCart({ ...newCart });
 
   }
 
 
   return (
-    <CartContext.Provider value={{ cart, updateCart, addToCart, getSortedOrder }}>{children}</CartContext.Provider>
+    <CartContext.Provider value={{ cart, updateCart, addToCart, getSortedOrder, updateAddressesAndDates }}>{children}</CartContext.Provider>
   )
-
 }

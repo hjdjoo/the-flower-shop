@@ -2,10 +2,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
-import { ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
+import { ItemPrices, OrderPrices, SortedOrder } from "@/app/types/component-types/OrderFormData";
 import { CartContextType, useCart } from "@/contexts/CartContext";
 
 interface PriceInfoDisplayProps {
+  order: SortedOrder
   orderPrices: OrderPrices
   dateIdx: number
   addressIdx: number
@@ -13,13 +14,14 @@ interface PriceInfoDisplayProps {
 
 export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
 
-  const { getSortedOrder } = useCart() as CartContextType;
-  const sortedOrder = getSortedOrder();
-  const { orderPrices, dateIdx, addressIdx } = props;
+  const { order: sortedOrder, orderPrices, dateIdx, addressIdx } = props;
+
+  // console.log("PriceInfoDisplay/")
+  // console.table({ sortedOrder, orderPrices, dateIdx, addressIdx })
 
   const { itemValues, deliveryFee, tax, total } = orderPrices
 
-  const ItemInfo = itemValues.map((value, orderIdx) => {
+  const ItemInfo = itemValues.length ? itemValues.map((value, orderIdx) => {
 
     return (
       <Grid id={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-item`}
@@ -50,7 +52,7 @@ export default function PriceInfoDisplay(props: PriceInfoDisplayProps) {
         </Grid>
       </Grid>
     )
-  })
+  }) : <></>
 
 
   return (

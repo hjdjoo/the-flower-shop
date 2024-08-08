@@ -18,19 +18,27 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
       total: 0
     }
 
-    order.forEach(async (item) => {
+    // console.log("calculatePrices/before forEach/orderPrices: ", orderPrices)
 
+    order.forEach(async (item, idx) => {
+      // console.log("calculatePrices/order.forEach/item, idx", item, idx)
       const { data, error } = await getProductInfo(item.productId);
 
       if (!data || error) {
         throw new Error("Couldn't get product data")
       };
 
+      // console.log("calculatePrices/orderData: ", data)
+      // console.log("calculatePrices/orderItem: ", item)
+
       const tier = item.selectedTier!;
       const itemValue = data.prices[tier];
 
-      orderPrices.itemValues.push(itemValue);
+      // console.log("calculatePrices/adding item value to order prices. orderPrices, itemValues: ")
+      // console.table({ orderPrices, itemValue })
+      orderPrices.itemValues[idx] = itemValue
 
+      // console.log("calculatePrices/orderforEach/after update: ", orderPrices);
 
     })
 
@@ -60,11 +68,11 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
 
     const tax = calculateTax(preTaxTotal);
 
-    const total = tax + preTaxTotal;
+    const total = parseInt((tax * 100 + preTaxTotal * 100).toFixed(0));
 
     orderPrices.deliveryFee = deliveryFee;
     orderPrices.tax = tax;
-    orderPrices.total = total;
+    orderPrices.total = total / 100;
 
     // console.log("calculatePrices/orderPrices: ", orderPrices)
 

@@ -28,10 +28,12 @@ interface OrderInfoDisplayProps {
 
 export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
 
-  const { orderItem, orderPrices, addressIdx, orderIdx, dateIdx, alerts } = props;
+  const { orderItem, orderPrices, addressIdx, orderIdx, dateIdx } = props;
+
 
   const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = orderItem;
   const { itemValues } = orderPrices;
+  console.log("OrderInfoDisplay/recipAddress: ", recipAddress);
 
   const CheckIconColored = styled(CheckIcon)(({ theme }) => ({
     color: theme.palette.success.main
@@ -111,7 +113,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
               alignItems: "start",
               justifyContent: "end",
             }}>
-            {alerts.addressAlerts && alerts.addressAlerts.severity === ("success" || undefined) ? <CheckIconColored /> : <ErrorIconColored />}
+            {(recipAddress.streetAddress1.length && recipAddress.townCity.length && recipAddress.state.length && recipAddress.zip.length) ? <CheckIconColored /> : <ErrorIconColored />}
           </Grid>
           <Grid xs={4}
             sx={{
@@ -132,7 +134,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
             }}>
             <Box id={`order-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-recip-address-box`}
             >
-              {!recipAddress.streetAddress1.length &&
+              {(!recipAddress.streetAddress1.length || !recipAddress.townCity.length || !recipAddress.state.length || !recipAddress.zip.length) &&
                 <Typography sx={{
                   fontSize: "0.9rem",
                   color: (!recipAddress.streetAddress1) ? "#d32f2f" : "black",
@@ -167,7 +169,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
               alignItems: "center",
               justifyContent: "end",
             }}>
-            {recipPhone ? <CheckIconColored /> : <ErrorIconColored />}
+            {recipPhone.length ? <CheckIconColored /> : <ErrorIconColored />}
           </Grid>
           <Grid xs={4}
             sx={{
@@ -229,7 +231,8 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
               <Typography sx={{
                 fontSize: "0.9rem",
                 whiteSpace: "pre",
-                fontStyle: (!cardMessage.length) ? "italic" : "normal"
+                fontStyle: (!cardMessage.length) ? "italic" : "normal",
+                textWrap: "wrap",
               }}>
                 {!cardMessage.length ? "No Card" : cardMessage}
               </Typography>

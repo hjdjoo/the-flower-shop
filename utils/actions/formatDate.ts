@@ -5,6 +5,8 @@
  */
 export default function formatDate(date: string) {
 
+  // console.log("formatDate/date: ", date);
+
   const splitDate = date.split("-");
   // [yyyy, mm, dd]
 

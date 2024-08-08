@@ -34,8 +34,8 @@ export default async function validateAddress(orderItem: OrderItem) {
       state: res.result.address.postalAddress.administrativeArea,
       zip: res.result.address.postalAddress.postalCode,
     }
-    console.log("validateAddress/res", res);
-    console.log('Valid Address');
+    // console.log("validateAddress/res", res);
+    // console.log('Valid Address');
 
     return formattedAddress;
   }

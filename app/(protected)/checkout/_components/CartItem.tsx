@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, ChangeEvent, Suspense } from "react";
+import React, { useEffect, useState, ChangeEvent, Suspense, Dispatch, SetStateAction, MutableRefObject } from "react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 
@@ -25,37 +25,53 @@ import RecipientInfo from "@/app/_components/RecipientInfo";
 
 import validateAddress from "@/utils/google/validateAddress";
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
+import calculateCart from "@/utils/actions/calculateCart";
+import addressToString from "@/utils/actions/addressToString";
 
 
 import { ErrorMessage } from "@/app/types/client-types";
 import type { CartContextType } from "@/contexts/CartContext";
-import type { OrderItem, Address, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
+import type { OrderItem, Cart, Address, ItemPrices, OrderPrices, SortedOrder } from "@/app/types/component-types/OrderFormData";
 
 
 interface CartItem {
-  orderItem: OrderItem,
-  orderPrices: OrderPrices,
-  addressIdx: number,
+  orderItem: OrderItem
+  cart: Cart
+  order: SortedOrder
+  orderPrices: OrderPrices
+  // sortedOrderPrices: OrderPrices[][]
+  setCurrCart: Dispatch<SetStateAction<Cart | undefined>>
+  setOrder: Dispatch<SetStateAction<SortedOrder>>
+  setSortedOrderPrices: Dispatch<SetStateAction<OrderPrices[][]>>
+  setCartTotal: Dispatch<SetStateAction<string>>
+  setAddresses: Dispatch<SetStateAction<Address[]>>
+  addressIdx: number
   dateIdx: number
-  orderIdx: number,
+  orderIdx: number
+  // setDeliveryDates: Dispatch<SetStateAction<string[]>>,
 }
 
-const CartItem = (props: CartItem) => {
+const CartItem = ((props: CartItem) => {
 
   const router = useRouter();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
-  const { orderItem, orderPrices, dateIdx, addressIdx, orderIdx } = props;
-  const { cart, updateCart, getSortedOrder } = useCart() as CartContextType;
+  const { cart, order: sortedOrder, orderItem, orderPrices, dateIdx, addressIdx, orderIdx, setCurrCart, setOrder, setCartTotal, setSortedOrderPrices, setAddresses } = props;
+  // const { } = useCart() as CartContextType;
 
-  console.log("CartItem/cart: ", cart)
-  const sortedOrder = getSortedOrder();
+  const { updateAddressesAndDates, updateCart, getSortedOrder } = useCart() as CartContextType;
+
+  // console.log("CartItem/cart: ", cart)
+  // const sortedOrder = getSortedOrder();
 
   const orderItemCopy = Object.assign({}, orderItem);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const [updatedItem, setUpdatedItem] = useState<OrderItem>(orderItemCopy);
   const [tier, setTier] = useState<number>(orderItem.selectedTier === 0 || orderItem.selectedTier ? orderItem.selectedTier : 0);
+  // const [addressIdx, setAddressIdx] = useState<number>()
+  const [newAddressIdx, setNewAddressIdx] = useState<number>(addressIdx)
 
   const [addressAlert, setAddressAlert] = useState<ErrorMessage>(
     {
@@ -75,30 +91,63 @@ const CartItem = (props: CartItem) => {
       message: `${updatedItem.cardMessage.length}/250`
     });
 
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, [cart])
+  // }, [cart])
 
-
-  // Order Item Handlers:
+  // Handler functions:
   const handleOrderItem = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
-    console.log(name, value)
 
     setUpdatedItem({ ...updatedItem, [name]: value });
 
   }
 
+  const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    const newItem = updatedItem;
+    const updatedAddress = { ...updatedItem.recipAddress, [name]: value };
+    newItem.recipAddress = updatedAddress;
+    setUpdatedItem({ ...newItem });
+  }
+
+  const handleAddressSelect = (e: SelectChangeEvent<string>) => {
+
+    const { value } = e.target;
+
+    console.log("handleAddressSelect/value: ", value);
+    const newItem = updatedItem;
+    const updatedAddress = cart.addresses[parseInt(value)];
+
+    console.log("updatedAddress: ", updatedAddress);
+    newItem.recipAddress = updatedAddress;
+    setUpdatedItem({ ...newItem });
+
+
+  }
+
   const confirmChanges = async () => {
     if (isEditing) {
-      let updateOrder = structuredClone(sortedOrder);
 
-      console.log("CartItem/confirmChanges/updatedItem: ", updatedItem)
-      updateOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
-
+      let updatedOrder = structuredClone(sortedOrder);
+      console.log("confirmChanges/updatedItem: ", updatedItem)
+      updatedOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
       // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
-      const newCartItems = updateOrder.flat(2);
-      updateCart({ ...cart, cartItems: newCartItems });
+      const newCartItems = updatedOrder.flat(2);
+      const newCart = updateAddressesAndDates({ ...cart, cartItems: newCartItems });
+
+      updateCart(newCart);
+      const newSortedOrder = getSortedOrder();
+
+      const newOrderPrices = await calculateCart(newSortedOrder);
+
+      await checkAddress();
+      setCurrCart(newCart);
+      setOrder(newSortedOrder);
+      setSortedOrderPrices(newOrderPrices.orderPrices);
+      setCartTotal(newOrderPrices.cartTotal.toFixed(2));
+      setAddresses(newCart.addresses);
       setIsEditing(false);
     }
     else {
@@ -109,18 +158,18 @@ const CartItem = (props: CartItem) => {
   const removeItem = () => {
 
     let updateOrder = structuredClone(sortedOrder);
-    // remove item from array;
     updateOrder[dateIdx][addressIdx].splice(orderIdx, 1);
-    // flatten;
     const newCartItems = updateOrder.flat(2);
-    console.log(newCartItems);
+    // console.log(newCartItems);
 
-    updateCart({ ...cart, cartItems: newCartItems });
-    router.refresh();
+    const newCart = updateAddressesAndDates({ ...cart, cartItems: newCartItems });
+
+    setCurrCart(newCart);
+    updateCart(newCart);
 
   };
 
-  // Delivery Date helper
+  // Helper functions
   const checkDeliveryDate = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
@@ -140,26 +189,22 @@ const CartItem = (props: CartItem) => {
     }
   }
 
-  // Address handlers
-  const handleAddress = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
 
-    const newItem = updatedItem;
-    const updatedAddress = { ...updatedItem.recipAddress, [name]: value };
-    newItem.recipAddress = updatedAddress;
-
-    setUpdatedItem({ ...newItem });
-  }
-
-  const handleAddressCheck = async () => {
+  const checkAddress = async () => {
     try {
       const formattedAddress = await validateAddress(updatedItem);
-      if (!formattedAddress) {
+      if (!formattedAddress || !formattedAddress.streetAddress1.length) {
         setAddressAlert({
           severity: "error",
           message: "Address validation returned nothing. Please check recipient details."
         })
-      };
+      }
+      else {
+        setAddressAlert({
+          severity: "success",
+          message: "Address is valid!"
+        })
+      }
       setUpdatedItem({ ...updatedItem, recipAddress: formattedAddress })
     }
     catch (e) {
@@ -167,11 +212,9 @@ const CartItem = (props: CartItem) => {
         severity: "error",
         message: "Address could not be validated. Please check recipient details."
       })
-
     };
   }
 
-  // Message helper
   const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
 
@@ -224,6 +267,7 @@ const CartItem = (props: CartItem) => {
         <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-info-box`}
           sx={{
             display: "flex",
+            flexDirection: "column"
           }}>
           {isEditing
             ?
@@ -232,136 +276,202 @@ const CartItem = (props: CartItem) => {
                 sx={{
                   mb: 3,
                 }}>
-                <FormControl>
-                  <Typography component="p" style={{ fontWeight: 500 }}>
-                    {`${orderItem.name}`}
-                  </Typography>
-                  <Grid id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-evenly",
-                      alignItems: "center",
-                      mb: 1
-                    }} >
-                    <Grid>
-                      <Typography>
-                        Change Price Tier:
-                      </Typography>
-                    </Grid>
-                    <Grid>
-                      <Select
-                        variant="standard"
-                        sx={{ ml: 1 }}
-                        name="selectedTier"
-                        value={tier.toString()}
-                        onChange={(event) => {
-                          setTier(parseInt(event.target.value));
-                          handleOrderItem(event)
-                        }}
-                      >
-                        {orderItem.prices.map((price, idx) => (
-                          <MenuItem key={`price-tier-${idx + 1}`}
-                            value={idx}>
-                            {`$${price}`}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Grid>
-                    <Grid>
-                      <Grid>
-                        <InputField
-                          id="delivery-date-input"
-                          type="date"
-                          name="deliveryDate"
-                          value={updatedItem.deliveryDate}
-                          error={!!deliveryDateAlert.severity}
-                          helperText={deliveryDateAlert.message}
-                          onChange={(e) => {
-                            checkDeliveryDate(e);
-                            handleOrderItem(e);
-                          }}
-                          sx={{
-                            marginTop: "5px",
-                            marginBottom: "15px"
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
-                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button-box`}
-                    sx={{
-                      flexGrow: 1,
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}>
-                    <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button`}
-                      onClick={handleAddressCheck}
+
+                <Typography component="p" style={{ fontWeight: 500 }}>
+                  {`${orderItem.name}`}
+                </Typography>
+                <Grid id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
+                  container
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    mb: 1
+                  }} >
+                  <Grid xs={6} md={3}>
+                    <Typography
                       sx={{
-                        border: "1px solid",
-                        borderColor: "primary.main",
-                        width: "90%",
-                        mb: 3,
-                        '&:hover': {
-                          backgroundColor: "#dfe6df",
-                        }
+                        fontSize: "0.8rem"
+                      }}>
+                      Change Price Tier:
+                    </Typography>
+                  </Grid>
+                  <Grid xs={6} md={3}>
+                    <Select
+                      variant="standard"
+                      sx={{ ml: 1 }}
+                      name="selectedTier"
+                      value={tier.toString()}
+                      onChange={(event) => {
+                        setTier(parseInt(event.target.value));
+                        handleOrderItem(event)
                       }}
                     >
-                      Verify Address
-                    </Button>
-                  </Box>
-                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-box`}
-                    sx={{
-                      display: "flex",
-                      width: "100%"
-                    }}>
-                    <InputField
-                      id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-input`}
-                      name="cardMessage"
-                      value={updatedItem.cardMessage}
-                      error={cardMessageAlert.severity === "error"}
-                      helperText={cardMessageAlert.message}
-                      onKeyDown={(k) => {
-                        if (cardMessageAlert.severity === ("error" || "warning") && k.code !== "Backspace") k.preventDefault();
-                      }}
-                      onChange={(e) => {
-                        handleOrderItem(e);
-                        checkMessageLength(e);
-                      }}
-                      fullWidth
-                      multiline
+                      {orderItem.prices.map((price, idx) => (
+                        <MenuItem key={`price-tier-${idx + 1}`}
+                          value={idx}>
+                          {`$${price}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
+                  <Grid xs={6} md={3}>
+                    <Typography
                       sx={{
-                        marginTop: "5px",
-                        marginBottom: "15px"
+                        fontSize: "0.8rem"
+                      }}>
+                      Change Delivery Date:
+                    </Typography>
+                  </Grid>
+                  <Grid xs={6} md={3}>
+                    <InputField
+                      id="delivery-date-input"
+                      type="date"
+                      name="deliveryDate"
+                      value={updatedItem.deliveryDate}
+                      error={!!deliveryDateAlert.severity}
+                      helperText={deliveryDateAlert.message}
+                      onChange={(e) => {
+                        checkDeliveryDate(e);
+                        handleOrderItem(e);
+                      }}
+                      sx={{
+                        marginTop: "15px",
+                        marginBottom: "15px",
+                        width: "95%",
                       }}
                     />
-                  </Box>
-                  <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button-box`}
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "center"
-                    }}>
-                    <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button`}
-                      onClick={() => confirmChanges()}
+                  </Grid>
+                </Grid>
+                <Grid id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-price-wrapper`}
+                  container
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    mb: 1
+                  }} >
+                  <Grid xs={6} md={3}>
+                    <Typography
                       sx={{
-                        border: "1px solid",
-                        borderColor: "primary.main",
-                        width: "90%",
+                        fontSize: "0.8rem"
+                      }}>
+                      Select from an existing delivery address:
+                    </Typography>
+                  </Grid>
+                  <Grid xs={6} md={3}>
+                    <Select
+                      variant="standard"
+                      value={newAddressIdx.toString()}
+                      onChange={(event) => {
+                        setNewAddressIdx(parseInt(event.target.value));
+                        handleAddressSelect(event);
                       }}
-                    >
-                      Confirm Changes
-                    </Button>
-                  </Box>
-                </FormControl>
+                      sx={{
+                        ml: 1,
+                        maxWidth: "100%",
+                      }}>
+                      {cart.addresses.map((address, idx) => {
+
+                        const addressStr = addressToString(address);
+
+                        return (
+                          <MenuItem key={`delivery-${dateIdx + 1}-select-option-${idx + 1}`}
+                            value={idx}
+                          >
+                            <Box id={`delivery-${dateIdx + 1}-select-option-${idx + 1}`} sx={{
+                              overflow: "hidden",
+                              fontSize: "0.7rem",
+                              textOverflow: "ellipsis"
+                            }}>
+                              {addressStr}
+                            </Box>
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </Grid>
+                </Grid>
+                <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
+                <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button-box`}
+                  sx={{
+                    flexGrow: 1,
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                  <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button`}
+                    onClick={checkAddress}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "primary.main",
+                      width: "90%",
+                      mb: 3,
+                      '&:hover': {
+                        backgroundColor: "#dfe6df",
+                      }
+                    }}
+                  >
+                    Verify Address
+                  </Button>
+                </Box>
+                <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-box`}
+                  sx={{
+                    display: "flex",
+                    width: "100%"
+                  }}>
+                  <InputField
+                    id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-input`}
+                    name="cardMessage"
+                    value={updatedItem.cardMessage}
+                    error={cardMessageAlert.severity === "error"}
+                    helperText={cardMessageAlert.message}
+                    onKeyDown={(k) => {
+                      if (cardMessageAlert.severity === ("error" || "warning") && k.code !== "Backspace") k.preventDefault();
+                    }}
+                    onChange={(e) => {
+                      handleOrderItem(e);
+                      checkMessageLength(e);
+                    }}
+                    fullWidth
+                    multiline
+                    sx={{
+                      marginTop: "5px",
+                      marginBottom: "15px"
+                    }}
+                  />
+                </Box>
+                <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button-box`}
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center"
+                  }}>
+                  <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-confirm-changes-button`}
+                    onClick={() => confirmChanges()}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "primary.main",
+                      width: "90%",
+                    }}
+                  >
+                    Confirm Changes
+                  </Button>
+                </Box>
+
               </Box>
             </Suspense>
             : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} alerts={{ addressAlert: addressAlert, deliveryDateAlert: deliveryDateAlert, cardMessageAlert: cardMessageAlert, }} />
           }
-          <Box>
+          <Box id={`item-edit-buttons-box-${dateIdx + 1}`} sx={{
+            alignSelf: "center",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center"
+          }}>
             <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-toggle-edit-button`}
               onClick={() => {
                 isEditing ? setIsEditing(false) : setIsEditing(true);
@@ -393,6 +503,6 @@ const CartItem = (props: CartItem) => {
       </Box>
     </Box>
   )
-}
+})
 
 export default CartItem;

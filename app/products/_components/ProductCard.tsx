@@ -46,8 +46,7 @@ export default function ProductCard(props: ProductCardProps) {
   /* hooks */
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-  const { cart, addToCart } = useCart() as CartContextType;
-  console.log("ProductCard/cart: ", cart);
+  const { cart, addToCart, updateAddressesAndDates } = useCart() as CartContextType;
 
   /* prop destructuring */
   const { productId } = props
@@ -106,7 +105,9 @@ export default function ProductCard(props: ProductCardProps) {
     }
     else {
       setSubmitStatus("submitting");
-      addToCart(deliveryDate, orderItem);
+
+
+      addToCart(orderItem);
       setSubmitStatus("submitted");
       setDeliveryDate("");
       setOrderItem({ ...baseOrderForm });

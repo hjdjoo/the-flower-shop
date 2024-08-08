@@ -14,11 +14,14 @@ export default async function calculateCart(sortedOrder: SortedOrder) {
   let cartTotal = 0;
   // console.log(sortedOrder);
 
-  const orderPrices = await Promise.all(sortedOrder.map((dateArr) => {
+  const orderPrices = await Promise.all(sortedOrder.map((addressArr) => {
 
-    return Promise.all(dateArr.map(async (addressArr) => {
-
-      if (!addressArr.length) {
+    // console.log("microtask")
+    // console.log("calculateCart/sortedOrder: ", sortedOrder);
+    return Promise.all(addressArr.map(async (orderArr) => {
+      // console.log("microtask")
+      // console.log("orderArr: ", orderArr)
+      if (!orderArr.length) {
         return {
           itemValues: [],
           deliveryFee: 0,
@@ -26,13 +29,16 @@ export default async function calculateCart(sortedOrder: SortedOrder) {
           total: 0
         }
       }
-      const address = addressArr[0].recipAddress
-      const prices = await calculatePrices(addressArr, address);
+      const address = orderArr[0].recipAddress
+      const prices = await calculatePrices(orderArr, address);
+      // console.log("prices: ", prices)
       cartTotal += prices.total;
       return prices;
     }))
 
   }));
+
+  // console.log("calculateCart/orderPrices: ", orderPrices)
 
   return {
     orderPrices: orderPrices,

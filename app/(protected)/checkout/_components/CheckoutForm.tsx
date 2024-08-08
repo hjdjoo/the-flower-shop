@@ -7,13 +7,30 @@ import Button from "@mui/material/Button"
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { StripePaymentElementOptions } from "@stripe/stripe-js";
 
-export default function CheckoutForm() {
+import { Cart } from "@/app/types/component-types/OrderFormData";
+// import { useCart, CartContextType } from "@/contexts/CartContext";
+
+interface CheckoutFormProps {
+  cart: Cart
+}
+
+export default function CheckoutForm(props: CheckoutFormProps) {
+
+  const { cart } = props;
 
   const stripe = useStripe();
   const elements = useElements();
 
   const [message, setMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [orderReady, setOrderReady] = useState<boolean>(false);
+  const [orderStatusAlert, setOrderStatusAlert] = useState({
+    nameAlert: "",
+    senderAlert: "",
+    addressAlert: "",
+    phoneAlert: "",
+    cardMessageAlert: "",
+  })
 
   useEffect(() => {
 
@@ -50,6 +67,42 @@ export default function CheckoutForm() {
 
   }, [stripe])
 
+  useEffect(() => {
+
+    const newStatusAlert = {
+      nameAlert: "",
+      senderAlert: "",
+      addressAlert: "",
+      phoneAlert: "",
+      cardMessageAlert: ""
+    }
+
+    for (let i = 0; i < cart.cartItems.length; i++) {
+      const item = cart.cartItems[i];
+      const { recipAddress } = item;
+
+      if (!item.recipFirst.length && !item.recipLast.length) {
+        newStatusAlert.nameAlert = `Recipient name missing - item ${i + 1} will be delivered to the address without a recipient.`
+      }
+      if (!recipAddress.streetAddress1.length || !recipAddress.townCity.length || !recipAddress.state.length || !recipAddress.zip.length) {
+        newStatusAlert.addressAlert = `Full address missing - item ${i + 1}`
+      }
+      if (!item.recipPhone.length) {
+        newStatusAlert.phoneAlert = `Missing recipient phone number - we won't be able to contact the recipient about item ${i + 1}`
+      }
+      if (!item.cardMessage.length) {
+        newStatusAlert.cardMessageAlert = `No card message - item ${i + 1} will be sent anonymously`
+      }
+    }
+    if (newStatusAlert.addressAlert.length || newStatusAlert.senderAlert.length) {
+      setOrderReady(false);
+      setOrderStatusAlert(newStatusAlert);
+    } else {
+      setOrderReady(true);
+    }
+
+  }, [cart])
+
   // TODO: handleSubmit should also add item to DB. 
   const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -76,8 +129,24 @@ export default function CheckoutForm() {
     }
 
     setIsLoading(false);
-
   }
+
+
+  const OrderStatusAlerts = Object.keys(orderStatusAlert).map((status, idx) => {
+
+    if (!status.length) return;
+
+    return (
+      <Box key={`order-status-alert-${idx + 1}`}
+        id={`order-${status}-message`}>
+        <Typography>
+          {Object.values(orderStatusAlert)[idx]}
+        </Typography>
+      </Box>
+    )
+
+  })
+
 
   const paymentElementOptions = {
     layout: "tabs"
@@ -94,7 +163,7 @@ export default function CheckoutForm() {
           alignItems: "center"
         }}>
         <Button id="submit-button"
-          disabled={isLoading || !stripe || !elements}
+          disabled={isLoading || !stripe || !elements || !orderReady}
           variant="contained"
           onClick={handleSubmit}
           sx={{
@@ -107,9 +176,14 @@ export default function CheckoutForm() {
           </span>
         </Button>
       </Box>
+      {
+        OrderStatusAlerts
+      }
       {message &&
         <Box id="payment-message">
-          {message}
+          <Typography>
+            {message}
+          </Typography>
         </Box>
       }
     </form>

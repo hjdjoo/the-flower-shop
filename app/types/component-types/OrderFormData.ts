@@ -85,5 +85,5 @@ export interface Address {
   zip: string,
 }
 
-export type Addresses = string[];
+export type Addresses = Address[];
 

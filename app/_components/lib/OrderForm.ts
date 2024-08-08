@@ -5,6 +5,7 @@ export const address = {
   streetAddress1: "",
   streetAddress2: "",
   townCity: "",
+  state: "",
   zip: "",
 } as Address;
 
@@ -27,5 +28,5 @@ export const FullOrderForm = {
   senderLast: "",
   senderPhone: undefined,
   senderEmail: "",
-  orderItems: [],
+  order: []
 } as OrderFormData
