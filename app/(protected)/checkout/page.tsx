@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
 import { useTheme } from "@mui/material";
@@ -15,14 +16,18 @@ import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import { Elements } from "@stripe/react-stripe-js";
 import { StripeElementsOptions } from "@stripe/stripe-js";
 import getStripe from "@/utils/stripe/getStripe";
-import CheckoutForm from "./_components/CheckoutForm";
 
+import { createClient } from "@/utils/supabase/client";
+
+import CheckoutForm from "./_components/CheckoutForm";
 import CartItem from "./_components/CartItem";
 import { CartContextType } from "@/contexts/CartContext";
 import { Address, Cart, ItemPrices, OrderPrices, PriceInfo } from "@/app/types/component-types/OrderFormData";
 import calculateCart from "@/utils/actions/calculateCart";
 import PriceInfoDisplay from "./_components/_sub/PriceInfoDisplay";
 
+import { useUser } from "@/contexts/UserContext";
+import { UserContextType } from "@/app/types/auth-types";
 import { useCart } from "@/contexts/CartContext";
 import formatDate from "@/utils/actions/formatDate";
 
@@ -33,12 +38,17 @@ const stripePromise = getStripe();
 
 export default function CheckoutPage() {
 
+  const supabase = createClient();
+
+  const router = useRouter();
+
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   const { cart, getSortedOrder, } = useCart() as CartContextType;
 
 
   const [clientSecret, setClientSecret] = useState<string>("");
+  const [paymentIntent, setPaymentIntent] = useState<string>("");
 
   const [currCart, setCurrCart] = useState<Cart>();
   const [order, setOrder] = useState<SortedOrder>([[]]);
@@ -46,6 +56,8 @@ export default function CheckoutPage() {
   const [deliveryDates, setDeliveryDates] = useState<Dates>([]);
   const [orderQuantity, setOrderQuantity] = useState<number>();
   const [addresses, setAddresses] = useState<Address[]>([]);
+
+  const [senderInfo, setSenderInfo] = useState()
 
 
   // Only component that needs this is the stripe element.
@@ -67,6 +79,13 @@ export default function CheckoutPage() {
   // console.table({ currCart, order, sortedOrderPrices, deliveryDates, orderQuantity });
 
   useEffect(() => {
+    (async () => {
+      const session = await supabase.auth.getSession()
+      console.log("session: ", session)
+    })()
+  }, [])
+
+  useEffect(() => {
 
     if (!cart.deliveryDates.length) {
       console.log("CheckoutContainer/useEffect/ no orders detected");
@@ -76,7 +95,6 @@ export default function CheckoutPage() {
     (async () => {
       console.log("CheckoutContainer/useEffect/ async tasks started")
       const sortedOrder = getSortedOrder();
-
       // console.log("setting quantity")
       const priceData = await calculateCart(sortedOrder);
       console.log("CheckoutContainer/useEffect/ async calculation finished, setting states");
@@ -104,7 +122,7 @@ export default function CheckoutPage() {
       }
 
       if (!clientSecret) {
-        console.log("CheckoutContainer/useEffect/ no client secret; create-payment-intent fetch initiating");
+        console.log("Checkout/useEffect/ no client secret; creating payment intent");
         fetch("/create-payment-intent", {
           method: "POST",
           headers: {
@@ -113,20 +131,21 @@ export default function CheckoutPage() {
           body: JSON.stringify(request)
         })
           .then((res) => {
-
             return res.json()
           })
           .then((data) => {
             console.log("fetched, attempting to set client secret.")
             if (!data.clientSecret) return;
             setClientSecret(data.clientSecret);
+            setPaymentIntent(data.id)
           })
           .catch(error => {
             console.error("Something went wrong while creating payment intent")
             console.error(error.message)
           });
       } else {
-        fetch("/update-payment-intent", {
+        console.log("Checkout/useEffect/client secret detected; updating payment intent")
+        fetch(`/update-payment-intent?payment_intent=${paymentIntent}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -135,20 +154,41 @@ export default function CheckoutPage() {
         }).then((res) => {
 
           return res.json()
-        })
-          .then((data) => {
-            console.log("fetched, attempting to set client secret.")
-            if (!data.clientSecret) return;
-            setClientSecret(data.clientSecret);
-          })
-          .catch(error => {
-            console.error("Something went wrong while creating payment intent")
-            console.error(error.message)
-          });
+
+        }).then((data) => {
+          console.log("updated, logging response")
+          console.log(data);
+
+        }).catch(error => {
+          console.error("Something went wrong while creating payment intent")
+          console.error(error.message)
+        });
       }
     })();
 
-  }, [cart, clientSecret, getSortedOrder])
+  }, [cart, clientSecret, paymentIntent, getSortedOrder])
+
+  // due to timing of async operations, totals are sometimes not matching. Rather than refactor all the calculations or make big changes, I think just running a second check is inexpensive enough to justify.
+  useEffect(() => {
+
+    if (!order || !order[0].length) return;
+
+    (async () => {
+      console.log("double checking cart total")
+      const totalCheck = await calculateCart(order);
+      console.log(totalCheck.cartTotal.toFixed(2), cartTotal)
+      if (totalCheck.cartTotal.toFixed(2) === cartTotal) {
+        console.log("totals match, returning")
+        return;
+      } else {
+        console.log("totals don't match, refreshing")
+        router.refresh()
+      }
+
+    })()
+
+  }, [order, cartTotal, router])
+
 
   return (
 

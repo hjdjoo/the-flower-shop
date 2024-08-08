@@ -33,7 +33,7 @@ export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
 
   const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = orderItem;
   const { itemValues } = orderPrices;
-  console.log("OrderInfoDisplay/recipAddress: ", recipAddress);
+  // console.log("OrderInfoDisplay/recipAddress: ", recipAddress);
 
   const CheckIconColored = styled(CheckIcon)(({ theme }) => ({
     color: theme.palette.success.main

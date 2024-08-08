@@ -95,9 +95,10 @@ export default function CheckoutForm(props: CheckoutFormProps) {
       }
     }
     if (newStatusAlert.addressAlert.length || newStatusAlert.senderAlert.length) {
-      setOrderReady(false);
       setOrderStatusAlert(newStatusAlert);
+      setOrderReady(false);
     } else {
+      setOrderStatusAlert(newStatusAlert);
       setOrderReady(true);
     }
 

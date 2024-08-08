@@ -61,7 +61,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
   const cartRef = useRef<Cart>(cart);
 
-  console.log("CartProvider/cart: ", cart);
+  // console.log("CartProvider/cart: ", cart);
 
   // Todo: set userId to shop ID and update user info as needed with session.
   // const [user, setUser] = useState()

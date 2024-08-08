@@ -53,26 +53,19 @@ interface CartItem {
 
 const CartItem = ((props: CartItem) => {
 
-  const router = useRouter();
+  // const router = useRouter();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-
   const { cart, order: sortedOrder, orderItem, orderPrices, dateIdx, addressIdx, orderIdx, setCurrCart, setOrder, setCartTotal, setSortedOrderPrices, setAddresses } = props;
-  // const { } = useCart() as CartContextType;
-
   const { updateAddressesAndDates, updateCart, getSortedOrder } = useCart() as CartContextType;
-
-  // console.log("CartItem/cart: ", cart)
-  // const sortedOrder = getSortedOrder();
 
   const orderItemCopy = Object.assign({}, orderItem);
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
-
   const [updatedItem, setUpdatedItem] = useState<OrderItem>(orderItemCopy);
   const [tier, setTier] = useState<number>(orderItem.selectedTier === 0 || orderItem.selectedTier ? orderItem.selectedTier : 0);
-  // const [addressIdx, setAddressIdx] = useState<number>()
   const [newAddressIdx, setNewAddressIdx] = useState<number>(addressIdx)
 
+  // alerts:
   const [addressAlert, setAddressAlert] = useState<ErrorMessage>(
     {
       severity: undefined,

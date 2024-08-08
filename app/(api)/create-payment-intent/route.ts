@@ -21,10 +21,6 @@ export async function POST(req: NextRequest) {
 
   console.log("create-payment-intent/total: ", total);
 
-  // if (!sortedCart || !sortedCart[0].length) {
-  //   return NextResponse.json({ error: "No cart detected" }, { status: 205 })
-  // }
-
   if (!total) {
     return NextResponse.json({ clientSecret: null })
   }
@@ -34,12 +30,7 @@ export async function POST(req: NextRequest) {
     currency: "usd",
   })
 
-  // const priceDetails = {
-  //   orderPrices: orderPrices,
-  //   cartTotal: cartTotal
-  // }
-
-  const response = { clientSecret: paymentIntent.client_secret }
+  const response = { id: paymentIntent.id, clientSecret: paymentIntent.client_secret }
 
   return NextResponse.json(response);
 
