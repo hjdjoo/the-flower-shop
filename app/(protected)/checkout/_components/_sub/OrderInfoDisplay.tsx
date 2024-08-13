@@ -10,14 +10,14 @@ import CheckIcon from '@mui/icons-material/CheckCircle';
 
 import PriceInfoDisplay from "./PriceInfoDisplay";
 
-import { parsePhone } from "@/app/_components/RecipientInfo";
+import { parsePhone } from "@/utils/actions/parsePhone";
 
-import { OrderItem, ItemPrices, OrderPrices } from "@/app/types/component-types/OrderFormData";
+import { OrderItem, OrderPriceInfo } from "@/app/types/component-types/OrderFormData";
 import { ErrorMessage } from "@/app/types/client-types";
 
 interface OrderInfoDisplayProps {
   orderItem: OrderItem
-  orderPrices: OrderPrices
+  orderPrices: OrderPriceInfo
   addressIdx: number
   orderIdx: number
   dateIdx: number

@@ -1,15 +1,16 @@
-
+import { SenderInfo } from "./component-types/OrderFormData"
 
 export interface Credentials {
   email: string,
   password: string
 }
 
-export interface UserState {
-  role: string
+export interface User {
+  role: "admin" | "user" | "guest" | null
+  senderInfo?: SenderInfo
 }
 
 export interface UserContextType {
-  user: UserState | undefined,
-  setUser: React.Dispatch<React.SetStateAction<UserState | undefined>>
+  user: User | undefined,
+  setUser: React.Dispatch<React.SetStateAction<User>>
 }

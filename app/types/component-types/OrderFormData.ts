@@ -4,76 +4,24 @@
 
 // keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a number since that is what the DB is expecting and the value will always be nonzero.
 export interface OrderItem {
+  cartId?: number
   productId: number,
   imageUrl: string,
   name: string,
   selectedTier?: number,
   prices: number[],
   cardMessage: string,
+  recipId?: number,
   recipFirst: string,
   recipLast: string,
   recipAddress: Address,
   recipAddressIndex: number,
   recipPhone: string,
-  deliveryFee: string,
   deliveryInstructions: string,
   deliveryDate: string,
 }
 
 export type SortedOrder = OrderItem[][][];
-
-export interface SenderInfo {
-  senderId?: number
-  senderFirst: string,
-  senderLast: string,
-  phoneNumber: number,
-  email: string
-}
-
-export interface OrderFormData {
-
-  senderId?: number,
-  senderFirst?: string,
-  senderLast?: string,
-  senderPhone?: string,
-  senderEmail?: string,
-
-  order: SortedOrder
-
-}
-
-export interface Order {
-  senderId?: number
-  deliveryDate: string
-  address: Address
-  orderItems: OrderItem[]
-  orderPrices: OrderPrices
-}
-
-export interface OrderPrices {
-  itemValues: number[],
-  tax: number,
-  deliveryFee: number,
-  total: number
-}
-
-export interface Cart {
-  addresses: Addresses
-  deliveryDates: string[]
-  cartItems: Array<OrderItem>
-}
-
-export interface PriceInfo {
-  cartTotal: number,
-  orderPrices: OrderPrices[]
-}
-
-export interface ItemPrices {
-  itemValue: number,
-  tax: number,
-  total: number
-}
-
 
 export type Dates = string[];
 
@@ -87,3 +35,45 @@ export interface Address {
 
 export type Addresses = Address[];
 
+export interface SenderInfo {
+  senderId?: number
+  senderFirst: string,
+  senderLast: string,
+  senderName: string,
+  senderPhone: string,
+  senderEmail?: string
+}
+
+export interface OrderForm {
+  orders: Order[],
+  sortedOrder: SortedOrder,
+  total: string,
+  paymentIntent: string
+}
+
+export interface Order {
+  senderInfo: SenderInfo
+  deliveryDate: string
+  address: Address
+  orderItems: OrderItem[]
+  orderPrices: OrderPriceInfo
+}
+
+export interface Cart {
+  id?: number
+  addresses: Addresses
+  deliveryDates: string[]
+  cartItems: Array<OrderItem>
+}
+
+export interface OrderPriceInfo {
+  itemValues: number[],
+  tax: number,
+  deliveryFee: number,
+  total: number
+}
+
+export interface FinalPriceInfo {
+  cartTotal: number,
+  orderPrices: OrderPriceInfo[]
+}

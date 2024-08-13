@@ -1,207 +1,101 @@
-// import Image from "next/image";
-// import { Cart, PriceInfo } from "@/app/types/component-types/OrderFormData";
-// import Grid from "@mui/material/Unstable_Grid2/Grid2";
-// import Box from "@mui/material/Box";
-// import Typography from "@mui/material/Typography";
-// import { imageLoader } from "@/app/lib/imageLoader";
-// import CheckIcon from '@mui/icons-material/Check';
-// import ClearIcon from '@mui/icons-material/Clear';
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
-// import { useCart } from "@/contexts/CartContext";
-// import { CartContextType } from "@/contexts/CartContext";
+import formatDate from "@/utils/actions/formatDate";
 
-// interface PriceSummaryProps {
-//   priceInfo: PriceInfo
-// }
+import { OrderPriceInfo, Address } from "@/app/types/component-types/OrderFormData";
 
-// export default function OrderSummary(props: PriceSummaryProps) {
+interface OrderSummaryProps {
+  deliveryDate: string
+  address: Address
+  orderItems: {
+    recipId?: number
+    recipFirst: string
+    recipLast: string
+    productId: number
+    selectedTier: number
+    cardMessage: string
+  }[]
+  orderPriceInfo: OrderPriceInfo
+}
 
-//   const { cartTotal, orderPrices } = props.priceInfo;
+export default async function OrderSummary(props: OrderSummaryProps) {
 
-//   const { cart } = useCart() as CartContextType
-//   const { cartItems } = cart;
+  const { deliveryDate, address, orderItems, orderPriceInfo } = props;
 
-//   const CartItemSummaries = cartItems.map((item, idx) => {
+  const { streetAddress1, streetAddress2, townCity, state, zip } = address;
 
-//     return (
-//       <Box key={`cart-item-summary-${idx + 1}`}
-//         sx={{
-//           my: 1,
-//           width: "100%",
-//           display: "flex",
-//         }}>
-//         <Box id={`${item.name}-summary-image-box`}
-//           sx={{
-//             position: "relative",
-//             width: "75px",
-//             height: "75px"
-//           }}>
-//           <Image id={`${item.name}-summary-preview-image`} src={item.imageUrl} loader={imageLoader} alt={`${item.name}-summary-privew-image`} fill style={{
-//             objectFit: "contain"
-//           }} />
-//         </Box>
-//         <Box id="order-valid-check"
-//           sx={{
-//             display: "flex",
-//             justifyContent: "space-around",
-//             px: "2rem",
-//           }}>
-//           <Grid container>
-//             <Grid id={`${item.productId}-recipient-name-check`}
-//               xs={6}
-//               sx={{
-//                 display: "flex",
-//                 justifyContent: "flex-end"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.8rem"
-//               }}>
-//                 Recipient Name:
-//               </Typography>
-//               {(item.recipFirst || item.recipLast) ? <CheckIcon /> : <ClearIcon />}
-//             </Grid>
-//             <Grid id={`${item.productId}-delivery-address-check`}
-//               xs={6}
-//               sx={{
-//                 display: "flex",
-//                 justifyContent: "flex-end"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.8rem"
-//               }}>
-//                 Recipient Address:
-//               </Typography>
-//               {(item.recipAddress.streetAddress1 && item.recipAddress.townCity && item.recipAddress.zip) ? <CheckIcon /> : <ClearIcon />}
-//             </Grid>
-//             <Grid id={`${item.productId}-recip-phone-check`}
-//               xs={6}
-//               sx={{
-//                 display: "flex",
-//                 justifyContent: "flex-end"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.8rem"
-//               }}>
-//                 Recipient Phone:
-//               </Typography>
-//               {(item.recipPhone) ? <CheckIcon /> : <ClearIcon />}
-//             </Grid>
-//             <Grid id={`${item.productId}-card-message-check`}
-//               xs={6}
-//               sx={{
-//                 display: "flex",
-//                 justifyContent: "flex-end"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.8rem"
-//               }}>
-//                 Card Message:
-//               </Typography>
-//               {(item.cardMessage) ? <CheckIcon /> : <ClearIcon />}
-//             </Grid>
-//           </Grid>
-//         </Box>
-//         <Box id={`${item.name}-pricing-summary-box`}
-//           sx={{
-//             display: "flex",
-//             flexDirection: "column",
-//           }}>
-//           <Grid container>
-//             <Grid
-//               xs={8}
-//               sx={{
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem",
-//               }}>Item Value</Typography>
-//             </Grid>
-//             <Grid
-//               xs={4}
-//               sx={{
-//                 flexGrow: 1,
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem"
-//               }}>${itemPrices[idx].itemValue.toFixed(2)}</Typography>
-//             </Grid>
-//             <Grid
-//               xs={8}
-//               sx={{
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem",
-//               }}>Delivery Fee</Typography>
-//             </Grid>
-//             <Grid
-//               xs={4}
-//               sx={{
-//                 flexGrow: 1,
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem"
-//               }}>${itemPrices[idx].deliveryFee.toFixed(2)}</Typography>
-//             </Grid>
-//             <Grid
-//               xs={8}
-//               sx={{
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem",
-//               }}>Tax</Typography>
-//             </Grid>
-//             <Grid
-//               xs={4}
-//               sx={{
-//                 flexGrow: 1,
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem"
-//               }}>${itemPrices[idx].tax.toFixed(2)}</Typography>
-//             </Grid>
-//             <Grid
-//               xs={8}
-//               sx={{
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem",
-//               }}>Total</Typography>
-//             </Grid>
-//             <Grid
-//               xs={4}
-//               sx={{
-//                 flexGrow: 1,
-//                 textAlign: "right"
-//               }}>
-//               <Typography sx={{
-//                 fontSize: "0.7rem"
-//               }}>${itemPrices[idx].total.toFixed(2)}</Typography>
-//             </Grid>
 
-//           </Grid>
-//         </Box>
-//       </Box>
-//     )
+  const OrderItems = orderItems.map((item, idx) => {
 
-//   })
+    return (
+      <Grid key={`order-item-${idx + 1}`} container>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>
+            Delivery for:
+          </Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>
+            {`${item.recipFirst} ${item.recipLast}`}
+          </Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>
+            Item Value:
+          </Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>${orderPriceInfo.itemValues[idx].toFixed(2)}</Typography>
+        </Grid>
+      </Grid>
+    )
+  })
 
-//   return (
-//     <Box id="order-summary-box"
-//       sx={{
-//         maxWidth: "90%",
-//       }}
-//     >
-//       <Typography>
-//         Order Summary:
-//       </Typography>
-//       {CartItemSummaries}
-//     </Box>
-//   )
 
-// }
+  return (
+    <Box>
+      <Grid container
+      >
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>{"Deliver on:"}</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>{formatDate(deliveryDate)}</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>Delivery to:</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>{streetAddress1}</Typography>
+          <Typography sx={{ fontSize: "0.8rem" }}>{streetAddress2}</Typography>
+          <Typography sx={{ fontSize: "0.8rem" }}>{`${townCity} ${state}`}</Typography>
+          <Typography sx={{ fontSize: "0.8rem" }}>{zip}</Typography>
+        </Grid>
+      </Grid>
+      {OrderItems}
+      <Grid container
+        sx={{ my: 1, py: 1, borderTop: "1px solid lightgrey" }}>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>Delivery Fee:</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>${orderPriceInfo.deliveryFee.toFixed(2)}</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>Tax:</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>${orderPriceInfo.tax.toFixed(2)}</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>Total:</Typography>
+        </Grid>
+        <Grid xs={6}>
+          <Typography sx={{ fontSize: "0.8rem" }}>${orderPriceInfo.total.toFixed(2)}</Typography>
+        </Grid>
+      </Grid>
+    </Box>
+  )
+}

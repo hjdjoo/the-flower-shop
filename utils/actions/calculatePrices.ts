@@ -1,5 +1,5 @@
 import { getProductInfo } from "../supabase/clientActions/getProductInfo";
-import { OrderItem, Order, OrderPrices, Address } from "@/app/types/component-types/OrderFormData";
+import { OrderItem, Order, OrderPriceInfo, Address } from "@/app/types/component-types/OrderFormData";
 import calculateTax from "@/utils/actions/calculateTax";
 import calculateDeliveryFee from "@/utils/actions/calculateDeliveryFee";
 
@@ -11,7 +11,7 @@ type DrivingRouteResponse = {
 export default async function calculatePrices(order: OrderItem[], address: Address) {
   try {
     // use database info instead of using client-provided data for safety
-    const orderPrices: OrderPrices = {
+    const orderPrices: OrderPriceInfo = {
       itemValues: [],
       deliveryFee: 0,
       tax: 0,
@@ -25,19 +25,16 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
       const { data, error } = await getProductInfo(item.productId);
 
       if (!data || error) {
-        throw new Error("Couldn't get product data")
+        throw new Error("Couldn't get product data");
       };
 
       // console.log("calculatePrices/orderData: ", data)
       // console.log("calculatePrices/orderItem: ", item)
-
       const tier = item.selectedTier!;
       const itemValue = data.prices[tier];
-
       // console.log("calculatePrices/adding item value to order prices. orderPrices, itemValues: ")
       // console.table({ orderPrices, itemValue })
       orderPrices.itemValues[idx] = itemValue
-
       // console.log("calculatePrices/orderforEach/after update: ", orderPrices);
 
     })
@@ -49,7 +46,6 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
       },
       body: JSON.stringify(address)
     })
-
 
     const drivingRoute = await drivingRouteResponse.json() as DrivingRouteResponse;
     // console.log("calculatePrices/drivingRoute", drivingRoute);
@@ -73,8 +69,6 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
     orderPrices.deliveryFee = deliveryFee;
     orderPrices.tax = tax;
     orderPrices.total = total / 100;
-
-    // console.log("calculatePrices/orderPrices: ", orderPrices)
 
     return orderPrices;
 

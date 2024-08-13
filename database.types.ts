@@ -12,43 +12,43 @@ export type Database = {
       cart_items: {
         Row: {
           card_message: string | null
+          cart_id: number | null
           created_at: string
           delivery_date: string | null
           delivery_instructions: string | null
           id: number
-          order_id: number | null
           product_id: number | null
           recipient_id: number | null
           selected_tier: number | null
         }
         Insert: {
           card_message?: string | null
+          cart_id?: number | null
           created_at?: string
           delivery_date?: string | null
           delivery_instructions?: string | null
           id?: number
-          order_id?: number | null
           product_id?: number | null
           recipient_id?: number | null
           selected_tier?: number | null
         }
         Update: {
           card_message?: string | null
+          cart_id?: number | null
           created_at?: string
           delivery_date?: string | null
           delivery_instructions?: string | null
           id?: number
-          order_id?: number | null
           product_id?: number | null
           recipient_id?: number | null
           selected_tier?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "cart_items_order_id_fkey"
-            columns: ["order_id"]
+            foreignKeyName: "cart_items_cart_id_fkey"
+            columns: ["cart_id"]
             isOneToOne: false
-            referencedRelation: "orders"
+            referencedRelation: "carts"
             referencedColumns: ["id"]
           },
           {
@@ -67,37 +67,66 @@ export type Database = {
           },
         ]
       }
+      carts: {
+        Row: {
+          created_at: string
+          id: number
+          sender_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          sender_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          sender_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carts_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           card_message: string | null
           created_at: string
-          delivery_date: string | null
           delivery_instructions: string | null
           id: number
           order_id: number | null
           product_id: number | null
+          recip_first: string | null
+          recip_last: string | null
           recipient_id: number | null
           selected_tier: number | null
         }
         Insert: {
           card_message?: string | null
           created_at?: string
-          delivery_date?: string | null
           delivery_instructions?: string | null
           id?: number
           order_id?: number | null
           product_id?: number | null
+          recip_first?: string | null
+          recip_last?: string | null
           recipient_id?: number | null
           selected_tier?: number | null
         }
         Update: {
           card_message?: string | null
           created_at?: string
-          delivery_date?: string | null
           delivery_instructions?: string | null
           id?: number
           order_id?: number | null
           product_id?: number | null
+          recip_first?: string | null
+          recip_last?: string | null
           recipient_id?: number | null
           selected_tier?: number | null
         }
@@ -128,33 +157,59 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          delivery_date: string | null
           id: number
-          product_id: number | null
+          order_prices: Json
+          payment_status: string | null
+          recip_state: string | null
+          recip_street_1: string | null
+          recip_street_2: string | null
+          recip_town_city: string | null
+          recip_zip: string | null
+          sender_email: string | null
+          sender_first: string | null
           sender_id: number | null
+          sender_last: string | null
+          sender_phone: string
           stripe_pi_id: string | null
         }
         Insert: {
           created_at?: string
+          delivery_date?: string | null
           id?: number
-          product_id?: number | null
+          order_prices: Json
+          payment_status?: string | null
+          recip_state?: string | null
+          recip_street_1?: string | null
+          recip_street_2?: string | null
+          recip_town_city?: string | null
+          recip_zip?: string | null
+          sender_email?: string | null
+          sender_first?: string | null
           sender_id?: number | null
+          sender_last?: string | null
+          sender_phone: string
           stripe_pi_id?: string | null
         }
         Update: {
           created_at?: string
+          delivery_date?: string | null
           id?: number
-          product_id?: number | null
+          order_prices?: Json
+          payment_status?: string | null
+          recip_state?: string | null
+          recip_street_1?: string | null
+          recip_street_2?: string | null
+          recip_town_city?: string | null
+          recip_zip?: string | null
+          sender_email?: string | null
+          sender_first?: string | null
           sender_id?: number | null
+          sender_last?: string | null
+          sender_phone?: string
           stripe_pi_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "orders_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "orders_sender_id_fkey"
             columns: ["sender_id"]
@@ -332,80 +387,80 @@ type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
+  | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-    ? R
-    : never
+  ? R
+  : never
   : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
+    PublicSchema["Views"])
+  ? (PublicSchema["Tables"] &
+    PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+  ? R
+  : never
+  : never
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
+    Insert: infer I
+  }
+  ? I
+  : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Insert: infer I
+  }
+  ? I
+  : never
+  : never
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
+    Update: infer U
+  }
+  ? U
+  : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Update: infer U
+  }
+  ? U
+  : never
+  : never
 
 export type Enums<
   PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
+  | keyof PublicSchema["Enums"]
+  | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
+  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+  : never

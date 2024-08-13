@@ -31,18 +31,18 @@ import addressToString from "@/utils/actions/addressToString";
 
 import { ErrorMessage } from "@/app/types/client-types";
 import type { CartContextType } from "@/contexts/CartContext";
-import type { OrderItem, Cart, Address, ItemPrices, OrderPrices, SortedOrder } from "@/app/types/component-types/OrderFormData";
+import type { OrderItem, Cart, Address, OrderPriceInfo, SortedOrder } from "@/app/types/component-types/OrderFormData";
 
 
 interface CartItem {
   orderItem: OrderItem
   cart: Cart
   order: SortedOrder
-  orderPrices: OrderPrices
-  // sortedOrderPrices: OrderPrices[][]
+  orderPrices: OrderPriceInfo
+  // sortedOrderPriceInfo: OrderPriceInfo[][]
   setCurrCart: Dispatch<SetStateAction<Cart | undefined>>
   setOrder: Dispatch<SetStateAction<SortedOrder>>
-  setSortedOrderPrices: Dispatch<SetStateAction<OrderPrices[][]>>
+  setSortedOrderPriceInfo: Dispatch<SetStateAction<OrderPriceInfo[][]>>
   setCartTotal: Dispatch<SetStateAction<string>>
   setAddresses: Dispatch<SetStateAction<Address[]>>
   addressIdx: number
@@ -55,7 +55,7 @@ const CartItem = ((props: CartItem) => {
 
   // const router = useRouter();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-  const { cart, order: sortedOrder, orderItem, orderPrices, dateIdx, addressIdx, orderIdx, setCurrCart, setOrder, setCartTotal, setSortedOrderPrices, setAddresses } = props;
+  const { cart, order: sortedOrder, orderItem, orderPrices, dateIdx, addressIdx, orderIdx, setCurrCart, setOrder, setCartTotal, setSortedOrderPriceInfo, setAddresses } = props;
   const { updateAddressesAndDates, updateCart, getSortedOrder } = useCart() as CartContextType;
 
   const orderItemCopy = Object.assign({}, orderItem);
@@ -133,13 +133,13 @@ const CartItem = ((props: CartItem) => {
       updateCart(newCart);
       const newSortedOrder = getSortedOrder();
 
-      const newOrderPrices = await calculateCart(newSortedOrder);
+      const newOrderPriceInfo = await calculateCart(newSortedOrder);
 
       await checkAddress();
       setCurrCart(newCart);
       setOrder(newSortedOrder);
-      setSortedOrderPrices(newOrderPrices.orderPrices);
-      setCartTotal(newOrderPrices.cartTotal.toFixed(2));
+      setSortedOrderPriceInfo(newOrderPriceInfo.orderPrices);
+      setCartTotal(newOrderPriceInfo.cartTotal.toFixed(2));
       setAddresses(newCart.addresses);
       setIsEditing(false);
     }

@@ -2,12 +2,12 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 
-import { ItemPrices, OrderPrices, SortedOrder } from "@/app/types/component-types/OrderFormData";
+import { OrderPriceInfo, SortedOrder } from "@/app/types/component-types/OrderFormData";
 import { CartContextType, useCart } from "@/contexts/CartContext";
 
 interface PriceInfoDisplayProps {
   order: SortedOrder
-  orderPrices: OrderPrices
+  orderPrices: OrderPriceInfo
   dateIdx: number
   addressIdx: number
 }

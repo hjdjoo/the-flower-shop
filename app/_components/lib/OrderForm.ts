@@ -1,4 +1,4 @@
-import type { OrderFormData, OrderItem, Address } from "../../types/component-types/OrderFormData"
+import type { OrderForm, OrderItem, Address } from "../../types/component-types/OrderFormData"
 
 
 export const address = {
@@ -18,15 +18,18 @@ export const OrderItemForm = {
   recipLast: "",
   recipAddress: address,
   recipPhone: "",
-  deliveryFee: "8.95",
   deliveryInstructions: "",
 } as OrderItem;
 
 export const FullOrderForm = {
-  senderId: undefined,
-  senderFirst: "",
-  senderLast: "",
-  senderPhone: undefined,
-  senderEmail: "",
-  order: []
-} as OrderFormData
+  senderInfo: {
+    senderId: 0,
+    senderFirst: "",
+    senderLast: "",
+    senderName: "",
+    senderPhone: "",
+    senderEmail: "",
+  },
+  prices: [],
+  orders: []
+} as OrderForm

@@ -7,16 +7,21 @@ import Button from "@mui/material/Button"
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { StripePaymentElementOptions } from "@stripe/stripe-js";
 
-import { Cart } from "@/app/types/component-types/OrderFormData";
+import { Cart, Order, OrderForm, OrderPriceInfo, SenderInfo, SortedOrder } from "@/app/types/component-types/OrderFormData";
 // import { useCart, CartContextType } from "@/contexts/CartContext";
 
 interface CheckoutFormProps {
   cart: Cart
+  senderInfo: SenderInfo
+  order: SortedOrder,
+  total: string,
+  paymentIntent: string,
+  sortedPrices: OrderPriceInfo[][]
 }
 
 export default function CheckoutForm(props: CheckoutFormProps) {
 
-  const { cart } = props;
+  const { cart, senderInfo, order, sortedPrices, total, paymentIntent } = props;
 
   const stripe = useStripe();
   const elements = useElements();
@@ -32,6 +37,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
     cardMessageAlert: "",
   })
 
+  // Setting up stripe and payment intent;
   useEffect(() => {
 
     if (!stripe) return;
@@ -67,6 +73,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
 
   }, [stripe])
 
+  // Set alerts based on information provided
   useEffect(() => {
 
     const newStatusAlert = {
@@ -77,6 +84,13 @@ export default function CheckoutForm(props: CheckoutFormProps) {
       cardMessageAlert: ""
     }
 
+    if (!senderInfo.senderName.length) {
+      newStatusAlert.senderAlert = "Missing sender name"
+    }
+    if (!senderInfo.senderPhone.length) {
+      newStatusAlert.senderAlert = newStatusAlert.senderAlert.length ? newStatusAlert.senderAlert.concat(" and phone number") : "Missing sender phone number";
+    }
+
     for (let i = 0; i < cart.cartItems.length; i++) {
       const item = cart.cartItems[i];
       const { recipAddress } = item;
@@ -85,7 +99,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
         newStatusAlert.nameAlert = `Recipient name missing - item ${i + 1} will be delivered to the address without a recipient.`
       }
       if (!recipAddress.streetAddress1.length || !recipAddress.townCity.length || !recipAddress.state.length || !recipAddress.zip.length) {
-        newStatusAlert.addressAlert = `Full address missing - item ${i + 1}`
+        newStatusAlert.addressAlert = `Full address required for item ${i + 1}.`
       }
       if (!item.recipPhone.length) {
         newStatusAlert.phoneAlert = `Missing recipient phone number - we won't be able to contact the recipient about item ${i + 1}`
@@ -94,7 +108,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
         newStatusAlert.cardMessageAlert = `No card message - item ${i + 1} will be sent anonymously`
       }
     }
-    if (newStatusAlert.addressAlert.length || newStatusAlert.senderAlert.length) {
+    if (newStatusAlert.addressAlert.length || newStatusAlert.senderAlert.length || newStatusAlert.senderAlert.length) {
       setOrderStatusAlert(newStatusAlert);
       setOrderReady(false);
     } else {
@@ -102,9 +116,9 @@ export default function CheckoutForm(props: CheckoutFormProps) {
       setOrderReady(true);
     }
 
-  }, [cart])
+  }, [cart, senderInfo, orderReady])
 
-  // TODO: handleSubmit should also add item to DB. 
+
   const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
@@ -112,13 +126,77 @@ export default function CheckoutForm(props: CheckoutFormProps) {
       return;
     }
 
+    const { addresses, deliveryDates } = cart;
+
     setIsLoading(true);
+
+    const finalOrders: Order[] = [];
+
+    order.forEach((addressArr, i) => {
+      if (!!addressArr.length) {
+        addressArr.forEach((orderItems, j) => {
+
+          finalOrders.push({
+            senderInfo: senderInfo,
+            deliveryDate: deliveryDates[i],
+            address: addresses[j],
+            orderItems: orderItems,
+            orderPrices: sortedPrices[i][j]
+          });
+        });
+      };
+    });
+
+    const request = {
+      orders: finalOrders,
+      sortedOrder: order,
+      total: total,
+      paymentIntent: paymentIntent
+    } as OrderForm;
+
+    // init order 
+    const response = await fetch(`http://localhost:3000/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request)
+    })
+
+    console.log("response: ", response);
+
+    const {
+      message,
+      data
+    }: {
+      message: string,
+      data: {
+        orderIds: { id: number }[]
+      }
+    } = await response.json();
+
+    if (!response.ok) {
+      console.error(message);
+      setMessage("Error in database");
+      setIsLoading(false);
+      return;
+    }
+
+    const orderParams: number[] = [];
+
+    data.orderIds.forEach((order, idx) => {
+      orderParams.push(order.id);
+    })
+
+    const encodedParams = encodeURIComponent(JSON.stringify(orderParams));
+
+    localStorage.removeItem("cart");
 
     // Set up a checkout completion page and change return_url to this endpoint.
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "http://localhost:3000/confirm-payment"
+        return_url: `http://localhost:3000/checkout/confirm/?orders=${encodedParams}`
       }
     })
 
