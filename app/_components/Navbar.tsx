@@ -28,7 +28,7 @@ import { NavIcons } from "./NavIcons";
 
 // import MainIcon from "./Icon";
 
-import { useUser } from "@/lib/contexts/UserContext";
+import { useUser } from "@/contexts/UserContext";
 
 import { createClient } from "@/utils/supabase/client";
 

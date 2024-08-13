@@ -1,15 +1,15 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { UserState, UserContextType } from "../lib-types/authTypes";
+import { User, UserContextType } from "@/app/types/auth-types";
 import { createClient } from "@/utils/supabase/client";
 
 interface UserProviderProps {
   children: React.ReactNode,
-  currentUser: UserState,
+  currentUser: User,
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType | null>(null);
 
 export const useUser = () => {
   const context = useContext(UserContext)
@@ -19,38 +19,46 @@ export const useUser = () => {
   return context;
 };
 
-
 export const UserProvider: React.FC<UserProviderProps> = (
   {
     children, currentUser,
   }) => {
+  const supabase = createClient();
 
-  const [user, setUser] = useState<UserState | undefined>(currentUser);
+  const [user, setUser] = useState<User>(currentUser);
 
   useEffect(() => {
-    const supabase = createClient();
 
     const fetchUser = async () => {
 
       const session = (await supabase.auth.getSession()).data.session;
 
+      // console.log("UserContext/useEffect/fetchuser/session: ", session)
+
       if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .single();
 
-        if (profile.is_admin) {
-          setUser({ role: "admin" });
-        }
-        else {
-          setUser({ role: "user" })
-        }
+        const shopId = session.user.user_metadata.shop_acct_id
 
+        if (!shopId) {
+          setUser({ role: "guest" });
+        } else {
+
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", shopId)
+            .single();
+          // console.log("UserContext/useEffect/profile: ", profile);
+          if (profile.is_admin) {
+            setUser({ role: "admin" });
+          }
+          else {
+            setUser({ role: "user" })
+          }
+        }
       }
       else {
-        setUser(undefined);
+        setUser({ role: "guest" });
       }
     }
 
@@ -60,7 +68,7 @@ export const UserProvider: React.FC<UserProviderProps> = (
       if (session) {
         fetchUser();
       } else {
-        setUser(undefined);
+        setUser({ role: "guest" });
       }
     })
 
@@ -68,7 +76,7 @@ export const UserProvider: React.FC<UserProviderProps> = (
     return () => {
       authListener.unsubscribe();
     }
-  }, [])
+  }, [supabase])
 
   return (
 

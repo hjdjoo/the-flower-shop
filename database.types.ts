@@ -9,40 +9,212 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      orders: {
+      cart_items: {
         Row: {
           card_message: string | null
+          cart_id: number | null
+          created_at: string
           delivery_date: string | null
+          delivery_instructions: string | null
           id: number
-          order_date: string
-          products: string
-          recipient_id: string
-          sender_id: string | null
+          product_id: number | null
+          recipient_id: number | null
+          selected_tier: number | null
         }
         Insert: {
           card_message?: string | null
+          cart_id?: number | null
+          created_at?: string
           delivery_date?: string | null
+          delivery_instructions?: string | null
           id?: number
-          order_date?: string
-          products: string
-          recipient_id: string
-          sender_id?: string | null
+          product_id?: number | null
+          recipient_id?: number | null
+          selected_tier?: number | null
         }
         Update: {
           card_message?: string | null
+          cart_id?: number | null
+          created_at?: string
           delivery_date?: string | null
+          delivery_instructions?: string | null
           id?: number
-          order_date?: string
-          products?: string
-          recipient_id?: string
-          sender_id?: string | null
+          product_id?: number | null
+          recipient_id?: number | null
+          selected_tier?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "public_orders_products_fkey"
-            columns: ["products"]
+            foreignKeyName: "cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carts: {
+        Row: {
+          created_at: string
+          id: number
+          sender_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          sender_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          sender_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carts_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          card_message: string | null
+          created_at: string
+          delivery_instructions: string | null
+          id: number
+          order_id: number | null
+          product_id: number | null
+          recip_first: string | null
+          recip_last: string | null
+          recipient_id: number | null
+          selected_tier: number | null
+        }
+        Insert: {
+          card_message?: string | null
+          created_at?: string
+          delivery_instructions?: string | null
+          id?: number
+          order_id?: number | null
+          product_id?: number | null
+          recip_first?: string | null
+          recip_last?: string | null
+          recipient_id?: number | null
+          selected_tier?: number | null
+        }
+        Update: {
+          card_message?: string | null
+          created_at?: string
+          delivery_instructions?: string | null
+          id?: number
+          order_id?: number | null
+          product_id?: number | null
+          recip_first?: string | null
+          recip_last?: string | null
+          recipient_id?: number | null
+          selected_tier?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          delivery_date: string | null
+          id: number
+          order_prices: Json
+          payment_status: string | null
+          recip_state: string | null
+          recip_street_1: string | null
+          recip_street_2: string | null
+          recip_town_city: string | null
+          recip_zip: string | null
+          sender_email: string | null
+          sender_first: string | null
+          sender_id: number | null
+          sender_last: string | null
+          sender_phone: string
+          stripe_pi_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivery_date?: string | null
+          id?: number
+          order_prices: Json
+          payment_status?: string | null
+          recip_state?: string | null
+          recip_street_1?: string | null
+          recip_street_2?: string | null
+          recip_town_city?: string | null
+          recip_zip?: string | null
+          sender_email?: string | null
+          sender_first?: string | null
+          sender_id?: number | null
+          sender_last?: string | null
+          sender_phone: string
+          stripe_pi_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivery_date?: string | null
+          id?: number
+          order_prices?: Json
+          payment_status?: string | null
+          recip_state?: string | null
+          recip_street_1?: string | null
+          recip_street_2?: string | null
+          recip_town_city?: string | null
+          recip_zip?: string | null
+          sender_email?: string | null
+          sender_first?: string | null
+          sender_id?: number | null
+          sender_last?: string | null
+          sender_phone?: string
+          stripe_pi_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -52,54 +224,66 @@ export type Database = {
           created_at: string
           id: number
           is_active: boolean
+          modified_at: string | null
           name: string | null
         }
         Insert: {
           created_at?: string
           id?: number
           is_active?: boolean
+          modified_at?: string | null
           name?: string | null
         }
         Update: {
           created_at?: string
           id?: number
           is_active?: boolean
+          modified_at?: string | null
           name?: string | null
         }
         Relationships: []
       }
       products: {
         Row: {
-          categories: number[]
-          created_at: string
+          alt_image_urls: string[] | null
+          categories: number[] | null
+          created_at: string | null
           deluxe_price: number | null
           description: string | null
-          id: string
+          id: number
           image_url: string | null
+          modified_at: string | null
           name: string | null
           premium_price: number | null
+          prices: number[] | null
           standard_price: number | null
         }
         Insert: {
-          categories?: number[]
-          created_at?: string
+          alt_image_urls?: string[] | null
+          categories?: number[] | null
+          created_at?: string | null
           deluxe_price?: number | null
           description?: string | null
-          id?: string
+          id?: number
           image_url?: string | null
+          modified_at?: string | null
           name?: string | null
           premium_price?: number | null
+          prices?: number[] | null
           standard_price?: number | null
         }
         Update: {
-          categories?: number[]
-          created_at?: string
+          alt_image_urls?: string[] | null
+          categories?: number[] | null
+          created_at?: string | null
           deluxe_price?: number | null
           description?: string | null
-          id?: string
+          id?: number
           image_url?: string | null
+          modified_at?: string | null
           name?: string | null
           premium_price?: number | null
+          prices?: number[] | null
           standard_price?: number | null
         }
         Relationships: []
@@ -107,20 +291,23 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
-          id: string
+          id: number
           is_admin: boolean
+          modified_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
-          id?: string
+          id?: number
           is_admin?: boolean
+          modified_at?: string | null
           user_id?: string
         }
         Update: {
           created_at?: string
-          id?: string
+          id?: number
           is_admin?: boolean
+          modified_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -138,9 +325,10 @@ export type Database = {
           city_town: string | null
           created_at: string
           first_name: string | null
-          id: string | null
+          id: number
           last_name: string | null
           phone: number | null
+          sender_id: number | null
           street_address_1: string | null
           street_address_2: string | null
           zip: number | null
@@ -149,9 +337,10 @@ export type Database = {
           city_town?: string | null
           created_at?: string
           first_name?: string | null
-          id?: string | null
+          id?: number
           last_name?: string | null
           phone?: number | null
+          sender_id?: number | null
           street_address_1?: string | null
           street_address_2?: string | null
           zip?: number | null
@@ -160,14 +349,23 @@ export type Database = {
           city_town?: string | null
           created_at?: string
           first_name?: string | null
-          id?: string | null
+          id?: number
           last_name?: string | null
           phone?: number | null
+          sender_id?: number | null
           street_address_1?: string | null
           street_address_2?: string | null
           zip?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "recipients_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

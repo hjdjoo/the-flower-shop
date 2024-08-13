@@ -1,14 +1,14 @@
 export interface FileData {
-  encodedData: string | undefined,
+  encodedData: string | undefined
   fileType: string | undefined
 }
 
 export interface ProductData {
-  name: string,
-  categories: number[],
-  description: string,
-  prices: number[],
-  imageUrl: string,
+  name: string
+  categories: number[]
+  description: string
+  prices: number[]
+  imageUrl: string
 }
 
 export interface ErrorMessage {

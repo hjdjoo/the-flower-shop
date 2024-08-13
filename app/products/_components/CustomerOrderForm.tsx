@@ -58,7 +58,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
     message: `${orderItem.cardMessage.length}/200`
   })
 
-  const [deliveryFee, setDeliveryFee] = useState<string>(orderItem.deliveryFee);
+  const [deliveryFee, setDeliveryFee] = useState<string>("8.95");
 
   useEffect(() => {
     // console.log("CustOrderForm/useEffect/deliveryDate: ", orderItem.deliveryDate);
@@ -158,7 +158,6 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
       severity: undefined,
       message: `${value.length}/250`
     })
-
   }
 
   return (

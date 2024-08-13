@@ -9,7 +9,7 @@ import { TextField } from "@mui/material";
 
 import { ErrorMessage } from "../types/client-types";
 
-import calculateDelivery from "@/utils/actions/calculateDelivery";
+import calculateDeliveryFee from "@/utils/actions/calculateDeliveryFee";
 
 const shopPosition = { lat: 40.9804046653245, lng: -74.11758860293361 }
 
@@ -61,8 +61,8 @@ export default function ZipCheckerButton(props: ZipCheckerProps) {
       if (zipCode?.toString() === "07450") {
         setDeliveryFee("8.95")
       } else {
-        const deliveryFee = JSON.stringify(calculateDelivery(drivingDistance, drivingTime))
-        console.log("deliveryFee from check: ", deliveryFee)
+        const deliveryFee = JSON.stringify(calculateDeliveryFee(drivingTime, drivingDistance))
+        // console.log("deliveryFee from check: ", deliveryFee)
         setDeliveryFee(deliveryFee);
       }
 

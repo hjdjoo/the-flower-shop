@@ -21,9 +21,6 @@ import { createClient } from '@/utils/supabase/client';
 import theme from '@/styles/theme';
 
 
-// OAuth has been configured but no particular functionality is associated with a user account.
-// Admin functionality is being prioritized; this should allow admin access through OAuth credentials.
-
 export default function SignIn() {
   const supabase = createClient();
   const router = useRouter();
@@ -31,7 +28,7 @@ export default function SignIn() {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        console.log(session);
+        console.log("SignIn/session: ", session);
         router.push('/')
       }
     })
@@ -50,7 +47,7 @@ export default function SignIn() {
         display: "flex",
       }}
     >
-      <AuthForm/>
+      <AuthForm />
     </Container>
   )
 }

@@ -5,18 +5,18 @@ export default async function addProduct(productData: ProductData) {
 
   const supabase = createClient();
 
-  const { name, description, standardPrice, premiumPrice, deluxePrice, imageUrl, categories } = productData
+  const { name, description, prices, imageUrl, categories } = productData
 
-  console.log('addProduct: ', productData);
+  // console.log('addProduct: ', productData);
+
+  const centPrices = prices.map(price => price * 100);
 
   const { data, error } = await supabase
     .from("products")
     .insert({
       name: name,
       description: description,
-      standard_price: standardPrice,
-      premium_price: premiumPrice,
-      deluxe_price: deluxePrice,
+      prices: centPrices,
       categories: categories,
       image_url: imageUrl
     })

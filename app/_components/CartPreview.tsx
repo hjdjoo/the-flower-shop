@@ -8,9 +8,9 @@ import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import Typography from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 
-import { imageLoader } from "@/lib/imageLoader";
+import { imageLoader } from "@/app/lib/imageLoader";
 
-import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+import { useCart, CartContextType } from "@/contexts/CartContext";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import calculateTax from "@/utils/actions/calculateTax";
@@ -23,7 +23,7 @@ import type { OrderItem } from "../types/component-types/OrderFormData";
 
 /** Current cart methods:
  * 
- * Cart.getSortedOrder() returns orders sorted into nested array by delivery date.
+ * Cart.getSortedOrder() returns orders sorted into a 3d array, sorted by delivery date and then mapped to address indices.
  * 
  * Removing an item can be done by passing in an updated cart to updateCart().
  * If a SortedCart needs to be used to update (for example, removing SortedCart[i][j]), simply remove item as desired then pass in SortedCart.flat() into updateCart.
@@ -39,15 +39,12 @@ interface CartPreviewItemProps {
 
 const CartPreviewItem = (props: CartPreviewItemProps) => {
 
-  const { name, imageUrl, prices, selectedTier, recipFirst, recipLast, recipAddress, deliveryDate, deliveryFee } = props.cartItem
+  const { name, imageUrl, recipFirst, recipLast, recipAddress, deliveryDate, prices, selectedTier, deliveryFee } = props.cartItem
   const { idx } = props;
 
   const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const addressStr = Object.values(recipAddress).join(" ");
-
-  console.log("selectedTier: ", selectedTier)
-  console.log(prices)
 
   const itemPrice = prices[selectedTier!]
   const itemTax = calculateTax(itemPrice)
@@ -124,7 +121,7 @@ const CartPreviewItem = (props: CartPreviewItemProps) => {
           <Typography>Item Value:</Typography>
         </Grid>
         <Grid xs={4}>
-          <Typography>{`$${prices[selectedTier!]}`}</Typography>
+          <Typography>{`$${(prices[selectedTier!]).toFixed(2)}`}</Typography>
         </Grid>
         <Grid xs={8}>
           <Typography>Del. Fee:</Typography>
@@ -158,30 +155,36 @@ export default function CartPreview() {
   const { mobile, tablet, large, xlarge } = useBreakpoints();
   const { cart, getSortedOrder } = useCart() as CartContextType;
 
-  const order = getSortedOrder();
+  const sortedOrder = getSortedOrder();
 
   const { deliveryDates } = cart;
 
   // go thru delivery dates;
-  const deliveryDivs = deliveryDates.map((date, i) => {
+  const deliveryDivs = sortedOrder.map((dateArr, dateIdx) => {
 
-    const displayDay = getDayOfWeek(date);
-    const displayDate = formatDate(date);
+    const displayDay = getDayOfWeek(deliveryDates[dateIdx]);
+    const displayDate = formatDate(deliveryDates[dateIdx]);
 
-    const previewItems = order[i].map((item, j) => {
+    const previewItems = dateArr.map((addressArr, addressIdx) => {
 
-      if (item.deliveryDate === date) {
+      // if (item.deliveryDate === date) {
 
-        return (
-          <div key={`${date}-item-${j + 1}`}>
-            <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
-          </div >
-        );
-      };
+      //   return (
+      //     <div key={`${date}-item-${j + 1}`}>
+      //       <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
+      //     </div >
+      //   );
+      // };
+      return (
+        <Box key={`preview-${dateIdx}-${addressIdx}`}>
+          Preview
+        </Box>
+      )
+
     })
 
     return (
-      <Box key={`delivery-date-box-${i + 1}`} id={`delivery-date-box-${i + 1}`}
+      <Box key={`delivery-date-box-${dateIdx + 1}`} id={`delivery-date-box-${dateIdx + 1}`}
         display="flex"
         flexDirection="column"
         paddingBottom="10px"

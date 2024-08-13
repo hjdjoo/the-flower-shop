@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
-import { imageLoader } from "@/lib/imageLoader";
+import { imageLoader } from "@/app/lib/imageLoader";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,7 +16,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import { useTheme } from "@mui/material";
 
-import { useCart, CartContextType } from "@/lib/contexts/CartContext";
+import { useCart, CartContextType } from "@/contexts/CartContext";
 
 import CartPreview from "@/app/_components/CartPreview";
 import CustomerOrderForm from "./CustomerOrderForm";
@@ -32,7 +32,7 @@ import { OrderItem } from "@/app/types/component-types/OrderFormData";
 
 
 
-// import { useCart } from "@/lib/contexts/CartContext";
+// import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
   productInfo: ProductData,
@@ -46,19 +46,17 @@ export default function ProductCard(props: ProductCardProps) {
   /* hooks */
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-  const { cart, addToCart } = useCart() as CartContextType;
+  const { cart, addToCart, updateAddressesAndDates } = useCart() as CartContextType;
 
   /* prop destructuring */
   const { productId } = props
   const { name, categories, description, prices, imageUrl } = props.productInfo
 
-  // construct priceTiers to pass into cart.
-
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
 
   /* Object reassignment to get default order for page;  */
-  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, prices: prices, deliveryDate: deliveryDate, imageUrl: imageUrl, name: name });
+  const baseOrderForm: OrderItem = Object.assign(defaultOrderForm, { ...defaultOrderForm, productId: productId, deliveryDate: deliveryDate, prices: prices, imageUrl: imageUrl, name: name });
 
   const [orderItem, setOrderItem] = useState<OrderItem>(baseOrderForm)
   const [relatedCategories, setRelatedCategories] = useState<{ id: number, name: string }[] | undefined>()
@@ -99,7 +97,7 @@ export default function ProductCard(props: ProductCardProps) {
       console.log("You gotta pick a delivery date");
       return;
     }
-    if (!priceSelected) {
+    if (orderItem.selectedTier === undefined || null) {
       // have customer select a price first
       // insert error logic here...
       console.log("You gotta pick a price")
@@ -107,7 +105,9 @@ export default function ProductCard(props: ProductCardProps) {
     }
     else {
       setSubmitStatus("submitting");
-      addToCart(deliveryDate, orderItem);
+
+
+      addToCart(orderItem);
       setSubmitStatus("submitted");
       setDeliveryDate("");
       setOrderItem({ ...baseOrderForm });
@@ -309,7 +309,7 @@ export default function ProductCard(props: ProductCardProps) {
                 Price tier selected {priceSelected ? <CheckIcon /> : <ClearIcon />}
               </Typography>
             </Box>
-            {!!cart.deliveryDates.length &&
+            {(cart.cartItems && !!cart.cartItems.length) &&
               <>
                 <Box id="cart-preview-box"
                   marginTop="25px"
@@ -317,7 +317,7 @@ export default function ProductCard(props: ProductCardProps) {
                   textAlign="center"
                 >
                   <Typography paddingX="10px" fontWeight={600}>Cart Preview:</Typography>
-                  <CartPreview />
+                  {/* <CartPreview /> */}
                 </Box>
                 <Link href="/checkout"
                   style={{

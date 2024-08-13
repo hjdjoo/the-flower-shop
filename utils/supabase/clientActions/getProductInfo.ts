@@ -7,35 +7,36 @@ export const getProductInfo = async (id: number) => {
 
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  const { data: dbData, error } = await supabase
     .from("products")
     .select("*")
     .eq("id", id)
     .returns<ProductData[]>()
 
-  console.log('getProductIds/data: ', data);
-  if (!data) {
-    return {
-      data: null,
-      error: error
-    }
+  if (!dbData || !dbData[0]) {
+    console.error("getProductInfo", error);
+    return { dbData, error }
   }
+  // console.log('getProductIds/data: ', data);
+  const { id: productId, name, description, categories, prices, image_url, } = dbData[0];
 
-  const { id: productId, name, categories, description, prices, image_url } = data[0]
-
-  const normalizedPrices = data[0].prices.map(price => {
-    return price / 100
+  // console.log(prices);
+  const normalizedPrices = prices.map(price => {
+    return price / 100;
   })
 
   return {
     data: {
-      productId: productId,
+      id: productId,
       name: name,
-      categories: categories,
       description: description,
+      categories: categories,
       prices: normalizedPrices,
       imageUrl: image_url
-    }, error
+    },
+    error: error
   }
+
+  // return { data, error }
 
 }

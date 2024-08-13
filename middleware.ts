@@ -18,7 +18,6 @@ export const middleware = async (request: NextRequest) => {
   if (request.url.startsWith("/admin")) {
 
     console.log('checking Admin privileges...')
-
     const authorized = await authorizeAdmin();
     if (!authorized) return NextResponse.redirect("/")
 

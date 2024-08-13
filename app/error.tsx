@@ -9,13 +9,15 @@ export default function Error({ error, reset, }:
   }) {
 
   useEffect(() => {
-
-    console.error(error)
+    if (!error) return;
+    else {
+      console.error(error)
+    }
   }, [error]);
 
   return (
     <div>
-      <h2>Something went wrong!</h2>
+      <h1>Something went wrong!</h1>
     </div>
   )
 

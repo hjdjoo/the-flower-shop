@@ -13,10 +13,10 @@ export interface CategoryData {
 
 
 export interface ProductData {
-  id: string,
-  name: string,
-  categories: number[] | null
-  description: string,
+  id: string
+  name: string
+  categories: number[]
+  description: string
   prices: number[]
-  image_url: string,
+  image_url: string
 }

@@ -34,27 +34,47 @@ export async function login(formData: AuthFormData) {
 export async function signup(formData: AuthFormData) {
 
   const supabase = createClient();
-  const data = {
-    email: formData.email as string,
-    password: formData.password as string,
+
+  try {
+
+    const data = {
+      email: formData.email as string,
+      password: formData.password as string,
+    }
+
+    const signUpResponse = await supabase.auth.signUp(data);
+
+    if (signUpResponse.error) {
+      throw new Error(signUpResponse.error?.message);
+      // throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/signup/err: ${signUpResponse.error}` : "Invalid credentials")
+    } else if (!signUpResponse) {
+      throw new Error("No reponse from Supabase");
+    };
+
+    const userId = signUpResponse.data.user?.id;
+
+    if (userId) {
+
+      const body = {
+        userId: userId
+      }
+
+      const res = await fetch("http://localhost:3000/auth/create-shop-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!res.ok) {
+        throw new Error("Error during shop profile creation")
+      }
+    }
   }
-
-  // console.log(data)
-
-  const signUpResponse = await supabase.auth.signUp(data);
-
-  console.log(signUpResponse.data);
-
-  if (signUpResponse.error) {
-    throw new Error(signUpResponse.error?.message);
-    // throw new Error(process.env.NODE_ENV === "development" ? `signin/actions.ts/signup/err: ${signUpResponse.error}` : "Invalid credentials")
-  } else if (!signUpResponse) {
-    throw new Error("No reponse from Supabase");
-  };
-
-  const userId = signUpResponse.data.user?.id
-  if (userId) {
-    await createProfile(userId);
+  catch (e) {
+    console.error("/signin/actions/signup/catch/e: ", e)
+    throw new Error(`Error in sign up process: ${e}`)
   }
 
   revalidatePath("/", "layout");

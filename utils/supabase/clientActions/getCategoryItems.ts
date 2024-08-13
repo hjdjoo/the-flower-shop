@@ -9,7 +9,7 @@ export const getCategoryItems = async (categoryId: number) => {
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, description, standard_price, premium_price, deluxe_price, image_url")
+    .select("id, name, description, prices, image_url")
     .contains("categories", [categoryId])
     .returns<ProductData[]>()
 

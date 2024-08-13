@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 
 import { ProductData } from "@/app/types/client-types";
-import { ProductData as DbData } from "@/app/types/db-types";
+// import { ProductData as DbData } from "@/app/types/db-types";
 
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
 
@@ -14,20 +14,11 @@ export default async function ProductPage({ params }: { params: { productId: num
 
   const { data, error } = await getProductInfo(productId);
 
-  console.log(data);
+  // console.log(data);
 
   if (!data || error) throw new Error("Couldn't get product info")
 
-  const { name, categories, description, prices, imageUrl } = data
-
-  const productInfo = {
-    productId: productId,
-    name: name,
-    categories: categories!,
-    description: description,
-    prices: prices,
-    imageUrl: imageUrl
-  }
+  const productInfo = data;
 
   return (
     <>

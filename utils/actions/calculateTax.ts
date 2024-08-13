@@ -1,7 +1,7 @@
 /**
  * 
- * @param price string: price for item, **in dollars**
- * @returns number: 
+ * @param price string: price for item, *in dollars*
+ * @returns number: tax for the item, *in dollars*
  */
 
 export default function calculateTax(value: number | string) {
