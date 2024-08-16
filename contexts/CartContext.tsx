@@ -150,18 +150,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     });
 
     // console.log("blank order: ", order)
-    order.forEach((dateArr, dateIdx) => {
+    order.forEach((addressArr, dateIdx) => {
       for (let item of cartItems) {
         // console.log(item.deliveryDate, deliveryDates[dateIdx], dateArr, item.recipAddressIndex)
-        if (item.deliveryDate === deliveryDates[dateIdx] && dateArr[item.recipAddressIndex]) {
-          // console.log("getSortedItem/dateArr[item.recipAddressIndex].push")
-          dateArr[item.recipAddressIndex].push(item);
+        if (item.deliveryDate === deliveryDates[dateIdx] && addressArr[item.recipAddressIndex]) {
+          // console.log("getSortedItem/addressArr[item.recipAddressIndex].push")
+          addressArr[item.recipAddressIndex].push(item);
         }
       }
     })
 
     return order;
   }
+
 
   /**
    * 

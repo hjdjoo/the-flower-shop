@@ -21,15 +21,11 @@ interface OrderInfoDisplayProps {
   addressIdx: number
   orderIdx: number
   dateIdx: number
-  alerts: {
-    [name: string]: ErrorMessage
-  }
 }
 
 export default function OrderInfoDisplay(props: OrderInfoDisplayProps) {
 
   const { orderItem, orderPrices, addressIdx, orderIdx, dateIdx } = props;
-
 
   const { name, recipFirst, recipLast, recipAddress, recipPhone, cardMessage } = orderItem;
   const { itemValues } = orderPrices;

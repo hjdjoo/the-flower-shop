@@ -18,7 +18,7 @@ export default async function ProductPage({ params }: { params: { productId: num
 
   if (!data || error) throw new Error("Couldn't get product info")
 
-  const productInfo = data;
+  const productInfo = data[0];
 
   return (
     <>

@@ -20,7 +20,7 @@ import { imageLoader } from "@/app/lib/imageLoader";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import { InputField } from "@/app/_components/styled/InputField";
-import OrderInfoDisplay from "./_sub/OrderInfoDisplay";
+import OrderInfoDisplay from "../../../_components/OrderInfoDisplay";
 import RecipientInfo from "@/app/_components/RecipientInfo";
 
 import validateAddress from "@/utils/google/validateAddress";
@@ -66,12 +66,6 @@ const CartItem = ((props: CartItem) => {
   const [newAddressIdx, setNewAddressIdx] = useState<number>(addressIdx)
 
   // alerts:
-  const [addressAlert, setAddressAlert] = useState<ErrorMessage>(
-    {
-      severity: undefined,
-      message: ""
-    });
-
   const [deliveryDateAlert, setDeliveryDateAlert] = useState<ErrorMessage>(
     {
       severity: undefined,
@@ -124,7 +118,7 @@ const CartItem = ((props: CartItem) => {
     if (isEditing) {
 
       let updatedOrder = structuredClone(sortedOrder);
-      console.log("confirmChanges/updatedItem: ", updatedItem)
+      // console.log("confirmChanges/updatedItem: ", updatedItem)
       updatedOrder[dateIdx][addressIdx][orderIdx] = updatedItem;
       // to update the cart, just flatten out the order into a 1-D array and use update method with new cart. Treat as basic state dispatch.
       const newCartItems = updatedOrder.flat(2);
@@ -135,7 +129,8 @@ const CartItem = ((props: CartItem) => {
 
       const newOrderPriceInfo = await calculateCart(newSortedOrder);
 
-      await checkAddress();
+      const validatedAddress = await validateAddress(updatedItem);
+      setUpdatedItem({ ...updatedItem, recipAddress: validatedAddress });
       setCurrCart(newCart);
       setOrder(newSortedOrder);
       setSortedOrderPriceInfo(newOrderPriceInfo.orderPrices);
@@ -180,33 +175,7 @@ const CartItem = ((props: CartItem) => {
         message: ""
       })
     }
-  }
-
-
-  const checkAddress = async () => {
-    try {
-      const formattedAddress = await validateAddress(updatedItem);
-      if (!formattedAddress || !formattedAddress.streetAddress1.length) {
-        setAddressAlert({
-          severity: "error",
-          message: "Address validation returned nothing. Please check recipient details."
-        })
-      }
-      else {
-        setAddressAlert({
-          severity: "success",
-          message: "Address is valid!"
-        })
-      }
-      setUpdatedItem({ ...updatedItem, recipAddress: formattedAddress })
-    }
-    catch (e) {
-      setAddressAlert({
-        severity: "error",
-        message: "Address could not be validated. Please check recipient details."
-      })
-    };
-  }
+  };
 
   const checkMessageLength = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;
@@ -385,31 +354,7 @@ const CartItem = ((props: CartItem) => {
                     </Select>
                   </Grid>
                 </Grid>
-                <RecipientInfo orderItem={updatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
-                <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button-box`}
-                  sx={{
-                    flexGrow: 1,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}>
-                  <Button id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-address-check-button`}
-                    onClick={checkAddress}
-                    sx={{
-                      border: "1px solid",
-                      borderColor: "primary.main",
-                      width: "90%",
-                      mb: 3,
-                      '&:hover': {
-                        backgroundColor: "#dfe6df",
-                      }
-                    }}
-                  >
-                    Verify Address
-                  </Button>
-                </Box>
+                <RecipientInfo orderItem={updatedItem} setOrderItem={setUpdatedItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
                 <Box id={`orderItem-${dateIdx}-${addressIdx}-${orderIdx}-card-message-box`}
                   sx={{
                     display: "flex",
@@ -456,7 +401,7 @@ const CartItem = ((props: CartItem) => {
 
               </Box>
             </Suspense>
-            : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} alerts={{ addressAlert: addressAlert, deliveryDateAlert: deliveryDateAlert, cardMessageAlert: cardMessageAlert, }} />
+            : <OrderInfoDisplay orderItem={updatedItem} orderPrices={orderPrices} dateIdx={dateIdx} addressIdx={addressIdx} orderIdx={orderIdx} />
           }
           <Box id={`item-edit-buttons-box-${dateIdx + 1}`} sx={{
             alignSelf: "center",

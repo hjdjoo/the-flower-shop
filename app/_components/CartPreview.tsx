@@ -1,6 +1,8 @@
 
 import Image from "next/image";
 
+import { useState, useEffect } from "react";
+
 // import { useContext } from "react";
 
 import Box from "@mui/material/Box";
@@ -8,16 +10,21 @@ import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import Typography from "@mui/material/Box";
 import { useTheme } from "@mui/material";
 
+import OrderInfoDisplay from "./OrderInfoDisplay";
+import PriceInfoDisplay from "./PriceInfoDisplay";
+import AddressDisplay from "./AddressDisplay";
+
 import { imageLoader } from "@/app/lib/imageLoader";
 
 import { useCart, CartContextType } from "@/contexts/CartContext";
 import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
 import calculateTax from "@/utils/actions/calculateTax";
+import calculateCart from "@/utils/actions/calculateCart";
 import formatDate from "@/utils/actions/formatDate";
 import getDayOfWeek from "@/utils/actions/getDayOfWeek";
 
-import type { OrderItem } from "../types/component-types/OrderFormData";
+import { Cart, OrderItem, OrderPriceInfo, SortedOrder } from "../types/component-types/OrderFormData";
 
 
 
@@ -33,163 +40,208 @@ import type { OrderItem } from "../types/component-types/OrderFormData";
  */
 
 interface CartPreviewItemProps {
-  idx: number,
-  cartItem: OrderItem
+  orderItem: OrderItem
+  dateIdx: number
+  addressIdx: number
+  orderIdx: number
+}
+
+
+const miniCartTypographyStyle = {
+  fontSize: "0.7rem"
 }
 
 const CartPreviewItem = (props: CartPreviewItemProps) => {
 
-  const { name, imageUrl, recipFirst, recipLast, recipAddress, deliveryDate, prices, selectedTier, deliveryFee } = props.cartItem
-  const { idx } = props;
-
-  const { mobile, tablet, large, xlarge } = useBreakpoints();
-
-  const addressStr = Object.values(recipAddress).join(" ");
-
-  const itemPrice = prices[selectedTier!]
-  const itemTax = calculateTax(itemPrice)
-  const deliveryTax = calculateTax(deliveryFee)
-
-  const taxedItem = itemPrice + itemTax;
-  const taxedDelivery = parseFloat(deliveryFee) + deliveryTax;
-
-  const tax = (itemTax + deliveryTax).toFixed(2);
-
-  const total = (taxedItem + taxedDelivery).toFixed(2);
-
+  const { orderItem: item, dateIdx, addressIdx, orderIdx } = props;
 
   return (
-    <Box id={`${deliveryDate}-box-${idx + 1}`}
-      display="flex"
+    <Grid id={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}`}
+      container
       sx={{
-        marginY: "5px"
-      }}
-    >
-      <Box
-        id={`${deliveryDate}-image-container-${idx + 1}`}
-        position="relative"
-        width="50%"
-        sx={{
-          objectFit: "contain"
-        }}
-      >
-        <Image src={imageUrl} alt={`${name}-image`} loader={imageLoader} fill style={{ objectFit: "contain" }} />
-      </Box>
-      <Box id={`${deliveryDate}-order-${idx + 1}-information`}
-        textAlign="left"
-        paddingX="5px"
-        sx={{
-          fontSize: () => {
-            if (mobile) return "0.5rem"
-            if (tablet) return "0.6rem"
-            if (large) return "0.7rem"
-            else return "0.8rem"
-          },
-        }}
-      >
-        <Typography sx={{
-          fontSize: () => {
-            if (mobile) return "0.6rem"
-            if (tablet) return "0.7rem"
-            if (large) return "0.8rem"
-            else return "0.9rem"
-          },
-          marginBottom: "5px"
+        my: 2
+      }}>
+      <Grid xs={5}>
+        <Box id={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-name`} sx={{
+          textAlign: "start",
+          mb: 1
         }}>
-          Delivery:
-        </Typography>
-        <Typography>
-          {`${recipFirst} ${recipLast}`}
-        </Typography>
-        <Typography>
-          {`${addressStr}`}
-        </Typography>
-      </Box>
-      <Grid id={`${deliveryDate}-${name}-price`} container
+          <Typography sx={{ fontSize: "0.8rem" }}>{item.name}</Typography>
+        </Box>
+        <Box
+          id={`preview-item-image-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}`}
+          sx={{
+            height: "100px",
+            width: "100px",
+            display: "flex",
+            flexDirection: "row",
+            background: "lightgrey",
+            position: "relative",
+            flexWrap: "wrap",
+          }}>
+          <Image src={item.imageUrl} alt={`preview-item-${addressIdx + 1}-${orderIdx + 1}-image`} loader={imageLoader} fill style={{ objectFit: "contain" }} />
+        </Box>
+      </Grid>
+      <Grid id={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-recip-details`}
+        xs={7}
+        container
+        columnSpacing={2}
         sx={{
-          fontSize: () => {
-            if (mobile) return "0.5rem"
-            if (tablet) return "0.6rem"
-            if (large) return "0.7rem"
-            else return "0.8rem"
-          },
-          textAlign: "right",
-          width: "60%"
-        }}
-      >
-        <Grid xs={8}>
-          <Typography>Item Value:</Typography>
+          textAlign: "right"
+        }}>
+        <Grid xs={12}></Grid>
+        <Grid xs={4}
+        >
+          <Typography sx={miniCartTypographyStyle}>To:</Typography>
         </Grid>
-        <Grid xs={4}>
-          <Typography>{`$${(prices[selectedTier!]).toFixed(2)}`}</Typography>
+        <Grid id={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-recip-name`}
+          xs={8}>
+          <Typography sx={
+            {
+              ...miniCartTypographyStyle,
+              fontStyle: !item.recipLast.length ? "italic" : "normal"
+            }
+          }>{item.recipLast.length ? `${item.recipFirst} ${item.recipLast}` : `Recipient name required`}</Typography>
         </Grid>
-        <Grid xs={8}>
-          <Typography>Del. Fee:</Typography>
+        <Grid xs={4}
+        >
+          <Typography sx={miniCartTypographyStyle}>Message:</Typography>
         </Grid>
-        <Grid xs={4}>
-          <Typography>{`$${deliveryFee}`}</Typography>
-        </Grid>
-        <Grid xs={8}>
-          <Typography>Est. Tax:</Typography>
-        </Grid>
-        <Grid xs={4}>
-          <Typography>{`$${tax}`}</Typography>
-        </Grid>
-        <Grid xs={8}>
-          <Typography>Total:</Typography>
-        </Grid>
-        <Grid xs={4}>
-          <Typography>{`$${total}`}</Typography>
+        <Grid id={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}-message`}
+          xs={8}>
+          <Typography sx={
+            {
+              ...miniCartTypographyStyle,
+              fontStyle: !item.cardMessage.length ? "italic" : "normal"
+            }
+          }>{item.cardMessage.length ? `${item.cardMessage}` : `No card message`}</Typography>
         </Grid>
       </Grid>
-    </Box>
+    </Grid>
   )
 
 }
 
+interface DeliveryOrderGroupProps {
+  items: OrderItem[]
+  dateIdx: number
+  addressIdx: number
+
+}
+
+const DeliveryOrderGroup = (props: DeliveryOrderGroupProps) => {
+
+  const { items, dateIdx, addressIdx } = props
+
+  const previewItems = items.map((item, orderIdx) => {
+    return (
+      <CartPreviewItem key={`preview-item-${dateIdx + 1}-${addressIdx + 1}-${orderIdx + 1}`} orderItem={item} dateIdx={dateIdx} orderIdx={orderIdx} addressIdx={addressIdx} />
+    )
+  })
+
+  return (
+    <Box id={`preview-item-${dateIdx + 1}-${addressIdx + 1}`}>
+      {previewItems}
+    </Box>
+  )
+}
+
+interface DeliveryDateBoxProps {
+  cart: Cart,
+  sortedOrder: SortedOrder
+  sortedPrices: OrderPriceInfo[][]
+  orders: OrderItem[][]
+  dateIdx: number
+}
+
+const DeliveryDateGroup = (props: DeliveryDateBoxProps) => {
+
+  const { cart, sortedOrder, sortedPrices, orders, dateIdx } = props
+
+  const orderGroups = orders.map((items, addressIdx) => {
+    if (!items.length) return;
+    return (
+      <>
+        <DeliveryOrderGroup key={`delivery-${dateIdx + 1}-${addressIdx + 1}`} items={items} dateIdx={dateIdx} addressIdx={addressIdx} />
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+        }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              marginTop: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "end",
+              alignItems: "end",
+              borderRadius: "10px",
+              textAlign: "end",
+              marginRight: 4
+            }}
+          >
+            <Typography sx={{ fontSize: "0.7rem", fontWeight: 650, my: 1 }}>
+              Delivering {`${orders.length} ${orders.length === 1 ? "item" : "items"}`} to:
+            </Typography>
+            <AddressDisplay address={cart.addresses[addressIdx]} typographyStyle={{ fontSize: "0.7rem" }} />
+          </Box>
+          <PriceInfoDisplay order={sortedOrder} orderPrices={sortedPrices[dateIdx][addressIdx]} dateIdx={dateIdx} addressIdx={addressIdx} typographyStyle={{ fontSize: "0.7rem" }} />
+        </Box>
+      </>
+    )
+  })
+
+  return (
+    <Box id={`delivery-date-box-${dateIdx + 1}`}
+      display="flex"
+      flexDirection="column"
+      paddingBottom="10px"
+    >
+      {orderGroups}
+    </Box>
+  )
+
+
+}
 
 export default function CartPreview() {
 
   // interesting note -- if you call "useTheme" in a parent component, MUI components in child components will not apply any theming unless specifically directed. Unless I'm missing something?
   const theme = useTheme();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
-  const { cart, getSortedOrder } = useCart() as CartContextType;
 
-  const sortedOrder = getSortedOrder();
+  const { cart, getSortedOrder } = useCart() as CartContextType;
+  const [order, setOrder] = useState<SortedOrder>([]);
+  const [sortedPrices, setSortedPrices] = useState<OrderPriceInfo[][]>([]);
+  const [total, setTotal] = useState<string>("")
 
   const { deliveryDates } = cart;
 
+  useEffect(() => {
+    if (!cart.deliveryDates.length) {
+      return;
+    }
+    const sortedOrder = getSortedOrder();
+    (async () => {
+      const prices = await calculateCart(sortedOrder);
+
+      setOrder(sortedOrder);
+      setSortedPrices(prices.orderPrices);
+      setTotal(prices.cartTotal.toFixed(2));
+
+    })()
+  }, [cart, getSortedOrder])
+
   // go thru delivery dates;
-  const deliveryDivs = sortedOrder.map((dateArr, dateIdx) => {
+  const deliveryDivs = order.map((addressArr, dateIdx) => {
 
     const displayDay = getDayOfWeek(deliveryDates[dateIdx]);
     const displayDate = formatDate(deliveryDates[dateIdx]);
 
-    const previewItems = dateArr.map((addressArr, addressIdx) => {
-
-      // if (item.deliveryDate === date) {
-
-      //   return (
-      //     <div key={`${date}-item-${j + 1}`}>
-      //       <CartPreviewItem idx={j} cartItem={item}></CartPreviewItem>
-      //     </div >
-      //   );
-      // };
-      return (
-        <Box key={`preview-${dateIdx}-${addressIdx}`}>
-          Preview
-        </Box>
-      )
-
-    })
-
     return (
-      <Box key={`delivery-date-box-${dateIdx + 1}`} id={`delivery-date-box-${dateIdx + 1}`}
-        display="flex"
-        flexDirection="column"
-        paddingBottom="10px"
-      >
+      <Box key={`delivery-date-${dateIdx + 1}-preview`}>
         <Box
+          id={`delivery-date-${dateIdx + 1}-preview`}
           display="flex"
           paddingY="10px"
           paddingX="15px"
@@ -204,29 +256,54 @@ export default function CartPreview() {
               if (large) return "1rem"
               return "1rem"
             },
-          }}
-        >
-          <Typography>For Delivery On {`${displayDay} ${displayDate}`}:</Typography>
+          }}>
+          <Typography>
+            For Delivery On {`${displayDay} ${displayDate}`}
+          </Typography>
         </Box>
-        {previewItems}
+        <DeliveryDateGroup cart={cart} sortedOrder={order} sortedPrices={sortedPrices} orders={addressArr} dateIdx={dateIdx} />
       </Box>
     )
   });
-
 
   return (
     <Box
       marginTop="15px"
       height="auto"
       display="flex"
+      flexDirection="column"
       paddingX="5px"
       justifyContent="center"
     >
-      <Typography
-        fontFamily={theme.typography.fontFamily}
-      >
+      <Box
+        id={`delivery-div-font-provider`}
+        fontFamily={theme.typography.fontFamily}>
         {deliveryDivs}
-      </Typography>
+      </Box>
+      <Box
+        fontFamily={theme.typography.fontFamily}
+        sx={{
+          display: "flex",
+          justifyContent: "end"
+        }}>
+        <Typography
+          sx={{
+            mx: 1,
+            fontSize: "0.8rem",
+            fontWeight: "650"
+          }}
+        >
+          Cart Total:
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: "0.8rem",
+            fontWeight: "650"
+          }}
+        >
+          ${total}
+        </Typography>
+      </Box>
     </Box>
   )
 }

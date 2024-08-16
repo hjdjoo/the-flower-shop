@@ -1,6 +1,7 @@
 import { getProductInfo } from "../supabase/clientActions/getProductInfo";
 import { OrderItem, Order, OrderPriceInfo, Address } from "@/app/types/component-types/OrderFormData";
 import calculateTax from "@/utils/actions/calculateTax";
+
 import calculateDeliveryFee from "@/utils/actions/calculateDeliveryFee";
 
 type DrivingRouteResponse = {
@@ -18,24 +19,20 @@ export default async function calculatePrices(order: OrderItem[], address: Addre
       total: 0
     }
 
-    // console.log("calculatePrices/before forEach/orderPrices: ", orderPrices)
+    const itemIds = order.map(item => item.productId);
 
-    order.forEach(async (item, idx) => {
-      // console.log("calculatePrices/order.forEach/item, idx", item, idx)
-      const { data, error } = await getProductInfo(item.productId);
+    const { data, error } = await getProductInfo(itemIds);
 
-      if (!data || error) {
-        throw new Error("Couldn't get product data");
-      };
+    if (!data || error) {
+      throw new Error(`Couldn't get productData. ${error && error.message}`);
+    };
 
-      // console.log("calculatePrices/orderData: ", data)
-      // console.log("calculatePrices/orderItem: ", item)
+    order.forEach((item, idx) => {
+
       const tier = item.selectedTier!;
-      const itemValue = data.prices[tier];
-      // console.log("calculatePrices/adding item value to order prices. orderPrices, itemValues: ")
-      // console.table({ orderPrices, itemValue })
-      orderPrices.itemValues[idx] = itemValue
-      // console.log("calculatePrices/orderforEach/after update: ", orderPrices);
+      const itemValue = data[idx].prices[tier];
+
+      orderPrices.itemValues[idx] = itemValue;
 
     })
 

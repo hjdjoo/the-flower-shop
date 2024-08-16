@@ -3,8 +3,9 @@ import { useState, useEffect, Dispatch, SetStateAction, ChangeEvent } from "reac
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
+import useBreakpoints from "@/utils/hooks/useBreakpoints";
 
-import { OrderFormData, OrderItem } from "../types/component-types/OrderFormData";
+import { OrderForm, OrderItem } from "../types/component-types/OrderFormData";
 
 // pricePicker should take in a dispatch function to set state as well.
 interface PricePickerProps {
@@ -18,6 +19,8 @@ interface PricePickerProps {
 
 
 export default function PricePicker(props: PricePickerProps) {
+
+  const { mobile, tablet, large, xlarge } = useBreakpoints();
 
   const { productInfo, orderItem, setOrderItem, submitStatus, setPriceSelected } = props;
 
@@ -60,7 +63,10 @@ export default function PricePicker(props: PricePickerProps) {
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Typography fontSize={"0.8rem"}>{priceTiers[idx]}</Typography>
+          <Typography
+            sx={{
+              fontSize: "0.7rem"
+            }}>{priceTiers[idx]}</Typography>
           <Typography>{`$${price}`}</Typography>
         </Box>
       </Button>)

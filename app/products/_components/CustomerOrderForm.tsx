@@ -19,6 +19,7 @@ import { ExpandMore } from "@/app/_components/styled/ExpandIcon"
 import { ErrorMessage } from "@/app/types/client-types";
 
 import verifyDeliveryDate from "@/utils/actions/verifyDeliveryDate";
+import validateAddress from "@/utils/google/validateAddress";
 
 import type { OrderItem, Address } from "@/app/types/component-types/OrderFormData";
 import type { SubmitStatus } from "./ProductCard";
@@ -45,6 +46,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
 
   /* Component states */
   const [activeField, setActiveField] = useState<string | undefined>()
+
   const [deliveryDateAlert, setDeliveryDateAlert] = useState<ErrorMessage>({
     severity: undefined,
     message: ""
@@ -179,6 +181,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
           backgroundColor: activeField === "deliveryDate" ? theme.palette.info.main : "lightgrey",
           color: activeField === "deliveryDate" ? "white" : "black",
           "&:hover": {
+            cursor: "pointer",
             backgroundColor: "grey",
             color: "white"
           }
@@ -303,7 +306,7 @@ export default function CustomerOrderForm(props: CustomerOrderFormProps) {
                 sx={{
                 }}
               >
-                <RecipientInfo orderItem={orderItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
+                <RecipientInfo orderItem={orderItem} setOrderItem={setOrderItem} handleOrderItem={handleOrderItem} handleAddress={handleAddress} />
               </Box>
             }
           </Collapse>

@@ -26,7 +26,7 @@ import CartItem from "./_components/CartItem";
 import { CartContextType } from "@/contexts/CartContext";
 import { Address, Cart, OrderPriceInfo } from "@/app/types/component-types/OrderFormData";
 import calculateCart from "@/utils/actions/calculateCart";
-import PriceInfoDisplay from "./_components/_sub/PriceInfoDisplay";
+import PriceInfoDisplay from "../../_components/PriceInfoDisplay";
 
 import { useUser } from "@/contexts/UserContext";
 import { UserContextType } from "@/app/types/auth-types";
@@ -240,7 +240,7 @@ export default function CheckoutPage() {
 
     const updatedSenderInfo = { ...senderInfo, [name]: value };
 
-    console.log("Checkout/handleSenderInfo/updatedSenderInfo: ", updatedSenderInfo)
+    // console.log("Checkout/handleSenderInfo/updatedSenderInfo: ", updatedSenderInfo)
 
     setSenderInfo(updatedSenderInfo);
   }
@@ -273,8 +273,6 @@ export default function CheckoutPage() {
   const SenderInfoDisplay = Object.keys(senderInfo).map((key, idx) => {
 
     const senderObject = senderInfo as SenderObject
-
-    // console.log(senderInfo, key)
 
     if (key === "id") return;
     if (key === "senderFirst" || key === "senderLast") {

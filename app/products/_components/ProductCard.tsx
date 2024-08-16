@@ -5,19 +5,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { imageLoader } from "@/app/lib/imageLoader";
 
+import { useRouter } from "next/navigation";
+
+import { styled, useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
+import Collapse from "@mui/material/Collapse";
 
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
+import ErrorIcon from '@mui/icons-material/Report';
+import CheckIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { useTheme } from "@mui/material";
 
 import { useCart, CartContextType } from "@/contexts/CartContext";
 
+import { ExpandMore } from "@/app/_components/styled/ExpandIcon";
 import CartPreview from "@/app/_components/CartPreview";
 import CustomerOrderForm from "./CustomerOrderForm";
 import PricePicker from "@/app/_components/PricePicker";
@@ -45,12 +51,23 @@ export default function ProductCard(props: ProductCardProps) {
 
   /* hooks */
   const theme = useTheme();
+  const router = useRouter();
   const { mobile, tablet, large, xlarge } = useBreakpoints();
   const { cart, addToCart, updateAddressesAndDates } = useCart() as CartContextType;
 
   /* prop destructuring */
   const { productId } = props
   const { name, categories, description, prices, imageUrl } = props.productInfo
+
+  const CheckIconColored = styled(CheckIcon)(({ theme }) => ({
+    color: theme.palette.success.main
+  }));
+  const ErrorIconColored = styled(ErrorIcon)(({ theme }) => ({
+    color: theme.palette.error.main
+  }));
+  const WarningIconColored = styled(WarningIcon)(({ theme }) => ({
+    color: theme.palette.warning.main
+  }));
 
   /* Other necessary component states */
   const [deliveryDate, setDeliveryDate] = useState<string>("");
@@ -66,6 +83,9 @@ export default function ProductCard(props: ProductCardProps) {
   const [zipValid, setZipValid] = useState<boolean>(false);
   const [deliveryDateValid, setDeliveryDateValid] = useState<boolean>(false);
   const [priceSelected, setPriceSelected] = useState<boolean>(false);
+
+  /* Cart preview state */
+  const [cartPreviewOpen, setCartPreviewOpen] = useState<boolean>(false);
 
 
   useEffect(() => {
@@ -105,12 +125,11 @@ export default function ProductCard(props: ProductCardProps) {
     }
     else {
       setSubmitStatus("submitting");
-
-
       addToCart(orderItem);
       setSubmitStatus("submitted");
       setDeliveryDate("");
       setOrderItem({ ...baseOrderForm });
+      router.refresh();
     }
   }
 
@@ -285,29 +304,48 @@ export default function ProductCard(props: ProductCardProps) {
               flexDirection="column"
               alignItems="flex-end"
             >
-              <Typography id="delivery-date-check"
-                sx={{
-                  marginY: "5px",
-                  diplay: "flex",
-                  alignItems: "center"
-                }}
-              >
-                Delivery date selected {deliveryDateValid ? <CheckIcon /> : <ClearIcon />}
-              </Typography>
-              <Typography id="valid-zip-check"
-                sx={{
-                  marginY: "5px"
-                }}
-              >
-                Zip code valid {zipValid ? <CheckIcon /> : <ClearIcon />}
-              </Typography>
-              <Typography id="price-tier-check"
-                sx={{
-                  marginY: "5px"
-                }}
-              >
-                Price tier selected {priceSelected ? <CheckIcon /> : <ClearIcon />}
-              </Typography>
+              <Box sx={{
+                display: "flex",
+                alignItems: "center",
+              }}>
+                <Typography id="delivery-date-check"
+                  sx={{
+                    my: 1,
+                    mx: 1
+                  }}
+                >
+                  Delivery date selected
+                </Typography>
+                {deliveryDateValid ? <CheckIconColored /> : <ErrorIconColored />}
+              </Box>
+              <Box sx={{
+                display: "flex",
+                alignItems: "center",
+              }}>
+                <Typography id="valid-zip-check"
+                  sx={{
+                    my: 1,
+                    mx: 1
+                  }}
+                >
+                  Zip code valid
+                </Typography>
+                {zipValid ? <CheckIconColored /> : <ErrorIconColored />}
+              </Box>
+              <Box sx={{
+                display: "flex",
+                alignItems: "center",
+              }}>
+                <Typography id="price-tier-check"
+                  sx={{
+                    my: 1,
+                    mx: 1
+                  }}
+                >
+                  Price tier selected
+                </Typography>
+                {priceSelected ? <CheckIconColored /> : <ErrorIconColored />}
+              </Box>
             </Box>
             {(cart.cartItems && !!cart.cartItems.length) &&
               <>
@@ -316,12 +354,40 @@ export default function ProductCard(props: ProductCardProps) {
                   marginBottom="35px"
                   textAlign="center"
                 >
-                  <Typography paddingX="10px" fontWeight={600}>Cart Preview:</Typography>
-                  {/* <CartPreview /> */}
+                  <Box id="cart-preview-toggle"
+                    sx={{
+                      background: "lightgrey",
+                      borderRadius: "5px"
+                    }}>
+                    <Button
+                      fullWidth
+                      onClick={() => setCartPreviewOpen(!cartPreviewOpen)}
+                      sx={{
+                        textTransform: "none",
+                        height: "30px",
+                        display: "flex",
+                        justifyContent: "space-between"
+                      }}>
+                      <Typography paddingX="10px" fontWeight={600} sx={{
+                        fontSize: "0.8rem"
+                      }}>View Cart Preview</Typography>
+                      <ExpandMore
+                        expand={cartPreviewOpen}
+                        name="deliveryDate"
+                        aria-label="Toggle delivery date input"
+                      >
+                        <ExpandMoreIcon />
+                      </ExpandMore>
+                    </Button>
+                  </Box>
+                  <Collapse in={cartPreviewOpen}>
+                    <CartPreview />
+                  </Collapse>
                 </Box>
                 <Link href="/checkout"
                   style={{
-                    width: "100%"
+                    width: "100%",
+                    marginBottom: "15px"
                   }}>
                   <Button id="checkout-button"
                     fullWidth
