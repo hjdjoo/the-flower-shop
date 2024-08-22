@@ -1,36 +1,28 @@
 import { createClient } from "../client";
 import { SupabaseResponse } from "@/app/types/db-types";
 
-// const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 
-export const getUrls = async (imgNames: string[], bucketFolder: string): Promise<SupabaseResponse<string[]>> => {
+/**
+ * 
+ * @param imgNames :string[]; array of image names without extension
+ * @param bucketFolder :string; the name of the supabase storage bucket where the file is stored.
+ * @param fileType :string; the extension for these files.
+ * @returns an array of URLs for these particular files.
+ * This has been converted to a synchronous function, since supabase file URLs are predictable and consistent.
+ */
+export const getUrls = (imgNames: string[], bucketFolder: string, fileType: string = "jpeg"): SupabaseResponse<string[]> => {
   if (!bucketFolder) {
     throw new Error("Must specify an image folder");
   }
-  try {
-    const supabase = createClient();
-    const urls: string[] = [];
+  // const supabase = createClient();
+  const urls: string[] = imgNames.map(img => {
+    return `${SUPABASE_URL}/storage/v1/object/public/${bucketFolder}/${img}.${fileType}`
+  });
 
-    imgNames.forEach(async (img) => {
-
-      const { data } = await supabase
-        .storage
-        .from(`${bucketFolder}`)
-        .getPublicUrl(img);
-
-      urls.push(data.publicUrl);
-    })
-
-    return {
-      data: urls,
-      error: null
-    };
-  }
-  catch (error) {
-    return {
-      data: null,
-      error: error
-    }
+  return {
+    data: urls,
+    error: null
   };
 }
 

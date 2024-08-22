@@ -17,7 +17,7 @@ export const getBanners = async (): Promise<SupabaseResponse<string[]>> => {
     else {
       // console.log('getBanners/data: ', data);
       const banners = data.filter((banner) => banner.name !== ".emptyFolderPlaceholder").map((banner) => {
-        return banner.name
+        return banner.name.replace(/(\..*)$/, "")
       })
       return {
         data: banners,

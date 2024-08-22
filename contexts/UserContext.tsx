@@ -29,6 +29,11 @@ export const UserProvider: React.FC<UserProviderProps> = (
 
   useEffect(() => {
 
+    /**
+     * 
+     * @returns void;
+     * This function gets the profile and all the recipients related to that user, and stores it as a part of the user's profile (state).
+     */
     const fetchUser = async () => {
 
       const session = (await supabase.auth.getSession()).data.session;
@@ -43,17 +48,38 @@ export const UserProvider: React.FC<UserProviderProps> = (
           setUser({ role: "guest" });
         } else {
 
-          const { data: profile } = await supabase
+          const { data: profileData, error } = await supabase
             .from("profiles")
-            .select("*")
+            .select("*, recipients(*)")
             .eq("id", shopId)
             .single();
-          // console.log("UserContext/useEffect/profile: ", profile);
-          if (profile.is_admin) {
-            setUser({ role: "admin" });
+
+          if (error) {
+            console.error(error.details);
+            setUser({ role: "guest" });
+            return;
+          }
+          // console.log("UserContext/useEffect/profileData: ", profileData);
+
+          const recipients = profileData.recipients.map(recip => {
+            return {
+              id: recip.id,
+              firstName: recip.first_name || "",
+              lastName: recip.last_name || "",
+              street1: recip.street_address_1 || "",
+              street2: recip.street_address_2 || "",
+              townCity: recip.town_city || "",
+              state: recip.state || "",
+              zip: recip.zip || "",
+              phone: recip.phone || "",
+            }
+          })
+
+          if (profileData.is_admin) {
+            setUser({ id: profileData.id, role: "admin", recipients: recipients.length ? recipients : [] });
           }
           else {
-            setUser({ role: "user" })
+            setUser({ id: profileData.id, role: "user", recipients: recipients.length ? recipients : [] })
           }
         }
       }

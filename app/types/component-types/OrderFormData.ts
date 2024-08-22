@@ -4,7 +4,7 @@
 
 // keep price, delivery fee, and other numerical inputs to strings to avoid null errors. ProductId can stay as a number since that is what the DB is expecting and the value will always be nonzero.
 export interface OrderItem {
-  cartId?: number
+  id?: number
   productId: number,
   imageUrl: string,
   name: string,

@@ -30,6 +30,8 @@ export const FullOrderForm = {
     senderPhone: "",
     senderEmail: "",
   },
-  prices: [],
-  orders: []
+  sortedOrder: [],
+  orders: [],
+  total: "",
+  paymentIntent: ""
 } as OrderForm

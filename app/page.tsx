@@ -16,7 +16,8 @@ export default async function Main() {
   if (!banners) {
     throw new Error("Couldn't get banners!")
   }
-  let { data: bannerUrls } = await getUrls(banners, "banner_images");
+
+  let { data: bannerUrls } = getUrls(banners, "banner_images", "png");
 
   if (!bannerUrls) {
     bannerUrls = [];

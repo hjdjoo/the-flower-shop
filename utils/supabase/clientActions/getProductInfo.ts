@@ -1,7 +1,7 @@
 // import { cache } from "react";
 import { createClient } from "../client";
 
-import { ProductData } from "@/app/types/db-types";
+// import { ProductData } from "@/app/types/db-types";
 
 /**
  * 
@@ -24,11 +24,10 @@ export const getProductInfo = async (productIds: number | number[]) => {
     .from("products")
     .select("*")
     .in("id", ids)
-    .returns<ProductData[]>()
 
   if (!dbData || !dbData[0]) {
     console.error("getProductInfo", error);
-    return { dbData, error }
+    return { data: null, error: error }
   }
   // console.log('getProductIds/data: ', data);
 
@@ -36,17 +35,18 @@ export const getProductInfo = async (productIds: number | number[]) => {
     data: dbData.map(item => {
 
       const { id: productId, name, description, categories, prices, image_url, } = item;
+
       const normalizedPrices = prices.map(price => {
         return price / 100;
       })
 
       return {
-        id: productId,
-        name: name,
-        description: description,
-        categories: categories,
-        prices: normalizedPrices,
-        imageUrl: image_url
+        id: productId!,
+        name: name!,
+        description: description ? description : "",
+        categories: categories!,
+        prices: normalizedPrices!,
+        imageUrl: image_url!
       }
 
     }),
