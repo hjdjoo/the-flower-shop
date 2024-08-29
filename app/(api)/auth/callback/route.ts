@@ -18,11 +18,12 @@ export async function GET(request: Request) {
       if (!error) {
 
         if (!data.user.user_metadata.shop_acct_id) {
-
+          console.log("no user id detected. creating shop profile...")
           const body = {
             userId: data.user.id
           }
 
+          console.log("creating shop profile...")
           const res = await fetch("http://localhost:3000/auth/create-shop-profile", {
             method: "POST",
             headers: {

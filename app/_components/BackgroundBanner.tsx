@@ -48,7 +48,7 @@ export default function BackgroundBanner(props: BackgroundBannerProps) {
 
   const bannerNames = bannerData.map(banner => {
     // the "replace" method is taking the extensions (.jpg, .png, etc) and removing it.
-    console.log("BackgroundBanner.tsx/banner.name.replace(/(\..*)$/, '') ", banner.name.replace(/(\..*)$/, ""))
+    // console.log("BackgroundBanner.tsx/banner.name.replace(/(\..*)$/, '') ", banner.name.replace(/(\..*)$/, ""))
     return normalizeCasing(banner.name.replace(/(\..*)$/, ""))
   })
 

@@ -10,7 +10,7 @@ export async function getProfileId(userId: string) {
 
   // console.log("getProfileId/data, error", data, error);
 
-  if (error) {
+  if (!data) {
     return {
       data: null,
       error: error

@@ -11,22 +11,24 @@ import { getUrls } from "@/utils/supabase/clientActions/getUrls";
 
 export default async function Main() {
 
-  const { data: banners } = await getBanners();
+  const { data, error } = await getBanners();
 
-  if (!banners) {
+  if (!data) {
+    console.error(error.message)
     throw new Error("Couldn't get banners!")
   }
 
-  let { data: bannerUrls } = getUrls(banners, "banner_images", "png");
+  // let { data: bannerUrls } = getUrls(banners, "banner_images", "png");
 
-  if (!bannerUrls) {
-    bannerUrls = [];
-  }
+  // if (!bannerUrls) {
+  //   bannerUrls = [];
+  // }
+  // console.log("Main/getBanners/data: ", data);
 
-  const bannerData = banners.map((banner, idx) => {
+  const bannerData = data.map((banner, idx) => {
     return {
-      name: banner,
-      url: bannerUrls[idx]
+      name: banner.name!,
+      url: banner.img_url!
     }
   });
 

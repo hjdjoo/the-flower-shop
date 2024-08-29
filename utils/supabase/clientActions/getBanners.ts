@@ -1,34 +1,27 @@
 import { createClient } from "../client";
 import { SupabaseResponse } from "@/app/types/db-types";
 
-export const getBanners = async (): Promise<SupabaseResponse<string[]>> => {
-  try {
-    const supabase = createClient();
+export const getBanners = async () => {
 
-    const { data, error } = await supabase
-      .storage
-      .from("banner_images")
-      .list()
+  const supabase = createClient();
 
-    if (error) {
-      throw new Error(`Couldn't get banners from db: ${error.message}`)
-    }
+  const { data, error } = await supabase
+    .from("banners")
+    .select("*")
 
-    else {
-      // console.log('getBanners/data: ', data);
-      const banners = data.filter((banner) => banner.name !== ".emptyFolderPlaceholder").map((banner) => {
-        return banner.name.replace(/(\..*)$/, "")
-      })
-      return {
-        data: banners,
-        error: null
-      }
-    }
+  // console.log()
+
+  if (!data) {
+    console.error(error)
+    return { data, error }
   }
-  catch (error) {
+
+  else {
+    // console.log('getBanners/data: ', data);
     return {
-      data: null,
-      error: error
+      data: data,
+      error: null
     }
   }
+
 }

@@ -14,6 +14,8 @@ import addressToString from "@/utils/actions/addressToString";
 import CartItem from "@/app/(protected)/checkout/_components/CartItem";
 import { getUrls } from "@/utils/supabase/clientActions/getUrls";
 import { getProductInfo } from "@/utils/supabase/clientActions/getProductInfo";
+import getUserCart from "@/utils/supabase/clientActions/getUserCart";
+import initCart from "@/utils/supabase/clientActions/initCart";
 
 interface CartProviderProps {
   children: React.ReactNode
@@ -47,6 +49,8 @@ export interface CartContextType {
   cart: Cart
   updateCart: (cart: Cart) => void // 
   addToCart: (item: OrderItem) => void
+  updateItem: (item: OrderItem) => void
+  removeItem: (item: OrderItem) => void
   getSortedOrder: () => SortedOrder
   updateAddressesAndDates: (cart: Cart) => Cart
 }
@@ -63,12 +67,8 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }: { children: React.ReactNode }) => {
 
-  const supabase = createClient();
-
   const { user } = useUser();
-
   const [cart, setCart] = useState<Cart>(defaultCart);
-
   const cartRef = useRef<Cart>(cart);
 
   // console.log("CartProvider/cart: ", cart);
@@ -77,122 +77,67 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
   // const [user, setUser] = useState()
 
   useEffect(() => {
-    console.log("CartProvider useEffect triggered.")
+    console.log("CartProvider useEffect triggered.");
 
-    console.log("Getting cart from storage...")
-    const storedCartJSON = localStorage && localStorage.getItem("cart")
-    const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
-
-    const refreshedCart = refreshCart(storedCart);
-
-    /**
-     * 
-     * @returns :Cart 
-     * This function takes no arguments and returns a Cart after fetching the user's cart and the relevant product details. The cart is returned after running the updateAddressesAndDates function on the fetched data.
-     */
-    async function getUserCart() {
-
-      if (!user || !user.id) return;
-
-      // get: cartId, cart items associated with the cart ID, and the recipients associated with the orders.
-      const { data: cartData, error: cartError } = await supabase
-        .from("carts")
-        .select(`id, cartItems:cart_items!inner(*)`)
-        .eq("carts.sender_id", user.id)
-        .single();
-
-      if (!cartData || cartError) {
-        console.error("CartContext/useEffect/error.details: ", cartError.details);
-        return;
-      };
-
-      const itemIds = cartData.cartItems.map(item => item.product_id);
-
-      // get product info for each item in the cart;
-      const { data: cartItemsData, error: cartItemsError } = await getProductInfo(itemIds)
-
-      if (!cartItemsData || cartItemsError) {
-        console.error(cartItemsError && cartItemsError.details);
-        return;
+    if (!user || user.role === "guest") {
+      if (user) {
+        console.log("User detected. User role: ", user?.role);
       }
-      if (!cartItemsData.length) {
-        return;
-      }
+      console.log("Getting cart from storage...")
+      const storedCartJSON = localStorage && localStorage.getItem("cart")
+      const storedCart: LocalCart = storedCartJSON ? JSON.parse(storedCartJSON) : null;
 
-      // map the cart data to the product data.
-      const clientCartItems = cartData.cartItems.map((item, idx) => {
+      const refreshedCart = refreshCart(storedCart);
 
-        const cartItem = {
-          id: item.id,
-          deliveryDate: item.delivery_date,
-          productId: item.product_id,
-          imageUrl: cartItemsData[idx].imageUrl,
-          name: cartItemsData[idx].name,
-          prices: cartItemsData[idx].prices,
-          selectedTier: item.selected_tier ? item.selected_tier : 0,
-          cardMessage: item.card_message,
-          deliveryInstructions: item.delivery_instructions,
-        }
+      cartRef.current = refreshedCart;
+      setCart(refreshedCart);
+    };
 
-        if (!item.recipient_id) {
-          return {
-            ...DefaultItem,
-            ...cartItem
-          }
-        }
+  }, [user])
 
-        const recipInfo = user.recipients![item.recipient_id];
 
-        // typeof NaN ==="number", so we can use this to force typing momentarily before we reassign it with the updater function.
-        return {
-          ...cartItem,
-          recipId: recipInfo.id,
-          recipFirst: recipInfo.firstName,
-          recipLast: recipInfo.lastName,
-          recipAddress: {
-            streetAddress1: recipInfo.street1,
-            streetAddress2: recipInfo.street2,
-            townCity: recipInfo.townCity,
-            state: recipInfo.state,
-            zip: recipInfo.zip
-          },
-          recipAddressIndex: NaN,
-          recipPhone: recipInfo.phone
-        }
-      })
+  useEffect(() => {
 
-      return updateAddressesAndDates({
-        id: cartData.id,
-        addresses: [],
-        deliveryDates: [],
-        cartItems: [...clientCartItems],
-        updatedAt: Date.now()
-      })
-    }
-
-    if (user && user.role === "user") {
+    if (user && user.role === ("user" || "admin")) {
       console.log("User detected. Getting cart from DB...");
-      // fetch cart from DB;
-      (async () => {
-        const userCart = await getUserCart();
+      {
+        (async () => {
+          console.log("getting user cart...")
+          const userCart = await getUserCart(user);
 
-        if (!userCart) {
-          cartRef.current = refreshedCart;
-          setCart(refreshedCart);
-          return;
-        } else {
-          cartRef.current = userCart;
-          setCart(userCart);
-        }
+          if (!userCart) {
+            console.log("no cart detected; setting default cart")
 
-      })()
-      return;
+            const { data, error } = await initCart(user);
+
+            if (!data) {
+              console.log("Cannot initialize cart without a user.");
+              console.log(error && error.message);
+              return;
+            }
+
+            const emptyCart = {
+              id: data.id,
+              ...defaultCart
+            }
+            cartRef.current = emptyCart;
+            setCart(emptyCart);
+            // cartRef.current = refreshedCart;
+            // setCart(refreshedCart);
+            return;
+          } else {
+            console.log("user cart initialized! setting user cart...")
+            console.log("userCart: ", userCart)
+            cartRef.current = userCart;
+            setCart(userCart);
+          }
+
+        })()
+        return;
+      }
+
     }
-
-    cartRef.current = refreshedCart;
-    setCart(refreshedCart);
-
-  }, [user, supabase])
+  }, [user]);
 
   /**
    * 
@@ -221,10 +166,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
    */
   const addToCart = async (item: OrderItem) => {
 
+    const supabase = createClient();
+
     let cartId;
 
     const { id, deliveryDates, addresses, cartItems } = cart;
-    console.log("deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems);
+    // console.log("deliveryDates, addresses, cartItems: ", deliveryDates, addresses, cartItems);
 
     // Unauthenticated user flow:
     if (!user) {
@@ -244,7 +191,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
     // Authenticated user flow:
     if (!id) {
-      // first init a Cart in the DB if there is no cart.
+      console.log("CartContext/addToCart - User found, fetching data...")
+      // first init a Cart in the DB if there is no cart ID, since the cart is local only.
       const { data: cartInitData, error: cartInitError } = await supabase
         .from("carts")
         .insert({ sender_id: user.id })
@@ -291,7 +239,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
       cartItems: newCartItems
     })
 
-    updateCart(newCart);
+    cartRef.current = newCart;
+    setCart(newCart);
 
   };
 
@@ -303,6 +252,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
    */
   const updateCart = async (newCart: Cart) => {
 
+    const supabase = createClient();
     // if the user is not logged in, then the cart_item id is blank.
     if (!user) {
       if (!newCart.cartItems.length) {
@@ -322,7 +272,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
     } else {
 
       // if the user is logged in, then the cart_item should have an id associated with it.
-      // upsert for all cart_items with the id.
+      // upsert for all cart_items with the ids.
       const query = newCart.cartItems.map(item => {
         return {
           card_message: item.cardMessage,
@@ -350,6 +300,60 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
     }
   };
+
+  async function updateItem(item: OrderItem) {
+    const supabase = createClient();
+
+    const { id, productId, selectedTier, cardMessage, recipId, deliveryInstructions, deliveryDate } = item;
+
+    if (!id) {
+      throw new Error("No cart item ID detected - cannot update item")
+    }
+
+    const query = {
+      product_id: productId,
+      delivery_date: deliveryDate,
+      recipient_id: recipId,
+      selectedTier: selectedTier,
+      card_message: cardMessage,
+      delivery_instructions: deliveryInstructions,
+    }
+
+    const { data, error } = await supabase
+      .from("cart_items")
+      .upsert(query)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error.details);
+      throw new Error(`${error.message}`);
+    }
+
+    console.log("CartContext/updateItem/data: ", data);
+
+  }
+
+  async function removeItem(item: OrderItem) {
+    const supabase = createClient();
+    const { id } = item;
+
+    if (!id) {
+      throw new Error("No ID detected - cannot remove from DB");
+    }
+
+    const { error } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.details);
+      throw new Error(`${error.message}`);
+    };
+
+  }
 
   /**
    * 
@@ -443,6 +447,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }: { childr
 
 
   return (
-    <CartContext.Provider value={{ cart, updateCart, addToCart, getSortedOrder, updateAddressesAndDates }}>{children}</CartContext.Provider>
+    <CartContext.Provider value={{ cart, updateCart, addToCart, updateItem, removeItem, getSortedOrder, updateAddressesAndDates }}>{children}</CartContext.Provider>
   )
 }

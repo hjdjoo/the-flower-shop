@@ -7,11 +7,11 @@ export async function POST(request: NextRequest) {
 
   const userId = body.userId;
 
+  console.log("auth/create-shop-profile/creating profile...")
   const { error } = await createProfile(userId);
 
   if (!error) {
-    return NextResponse.json({ message: "Account successfully created!" }, { status: 200 })
-
+    return NextResponse.json({ message: "Account successfully created!" }, { status: 200 });
   }
 
   return NextResponse.json({ error: error }, { status: 500 })
